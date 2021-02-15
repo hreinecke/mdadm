@@ -32,6 +32,7 @@
 #include "mdmon.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "mdstat.h"
 
 static const __u32 start_magic = 0x5a5aa5a5;
 static const __u32 end_magic = 0xa5a55a5a;

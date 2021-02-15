@@ -26,6 +26,7 @@
 #include "md_p.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "mdstat.h"
 #include <ctype.h>
 
 void make_parts(char *dev, int cnt)
