@@ -30,6 +30,7 @@
 #include	"mdstat.h"
 #include	"super.h"
 #include	"sysfs.h"
+#include	"uuid.h"
 #include	<ctype.h>
 #include	<dirent.h>
 

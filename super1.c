@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "bswap.h"
 #include "super.h"
+#include "uuid.h"
 
 /*
  * The version-1 superblock :
