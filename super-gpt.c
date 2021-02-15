@@ -39,6 +39,7 @@
  */
 
 #include "mdadm.h"
+#include "xmalloc.h"
 #include "part.h"
 
 static void free_gpt(struct supertype *st)

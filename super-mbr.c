@@ -40,6 +40,7 @@
  */
 
 #include "mdadm.h"
+#include "xmalloc.h"
 #include "part.h"
 
 static void free_mbr(struct supertype *st)

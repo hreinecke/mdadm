@@ -27,6 +27,7 @@
 
 #include "mdadm.h"
 #include "md_p.h"
+#include "xmalloc.h"
 #include <ctype.h>
 
 static int scan_assemble(struct supertype *ss,

@@ -30,6 +30,7 @@
 #endif
 #include	"md_u.h"
 #include	"md_p.h"
+#include	"xmalloc.h"
 int Examine(struct mddev_dev *devlist,
 	    struct context *c,
 	    struct supertype *forcest)

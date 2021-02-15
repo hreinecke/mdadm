@@ -20,6 +20,7 @@
 #define HAVE_STDINT_H 1
 #include "mdadm.h"
 #include "mdmon.h"
+#include "xmalloc.h"
 #include "sha1.h"
 #include "platform-intel.h"
 #include <values.h>
