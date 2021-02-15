@@ -31,6 +31,7 @@
 #include	"mdadm.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"mdstat.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

@@ -106,6 +106,7 @@
 #include	"mdmon.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"mdstat.h"
 #include	<sys/syscall.h>
 #include	<sys/socket.h>
 #include	<signal.h>

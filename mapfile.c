@@ -44,6 +44,7 @@
  */
 #include	"mdadm.h"
 #include	"xmalloc.h"
+#include	"mdstat.h"
 #include	<sys/file.h>
 #include	<ctype.h>
 

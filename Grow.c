@@ -26,6 +26,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"bswap.h"
+#include	"mdstat.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>
