@@ -29,6 +29,7 @@
 #include	"bswap.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
+#include	"restripe.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>
@@ -65,6 +66,8 @@
          ((int)((b) - (a)) < 0))
 
 #define time_before(a,b)        time_after(b,a)
+
+char *make_backup(char *name);
 
 int restore_backup(struct supertype *st,
 		   struct mdinfo *content,
