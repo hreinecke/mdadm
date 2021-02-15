@@ -12071,7 +12071,7 @@ int check_degradation_change(struct mdinfo *info,
  *	0 : fail
  ******************************************************************************/
 static int imsm_manage_reshape(
-	int afd, struct mdinfo *sra, struct reshape *reshape,
+	int afd, struct mdinfo *sra,
 	struct supertype *st, unsigned long backup_blocks,
 	int *fds, unsigned long long *offsets,
 	int dests, int *destfd, unsigned long long *destoffsets)
