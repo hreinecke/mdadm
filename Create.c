@@ -25,6 +25,7 @@
 #include	"mdadm.h"
 #include	"md_u.h"
 #include	"md_p.h"
+#include	"bitmap.h"
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"super.h"
