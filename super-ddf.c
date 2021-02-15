@@ -33,6 +33,7 @@
 #include "bswap.h"
 #include "util.h"
 #include "sysfs.h"
+#include "super.h"
 #include "sha1.h"
 #include <values.h>
 #include <stddef.h>

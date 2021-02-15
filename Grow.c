@@ -31,6 +31,7 @@
 #include	"sysfs.h"
 #include	"restripe.h"
 #include	"reshape.h"
+#include	"super.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>

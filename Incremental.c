@@ -33,6 +33,7 @@
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
+#include	"super.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

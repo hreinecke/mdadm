@@ -30,6 +30,7 @@
 #include	"util.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
+#include	"super.h"
 #include	<sys/wait.h>
 #include	<signal.h>
 #include	<limits.h>

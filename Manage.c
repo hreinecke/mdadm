@@ -28,7 +28,9 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
+#include "util.h"
 #include "sysfs.h"
+#include "super.h"
 #include <ctype.h>
 
 int Manage_ro(char *devname, int fd, int readonly)

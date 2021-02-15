@@ -32,6 +32,8 @@
 #include	"md_p.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"super.h"
+
 int Examine(struct mddev_dev *devlist,
 	    struct context *c,
 	    struct supertype *forcest)

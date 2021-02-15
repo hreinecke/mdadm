@@ -19,6 +19,7 @@
 
 #include "mdadm.h"
 #include "debug.h"
+#include "super.h"
 #include <sys/dir.h>
 
 int Dump_metadata(char *dev, char *dir, struct context *c,

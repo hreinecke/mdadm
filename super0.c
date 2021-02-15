@@ -27,6 +27,7 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"
+#include "super.h"
 #include "sha1.h"
 /*
  * All handling for the 0.90.0 version superblock is in
