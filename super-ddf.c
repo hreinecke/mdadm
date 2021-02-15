@@ -3233,7 +3233,7 @@ static int write_init_super_ddf(struct supertype *st)
 		struct dl *d;
 		if (!currentconf)
 			for (d = ddf->dlist; d; d=d->next)
-				while (Kill(d->devname, NULL, 0, -1, 1) == 0);
+				while (mdadm_kill(d->devname, NULL, 0, -1, 1) == 0);
 		/* Note: we don't close the fd's now, but a subsequent
 		 * ->free_super() will
 		 */

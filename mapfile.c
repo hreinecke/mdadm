@@ -187,7 +187,7 @@ void map_read(struct map_ent **melp)
 
 	f = open_map(MAP_READ);
 	if (!f) {
-		RebuildMap();
+		mdadm_rebuild_map();
 		f = open_map(MAP_READ);
 	}
 	if (!f)
@@ -349,7 +349,7 @@ static char *get_member_info(struct mdstat_ent *ent)
 	return NULL;
 }
 
-void RebuildMap(void)
+void mdadm_rebuild_map(void)
 {
 	struct mdstat_ent *mdstat = mdstat_read(0, 0);
 	struct mdstat_ent *md;

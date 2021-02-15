@@ -29,7 +29,7 @@
 #include	"md_u.h"
 #include	"md_p.h"
 
-int Kill(char *dev, struct supertype *st, int force, int verbose, int noexcl)
+int mdadm_kill(char *dev, struct supertype *st, int force, int verbose, int noexcl)
 {
 	/*
 	 * Nothing fancy about Kill.  It just zeroes out a superblock
@@ -81,7 +81,7 @@ int Kill(char *dev, struct supertype *st, int force, int verbose, int noexcl)
 	return rv;
 }
 
-int Kill_subarray(char *dev, char *subarray, int verbose)
+int mdadm_kill_subarray(char *dev, char *subarray, int verbose)
 {
 	/* Delete a subarray out of a container, the subarry must be
 	 * inactive.  The subarray string must be a subarray index

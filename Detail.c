@@ -49,7 +49,7 @@ static int add_device(const char *dev, char ***p_devices,
 	return n_devices + 1;
 }
 
-int Detail(char *dev, struct context *c)
+int mdadm_detail(char *dev, struct context *c)
 {
 	/*
 	 * Print out details for an md array
@@ -513,7 +513,7 @@ int Detail(char *dev, struct context *c)
 									c->prefer);
 							if (!dv)
 								continue;
-							arrayst = IsBitmapDirty(dv) ? "active" : "clean";
+							arrayst = mdadm_is_bitmap_dirty(dv) ? "active" : "clean";
 							break;
 						}
 					}
@@ -832,7 +832,8 @@ out:
 	return rv;
 }
 
-int Detail_Platform(struct superswitch *ss, int scan, int verbose, int export, char *controller_path)
+int mdadm_detail_platform(struct superswitch *ss, int scan, int verbose,
+			  int export, char *controller_path)
 {
 	/* display platform capabilities for the given metadata format
 	 * 'scan' in this context means iterate over all metadata types
