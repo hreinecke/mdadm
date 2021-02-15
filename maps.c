@@ -108,19 +108,6 @@ mapping_t pers[] = {
 	{ NULL, UnSet }
 };
 
-mapping_t modes[] = {
-	{ "assemble", ASSEMBLE},
-	{ "build", BUILD},
-	{ "create", CREATE},
-	{ "manage", MANAGE},
-	{ "misc", MISC},
-	{ "monitor", MONITOR},
-	{ "grow", GROW},
-	{ "incremental", INCREMENTAL},
-	{ "auto-detect", AUTODETECT},
-	{ NULL, UnSet }
-};
-
 mapping_t faultylayout[] = {
 	{ "write-transient", WriteTransient },
 	{ "wt", WriteTransient },

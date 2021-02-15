@@ -26,6 +26,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_exec.h"
 #include "md_p.h"
 #include "xmalloc.h"
 #include "debug.h"
@@ -43,6 +44,19 @@ static int misc_list(struct mddev_dev *devlist,
 		     char *dump_directory,
 		     struct supertype *ss, struct context *c);
 const char Name[] = "mdadm";
+
+mapping_t modes[] = {
+	{ "assemble", ASSEMBLE},
+	{ "build", BUILD},
+	{ "create", CREATE},
+	{ "manage", MANAGE},
+	{ "misc", MISC},
+	{ "monitor", MONITOR},
+	{ "grow", GROW},
+	{ "incremental", INCREMENTAL},
+	{ "auto-detect", AUTODETECT},
+	{ NULL, UnSet }
+};
 
 int main(int argc, char *argv[])
 {
