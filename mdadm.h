@@ -118,31 +118,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #include	"msg.h"
 
 /*
-  * Check at compile time that something is of a particular type.
-  * Always evaluates to 1 so you may use it easily in comparisons.
-*/
-
-#define typecheck(type,x) \
-({	   type __dummy; \
-	   typeof(x) __dummy2; \
-	   (void)(&__dummy == &__dummy2); \
-	   1; \
-})
-
-/*
- *  These inlines deal with timer wrapping correctly.
- *
- * time_after(a,b) returns true if the time a is after time b.
-*/
-
-#define time_after(a,b)	\
-        (typecheck(unsigned int, a) && \
-         typecheck(unsigned int, b) && \
-         ((int)((b) - (a)) < 0))
-
-#define time_before(a,b)        time_after(b,a)
-
-/*
  * min()/max()/clamp() macros that also do
  * strict type-checking.. See the
  * "unnecessary" pointer comparison.
