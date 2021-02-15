@@ -27,8 +27,8 @@
 #include "debug.h"
 #include "super.h"
 
-int Build(char *mddev, struct mddev_dev *devlist,
-	  struct shape *s, struct context *c)
+int mdadm_build(char *mddev, struct mddev_dev *devlist,
+		struct shape *s, struct context *c)
 {
 	/* Build a linear or raid0 arrays without superblocks
 	 * We cannot really do any checks, we just do it.

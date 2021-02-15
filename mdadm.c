@@ -44,7 +44,7 @@ static int misc_list(struct mddev_dev *devlist,
 		     struct mddev_ident *ident,
 		     char *dump_directory,
 		     struct supertype *ss, struct context *c);
-
+extern int SetAction(char *dev, char *action);
 static const char mdadm_name[] = "mdadm";
 
 mapping_t modes[] = {
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 			continue;
 
 		case 'V':
-			fputs(Version, stderr);
+			fputs(mdlib_get_version(), stderr);
 			exit(0);
 
 		case 'v': c.verbose++;
@@ -1496,17 +1496,18 @@ int main(int argc, char *argv[])
 	case MANAGE:
 		/* readonly, add/remove, readwrite, runstop */
 		if (c.readonly > 0)
-			rv = Manage_ro(devlist->devname, mdfd, c.readonly);
+			rv = mdadm_manage_ro(devlist->devname, mdfd,
+					     c.readonly);
 		if (!rv && devs_found>1)
-			rv = Manage_subdevs(devlist->devname, mdfd,
-					    devlist->next, c.verbose, c.test,
-					    c.update, c.force);
+			rv = mdadm_manage_subdevs(devlist->devname, mdfd,
+						  devlist->next, c.verbose,
+						  c.test, c.update, c.force);
 		if (!rv && c.readonly < 0)
-			rv = Manage_ro(devlist->devname, mdfd, c.readonly);
+			rv = mdadm_manage_ro(devlist->devname, mdfd, c.readonly);
 		if (!rv && c.runstop > 0)
-			rv = Manage_run(devlist->devname, mdfd, &c);
+			rv = mdadm_manage_run(devlist->devname, mdfd, &c);
 		if (!rv && c.runstop < 0)
-			rv = Manage_stop(devlist->devname, mdfd, c.verbose, 0);
+			rv = mdadm_manage_stop(devlist->devname, mdfd, c.verbose, 0);
 		break;
 	case ASSEMBLE:
 		if (!c.scan && c.runstop == -1) {
@@ -1526,11 +1527,11 @@ int main(int argc, char *argv[])
 			} else {
 				if (array_ident->autof == 0)
 					array_ident->autof = c.autof;
-				rv |= Assemble(ss, devlist->devname, array_ident,
+				rv |= mdadm_assemble(ss, devlist->devname, array_ident,
 					       NULL, &c);
 			}
 		} else if (!c.scan)
-			rv = Assemble(ss, devlist->devname, &ident,
+			rv = mdadm_assemble(ss, devlist->devname, &ident,
 				      devlist->next, &c);
 		else if (devs_found > 0) {
 			if (c.update && devs_found > 1) {
@@ -1551,7 +1552,7 @@ int main(int argc, char *argv[])
 				}
 				if (array_ident->autof == 0)
 					array_ident->autof = c.autof;
-				rv |= Assemble(ss, dv->devname, array_ident,
+				rv |= mdadm_assemble(ss, dv->devname, array_ident,
 					       NULL, &c);
 			}
 		} else {
@@ -1589,7 +1590,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-		rv = Build(devlist->devname, devlist->next, &s, &c);
+		rv = mdadm_build(devlist->devname, devlist->next, &s, &c);
 		break;
 	case CREATE:
 		if (c.delay == 0)
@@ -1626,7 +1627,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		rv = Create(ss, devlist->devname,
+		rv = mdadm_create(ss, devlist->devname,
 			    ident.name, ident.uuid_set ? ident.uuid : NULL,
 			    devs_found-1, devlist->next,
 			    &s, &c, data_offset);
@@ -1643,9 +1644,9 @@ int main(int argc, char *argv[])
 				pr_err("No devices listed in %s\n", configfile?configfile:DefaultConfFile);
 				exit(1);
 			}
-			rv = Examine(devlist, &c, ss);
+			rv = mdadm_examine(devlist, &c, ss);
 		} else if (devmode == DetailPlatform) {
-			rv = Detail_Platform(ss, ss ? c.scan : 1,
+			rv = mdadm_detail_platform(ss, ss ? c.scan : 1,
 					     c.verbose, c.export,
 					     devlist ? devlist->devname : NULL);
 		} else if (devlist == NULL) {
@@ -1681,7 +1682,7 @@ int main(int argc, char *argv[])
 			else
 				c.delay = 60;
 		}
-		rv = Monitor(devlist, mailaddr, program,
+		rv = mdadm_monitor(devlist, mailaddr, program,
 			     &c, daemonise, oneshot,
 			     dosyslog, pidfile, increments,
 			     spare_sharing);
@@ -1728,7 +1729,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 			for (dv = devlist->next; dv; dv = dv->next) {
-				rv = Grow_Add_device(devlist->devname, mdfd,
+				rv = mdadm_grow_add_device(devlist->devname, mdfd,
 						     dv->devname);
 				if (rv)
 					break;
@@ -1742,25 +1743,25 @@ int main(int argc, char *argv[])
 			}
 			if (c.delay == 0)
 				c.delay = DEFAULT_BITMAP_DELAY;
-			rv = Grow_addbitmap(devlist->devname, mdfd, &c, &s);
+			rv = mdadm_grow_addbitmap(devlist->devname, mdfd, &c, &s);
 		} else if (grow_continue)
-			rv = Grow_continue_command(devlist->devname,
+			rv = mdadm_grow_continue_command(devlist->devname,
 						   mdfd, c.backup_file,
 						   c.verbose);
 		else if (s.size > 0 || s.raiddisks || s.layout_str ||
 			 s.chunk != 0 || s.level != UnSet ||
 			 data_offset != INVALID_SECTORS) {
-			rv = Grow_reshape(devlist->devname, mdfd,
+			rv = mdadm_grow_reshape(devlist->devname, mdfd,
 					  devlist->next,
 					  data_offset, &c, &s);
 		} else if (s.consistency_policy != CONSISTENCY_POLICY_UNKNOWN) {
-			rv = Grow_consistency_policy(devlist->devname, mdfd, &c, &s);
+			rv = mdadm_grow_consistency_policy(devlist->devname, mdfd, &c, &s);
 		} else if (array_size == 0)
 			pr_err("no changes to --grow\n");
 		break;
 	case INCREMENTAL:
 		if (rebuild_map) {
-			RebuildMap();
+			mdadm_rebuild_map();
 		}
 		if (c.scan) {
 			rv = 1;
@@ -1776,7 +1777,7 @@ int main(int argc, char *argv[])
 				pr_err("--incremental --scan --fail not supported.\n");
 				break;
 			}
-			rv = IncrementalScan(&c, NULL);
+			rv = mdadm_incremental_scan(&c, NULL);
 		}
 		if (!devlist) {
 			if (!rebuild_map && !c.scan) {
@@ -1791,13 +1792,14 @@ int main(int argc, char *argv[])
 				rv = 1;
 				break;
 			}
-			rv = IncrementalRemove(devlist->devname, remove_path,
-					       c.verbose);
+			rv = mdadm_incremental_remove(devlist->devname,
+						      remove_path,
+						      c.verbose);
 		} else
-			rv = Incremental(devlist, &c, ss);
+			rv = mdadm_incremental(devlist, &c, ss);
 		break;
 	case AUTODETECT:
-		autodetect();
+		mdadm_autodetect();
 		break;
 	}
 	if (locked)
@@ -1845,7 +1847,7 @@ static int scan_assemble(struct supertype *ss,
 			    strcasecmp(a->devname, "<ignore>") == 0)
 				continue;
 
-			r = Assemble(ss, a->devname,
+			r = mdadm_assemble(ss, a->devname,
 				     a, NULL, c);
 			if (r == 0) {
 				a->assembled = 1;
@@ -1868,9 +1870,8 @@ static int scan_assemble(struct supertype *ss,
 			struct mddev_dev *devlist = conf_get_devs();
 			acnt = 0;
 			do {
-				rv2 = Assemble(ss, NULL,
-					       ident,
-					       devlist, c);
+				rv2 = mdadm_assemble(ss, NULL, ident,
+						     devlist, c);
 				if (rv2 == 0) {
 					cnt++;
 					acnt++;
@@ -1924,9 +1925,9 @@ static int misc_scan(char devmode, struct context *c)
 				continue;
 			}
 			if (devmode == 'D')
-				rv |= Detail(name, c);
+				rv |= mdadm_detail(name, c);
 			else
-				rv |= WaitClean(name, c->verbose);
+				rv |= mdadm_wait_clean(name, c->verbose);
 			put_md_name(name);
 			map_free(map);
 			map = NULL;
@@ -1962,7 +1963,7 @@ static int stop_scan(int verbose)
 			}
 			mdfd = open_mddev(name, 1);
 			if (mdfd >= 0) {
-				if (Manage_stop(name, mdfd, verbose, !last))
+				if (mdadm_manage_stop(name, mdfd, verbose, !last))
 					err = 1;
 				else
 					progress = 1;
@@ -1991,38 +1992,38 @@ static int misc_list(struct mddev_dev *devlist,
 
 		switch(dv->disposition) {
 		case 'D':
-			rv |= Detail(dv->devname, c);
+			rv |= mdadm_detail(dv->devname, c);
 			continue;
 		case KillOpt: /* Zero superblock */
 			if (ss)
-				rv |= Kill(dv->devname, ss, c->force, c->verbose,0);
+				rv |= mdadm_kill(dv->devname, ss, c->force, c->verbose,0);
 			else {
 				int v = c->verbose;
 				do {
-					rv |= Kill(dv->devname, NULL, c->force, v, 0);
+					rv |= mdadm_kill(dv->devname, NULL, c->force, v, 0);
 					v = -1;
 				} while (rv == 0);
 				rv &= ~4;
 			}
 			continue;
 		case 'Q':
-			rv |= Query(dv->devname);
+			rv |= mdadm_query(dv->devname);
 			continue;
 		case 'X':
-			rv |= ExamineBitmap(dv->devname, c->brief, ss);
+			rv |= mdadm_examine_bitmap(dv->devname, c->brief, ss);
 			continue;
 		case ExamineBB:
-			rv |= ExamineBadblocks(dv->devname, c->brief, ss);
+			rv |= mdadm_examine_badblocks(dv->devname, c->brief, ss);
 			continue;
 		case 'W':
 		case WaitOpt:
-			rv |= Wait(dv->devname);
+			rv |= mdadm_wait(dv->devname);
 			continue;
 		case Waitclean:
-			rv |= WaitClean(dv->devname, c->verbose);
+			rv |= mdadm_wait_clean(dv->devname, c->verbose);
 			continue;
 		case KillSubarray:
-			rv |= Kill_subarray(dv->devname, c->subarray, c->verbose);
+			rv |= mdadm_kill_subarray(dv->devname, c->subarray, c->verbose);
 			continue;
 		case UpdateSubarray:
 			if (c->update == NULL) {
@@ -2030,14 +2031,14 @@ static int misc_list(struct mddev_dev *devlist,
 				rv |= 1;
 				continue;
 			}
-			rv |= Update_subarray(dv->devname, c->subarray,
+			rv |= mdadm_update_subarray(dv->devname, c->subarray,
 					      c->update, ident, c->verbose);
 			continue;
 		case Dump:
-			rv |= Dump_metadata(dv->devname, dump_directory, c, ss);
+			rv |= mdadm_dump_metadata(dv->devname, dump_directory, c, ss);
 			continue;
 		case Restore:
-			rv |= Restore_metadata(dv->devname, dump_directory, c, ss,
+			rv |= mdadm_restore_metadata(dv->devname, dump_directory, c, ss,
 					       (dv == devlist && dv->next == NULL));
 			continue;
 		case Action:
@@ -2054,16 +2055,16 @@ static int misc_list(struct mddev_dev *devlist,
 			switch(dv->disposition) {
 			case 'R':
 				c->runstop = 1;
-				rv |= Manage_run(dv->devname, mdfd, c);
+				rv |= mdadm_manage_run(dv->devname, mdfd, c);
 				break;
 			case 'S':
-				rv |= Manage_stop(dv->devname, mdfd, c->verbose, 0);
+				rv |= mdadm_manage_stop(dv->devname, mdfd, c->verbose, 0);
 				break;
 			case 'o':
-				rv |= Manage_ro(dv->devname, mdfd, 1);
+				rv |= mdadm_manage_ro(dv->devname, mdfd, 1);
 				break;
 			case 'w':
-				rv |= Manage_ro(dv->devname, mdfd, -1);
+				rv |= mdadm_manage_ro(dv->devname, mdfd, -1);
 				break;
 			}
 			close(mdfd);

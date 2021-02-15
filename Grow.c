@@ -113,8 +113,8 @@ int restore_backup(struct supertype *st,
 	if (st->ss->external && st->ss->recover_backup)
 		err = st->ss->recover_backup(st, content);
 	else
-		err = Grow_restart(st, content, fdlist, next_spare,
-				   backup_file, verbose > 0);
+		err = mdadm_grow_restart(st, content, fdlist, next_spare,
+					 backup_file, verbose > 0);
 
 	while (next_spare > 0) {
 		next_spare--;
@@ -133,7 +133,7 @@ int restore_backup(struct supertype *st,
 	return 0;
 }
 
-int Grow_Add_device(char *devname, int fd, char *newdev)
+int mdadm_grow_add_device(char *devname, int fd, char *newdev)
 {
 	/* Add a device to an active array.
 	 * Currently, just extend a linear array.
@@ -301,7 +301,7 @@ int Grow_Add_device(char *devname, int fd, char *newdev)
 	return 0;
 }
 
-int Grow_addbitmap(char *devname, int fd, struct context *c, struct shape *s)
+int mdadm_grow_addbitmap(char *devname, int fd, struct context *c, struct shape *s)
 {
 	/*
 	 * First check that array doesn't have a bitmap
@@ -558,7 +558,7 @@ int Grow_addbitmap(char *devname, int fd, struct context *c, struct shape *s)
 	return 0;
 }
 
-int Grow_consistency_policy(char *devname, int fd, struct context *c, struct shape *s)
+int mdadm_grow_consistency_policy(char *devname, int fd, struct context *c, struct shape *s)
 {
 	struct supertype *st;
 	struct mdinfo *sra;
@@ -635,8 +635,8 @@ int Grow_consistency_policy(char *devname, int fd, struct context *c, struct sha
 
 		sprintf(container_dev, "/dev/%s", st->container_devnm);
 
-		ret = Update_subarray(container_dev, subarray, update, NULL,
-				      c->verbose);
+		ret = mdadm_update_subarray(container_dev, subarray, update,
+					    NULL, c->verbose);
 		if (ret)
 			goto free_info;
 	}
@@ -1791,10 +1791,10 @@ static int reshape_container(char *container, char *devname,
 			     char *backup_file, int verbose,
 			     int forked, int restart, int freeze_reshape);
 
-int Grow_reshape(char *devname, int fd,
-		 struct mddev_dev *devlist,
-		 unsigned long long data_offset,
-		 struct context *c, struct shape *s)
+int mdadm_grow_reshape(char *devname, int fd,
+		       struct mddev_dev *devlist,
+		       unsigned long long data_offset,
+		       struct context *c, struct shape *s)
 {
 	/* Make some changes in the shape of an array.
 	 * The kernel must support the change.
@@ -3235,7 +3235,8 @@ static int reshape_array(char *container, int fd, char *devname,
 	 * level and frozen, we can safely add them.
 	 */
 	if (devlist) {
-		if (Manage_subdevs(devname, fd, devlist, verbose, 0, NULL, 0))
+		if (mdadm_manage_subdevs(devname, fd, devlist, verbose,
+					 0, NULL, 0))
 			goto release;
 	}
 
@@ -4670,8 +4671,8 @@ int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
  * write that data into the array and update the super blocks with
  * the new reshape_progress
  */
-int Grow_restart(struct supertype *st, struct mdinfo *info, int *fdlist,
-		 int cnt, char *backup_file, int verbose)
+int mdadm_grow_restart(struct supertype *st, struct mdinfo *info, int *fdlist,
+		       int cnt, char *backup_file, int verbose)
 {
 	int i, j;
 	int old_disks;
@@ -4987,8 +4988,8 @@ int Grow_restart(struct supertype *st, struct mdinfo *info, int *fdlist,
 	return 1;
 }
 
-int Grow_continue_command(char *devname, int fd,
-			  char *backup_file, int verbose)
+int mdadm_grow_continue_command(char *devname, int fd,
+				char *backup_file, int verbose)
 {
 	int ret_val = 0;
 	struct supertype *st = NULL;
@@ -5176,7 +5177,7 @@ int Grow_continue_command(char *devname, int fd,
 
 	/* continue reshape
 	 */
-	ret_val = Grow_continue(fd, st, content, backup_file, 1, 0);
+	ret_val = mdadm_grow_continue(fd, st, content, backup_file, 1, 0);
 
 Grow_continue_command_exit:
 	if (cfd > -1)
@@ -5189,8 +5190,8 @@ Grow_continue_command_exit:
 	return ret_val;
 }
 
-int Grow_continue(int mdfd, struct supertype *st, struct mdinfo *info,
-		  char *backup_file, int forked, int freeze_reshape)
+int mdadm_grow_continue(int mdfd, struct supertype *st, struct mdinfo *info,
+			char *backup_file, int forked, int freeze_reshape)
 {
 	int ret_val = 2;
 

@@ -80,12 +80,12 @@ static int add_new_arrays(struct mdstat_ent *mdstat, struct state **statelist,
 static void try_spare_migration(struct state *statelist, struct alert_info *info);
 static void link_containers_with_subarrays(struct state *list);
 
-int Monitor(struct mddev_dev *devlist,
-	    char *mailaddr, char *alert_cmd,
-	    struct context *c,
-	    int daemonise, int oneshot,
-	    int dosyslog, char *pidfile, int increments,
-	    int share)
+int mdadm_monitor(struct mddev_dev *devlist,
+		  char *mailaddr, char *alert_cmd,
+		  struct context *c,
+		  int daemonise, int oneshot,
+		  int dosyslog, char *pidfile, int increments,
+		  int share)
 {
 	/*
 	 * Every few seconds, scan every md device looking for changes
@@ -1045,7 +1045,7 @@ static void link_containers_with_subarrays(struct state *list)
 }
 
 /* Not really Monitor but ... */
-int Wait(char *dev)
+int mdadm_wait(char *dev)
 {
 	char devnm[32];
 	dev_t rdev;
@@ -1117,7 +1117,7 @@ int Wait(char *dev)
 static char *clean_states[] = {
 	"clear", "inactive", "readonly", "read-auto", "clean", "broken", NULL };
 
-int WaitClean(char *dev, int verbose)
+int mdadm_wait_clean(char *dev, int verbose)
 {
 	int fd;
 	struct mdinfo *mdi;

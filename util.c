@@ -339,7 +339,7 @@ int mdadm_version(char *version)
 	char *cp;
 
 	if (!version)
-		version = Version;
+		version = mdlib_get_version();
 
 	cp = strchr(version, '-');
 	if (!cp || *(cp+1) != ' ' || *(cp+2) != 'v')

@@ -82,11 +82,11 @@ static int default_layout(struct supertype *st, int level, int verbose)
 	return layout;
 }
 
-int Create(struct supertype *st, char *mddev,
-	   char *name, int *uuid,
-	   int subdevs, struct mddev_dev *devlist,
-	   struct shape *s,
-	   struct context *c, unsigned long long data_offset)
+int mdadm_create(struct supertype *st, char *mddev,
+		 char *name, int *uuid,
+		 int subdevs, struct mddev_dev *devlist,
+		 struct shape *s,
+		 struct context *c, unsigned long long data_offset)
 {
 	/*
 	 * Create a new raid array.

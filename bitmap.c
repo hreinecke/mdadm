@@ -242,7 +242,7 @@ static __u32 swapl(__u32 l)
 	c[2] = t;
 	return l;
 }
-int ExamineBitmap(char *filename, int brief, struct supertype *st)
+int mdadm_examine_bitmap(char *filename, int brief, struct supertype *st)
 {
 	/*
 	 * Read the bitmap file and display its contents

@@ -253,7 +253,9 @@ mdadm.conf.man : mdadm.conf.5
 raid6check.man : raid6check.8
 	man -l raid6check.8 > raid6check.man
 
-$(OBJS) : $(INCL) mdmon.h
+$(LIB_SHOBJS) : $(INCL)
+$(LIB_OBJS) : $(INCL)
+$(MDADM_OBJS) : $(INCL) mdmon.h
 $(MON_OBJS) : $(INCL) mdmon.h
 
 sha1.o : sha1.c sha1.h md5.h

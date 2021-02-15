@@ -57,7 +57,7 @@ static int add_device(const char *dev, char ***p_devices,
 	return n_devices + 1;
 }
 
-int Detail(char *dev, struct context *c)
+int mdadm_detail(char *dev, struct context *c)
 {
 	/*
 	 * Print out details for an md array
@@ -835,7 +835,8 @@ out:
 	return rv;
 }
 
-int Detail_Platform(struct supertype *st, int scan, int verbose, int export, char *controller_path)
+int mdadm_detail_platform(struct supertype *st, int scan, int verbose,
+			  int export, char *controller_path)
 {
 	struct superswitch *ss = st ? st->ss : NULL;
 	/* display platform capabilities for the given metadata format
