@@ -32,6 +32,7 @@
 #include "uuid.h"
 #include "sha1.h"
 #include "lib.h"
+#include "bitmap.h"
 #include "platform-intel.h"
 #include <values.h>
 #include <scsi/sg.h>
