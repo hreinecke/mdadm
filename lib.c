@@ -28,6 +28,8 @@
 #include	"debug.h"
 #include	<ctype.h>
 
+const char *Name;
+
 /* This fill contains various 'library' style function.  They
  * have no dependency on anything outside this file.
  */
@@ -535,4 +537,30 @@ void free_line(char *line)
 		dl_free(w);
 	}
 	dl_free(line);
+}
+
+#ifndef VERSION
+#define VERSION "4.1"
+#endif
+#ifndef VERS_DATE
+#define VERS_DATE "2018-10-01"
+#endif
+#ifndef EXTRAVERSION
+#define EXTRAVERSION ""
+#endif
+char Version[] = "mdadm - v" VERSION " - " VERS_DATE EXTRAVERSION "\n";
+
+char *mdlib_get_version(void)
+{
+	return Version;
+}
+
+void mdlib_set_name(const char *name)
+{
+	Name = name;
+}
+
+const char *mdlib_get_name(void)
+{
+	return Name;
 }

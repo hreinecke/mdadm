@@ -140,30 +140,32 @@ else
 	ECHO=:
 endif
 
-OBJS =  mdadm.o config.o policy.o mdstat.o  ReadMe.o uuid.o util.o maps.o lib.o \
-	Manage.o Assemble.o Build.o \
-	Create.o Detail.o Examine.o Grow.o Monitor.o dlink.o Kill.o Query.o \
-	Incremental.o Dump.o \
-	mdopen.o super0.o super1.o super-ddf.o super-intel.o bitmap.o \
-	super-mbr.o super-gpt.o \
-	restripe.o sysfs.o sha1.o mapfile.o crc32.o sg_io.o msg.o xmalloc.o \
-	platform-intel.o probe_roms.o crc32c.o
+LIB_SRCS =  config.c policy.c mdstat.c uuid.c util.c maps.c lib.c \
+	Manage.c Assemble.c Build.c Create.c Detail.c Examine.c Grow.c \
+	Monitor.c dlink.c Kill.c Query.c Incremental.c Dump.c \
+	mdopen.c super0.c super1.c super-ddf.c super-intel.c bitmap.c \
+	super-mbr.c super-gpt.c \
+	restripe.c sysfs.c sha1.c mapfile.c crc32.c sg_io.c msg.c xmalloc.c \
+	platform-intel.c probe_roms.c crc32c.c
 
 CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
 
-SRCS =  $(patsubst %.o,%.c,$(OBJS))
+SONAME = libmdadm.so.1
+SHLIB = $(SONAME).0.1
+LIB = libmdadm.a
+
+LIB_OBJS =  $(patsubst %.c,%.os,$(LIB_SRCS))
+LIB_SHOBJS =  $(patsubst %.c,%.ol,$(LIB_SRCS))
 
 INCL = mdadm.h mdadm_internal.h mdadm_include.h mdadm_lib.h part.h bitmap.h \
 	xmalloc.h debug.h util.h bswap.h
 
-MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
-	policy.o lib.o \
-	Kill.o sg_io.o dlink.o ReadMe.o super-intel.o \
-	super-mbr.o super-gpt.o \
-	super-ddf.o sha1.o crc32.o msg.o bitmap.o xmalloc.o \
-	platform-intel.o probe_roms.o crc32c.o
+MDADM_SRCS = mdadm.c ReadMe.c
+MDADM_OBJS = $(patsubst %.c,%.o,$(MDADM_SRCS))
 
-MON_SRCS = $(patsubst %.o,%.c,$(MON_OBJS))
+MON_SRCS = mdmon.c monitor.c managemon.c
+
+MON_OBJS = $(patsubst %.c,%.o,$(MON_SRCS))
 
 STATICSRC = pwgr.c
 STATICOBJS = pwgr.o
@@ -185,14 +187,25 @@ everything-test: all mdadm.static swap_super test_stripe \
 # mdadm.uclibc doesn't work on x86-64
 # mdadm.tcc doesn't work..
 
-%.o: %.c
+%.os: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(COVERITY_FLAGS) -o $@ -c $<
 
-mdadm : $(OBJS) | check_rundir
-	$(CC) $(CFLAGS) $(LDFLAGS) -o mdadm $(OBJS) $(LDLIBS)
+%.ol: %.c
+	$(CC) $(CFLAGS) -fPIC $(CPPFLAGS) $(COVERITY_FLAGS) -shared -o $@ -c $<
 
-mdadm.static : $(OBJS) $(STATICOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -static -o mdadm.static $(OBJS) $(STATICOBJS) $(LDLIBS)
+$(LIB): $(LIB_OBJS)
+	rm -f $(LIB)
+	$(AR) r $(LIB) $(LIB_OBJS)
+	$(RANLIB) $(LIB)
+
+$(SHLIB): $(LIB_SHOBJS)
+	$(CC) $(CFLAGS) -shared -Wl,-soname,$(SONAME) -o $@ $(LIB_SHOBJS) -shared $(LINK_FLAGS) $(LDLIBS)
+
+mdadm : $(MDADM_OBJS) $(SHLIB) | check_rundir
+	$(CC) $(CFLAGS) $(LDFLAGS) -o mdadm $(MDADM_OBJS) -L. -lmdadm $(LDLIBS)
+
+mdadm.static : $(MDADM_OBJS) $(LIB_OBJS) $(STATICOBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -static -o mdadm.static $^ $(LDLIBS)
 
 mdadm.tcc : $(SRCS) $(INCL)
 	$(TCC) -o mdadm.tcc $(SRCS)
@@ -211,8 +224,8 @@ mdmon.O2 : $(MON_SRCS) $(INCL) mdmon.h
 	$(CC) -o mdmon.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(MON_SRCS) $(LDLIBS)
 
 # use '-z now' to guarantee no dynamic linker interactions with the monitor thread
-mdmon : $(MON_OBJS) | check_rundir
-	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) $(LDLIBS)
+mdmon : $(MON_OBJS) $(SHLIB) | check_rundir
+	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) -L. -lmdadm $(LDLIBS)
 msg.o: msg.c msg.h
 
 test_stripe : restripe.c xmalloc.o mdadm.h
@@ -307,7 +320,7 @@ test: mdadm mdmon test_stripe swap_super raid6check
 	@echo "Please run './test' as root"
 
 clean :
-	rm -f mdadm mdmon $(OBJS) $(MON_OBJS) $(STATICOBJS) core *.man \
+	rm -f mdadm mdmon $(LIB_SHOBJS) $(LIB_OBJS) $(MON_OBJS) $(STATICOBJS) core *.man \
 	mdadm.tcc mdadm.uclibc mdadm.static *.orig *.porig *.rej *.alt \
 	.merge_file_* mdadm.Os mdadm.O2 mdmon.O2 swap_super init.cpio.gz \
 	mdadm.uclibc.static test_stripe raid6check raid6check.o mdmon mdadm.8

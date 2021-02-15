@@ -878,8 +878,8 @@ void read_sock(struct supertype *container)
 			handle_message(container, &msg);
 			if (msg.len == 0) {
 				/* ping reply with version */
-				msg.buf = Version;
-				msg.len = strlen(Version) + 1;
+				msg.buf = mdlib_get_version();
+				msg.len = strlen(msg.buf) + 1;
 				if (send_message(fd, &msg, tmo) < 0)
 					terminate = 1;
 			} else if (ack(fd, tmo) < 0)

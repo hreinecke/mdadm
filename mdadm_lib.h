@@ -2,8 +2,6 @@
 #include	"md_p.h"
 #include	"msg.h"
 
-extern const char Name[];
-
 /* We want to use unsigned numbers for sector counts, but need
  * a value for 'invalid'.  Use '1'.
  */
@@ -162,8 +160,6 @@ struct createinfo {
 	struct supertype *supertype;
 };
 
-extern char Version[];
-
 enum flag_mode {
 	FlagDefault, FlagSet, FlagClear,
 };
@@ -317,6 +313,7 @@ extern void map_free(struct map_ent *map);
 extern struct map_ent *map_by_devnm(struct map_ent **map, char *devnm);
 extern struct map_ent *map_by_name(struct map_ent **map, char *name);
 
+/* lib.c */
 extern int get_linux_version(void);
 extern int is_near_layout_10(int layout);
 extern unsigned long long parse_size(char *size);
@@ -324,6 +321,9 @@ extern int parse_layout_10(char *layout);
 extern int parse_layout_faulty(char *layout);
 extern long parse_num(char *num);
 extern int parse_uuid(char *str, int uuid[4]);
+extern void mdlib_set_name(const char *name);
+extern const char *mdlib_get_name(void);
+extern char *mdlib_get_version(void);
 
 /* config.c */
 extern int parse_auto(char *str, char *msg, int config);

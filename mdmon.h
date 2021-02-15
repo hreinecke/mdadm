@@ -18,8 +18,6 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-extern const char Name[];
-
 enum array_state { clear, inactive, suspended, readonly, read_auto,
 		   clean, active, write_pending, active_idle, broken, bad_word};
 

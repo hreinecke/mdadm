@@ -6,12 +6,12 @@
 
 #ifdef DEBUG
 #define dprintf(fmt, arg...) \
-	fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##arg)
+	fprintf(stderr, "%s: %s: "fmt, mdlib_get_name(), __func__, ##arg)
 #define dprintf_cont(fmt, arg...) \
 	fprintf(stderr, fmt, ##arg)
 #else
 #define dprintf(fmt, arg...) \
-        ({ if (0) fprintf(stderr, "%s: %s: " fmt, Name, __func__, ##arg); 0; })
+        ({ if (0) fprintf(stderr, "%s: %s: " fmt, mdlib_get_name(), __func__, ##arg); 0; })
 #define dprintf_cont(fmt, arg...) \
         ({ if (0) fprintf(stderr, fmt, ##arg); 0; })
 #endif
@@ -27,9 +27,9 @@ static inline int xasprintf(char **strp, const char *fmt, ...) {
 }
 
 #ifdef DEBUG
-#define pr_err(fmt, args...) fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##args)
+#define pr_err(fmt, args...) fprintf(stderr, "%s: %s: "fmt, mdlib_get_name(), __func__, ##args)
 #else
-#define pr_err(fmt, args...) fprintf(stderr, "%s: "fmt, Name, ##args)
+#define pr_err(fmt, args...) fprintf(stderr, "%s: "fmt, mdlib_get_name(), ##args)
 #endif
 #define cont_err(fmt ...) fprintf(stderr, "       " fmt)
 

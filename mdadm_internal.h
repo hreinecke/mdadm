@@ -22,6 +22,8 @@
  *    Email: <neilb@suse.de>
  */
 
+extern const char *Name;
+
 #define MdpMinorShift 6
 
 #ifndef BLKGETSIZE64

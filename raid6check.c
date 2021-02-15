@@ -22,7 +22,9 @@
  *    Based on "restripe.c" from "mdadm" codebase
  */
 
-#include "mdadm.h"
+#include "mdadm_include.h"
+#include "mdadm_lib.h"
+#include "mdadm_exec.h"
 #include <stdint.h>
 #include <signal.h>
 #include <sys/mman.h>
@@ -30,7 +32,7 @@
 #define CHECK_PAGE_BITS (12)
 #define CHECK_PAGE_SIZE (1 << CHECK_PAGE_BITS)
 
-char const Name[] = "raid6check";
+static char const Name[] = "raid6check";
 
 enum repair {
 	NO_REPAIR = 0,
@@ -537,6 +539,8 @@ int main(int argc, char *argv[])
 	int exit_err = 0;
 	int close_flag = 0;
 	char *prg = strrchr(argv[0], '/');
+
+	mdlib_set_name(Name);
 
 	if (prg == NULL)
 		prg = argv[0];

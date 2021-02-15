@@ -928,7 +928,7 @@ unsigned long long getnum(char *str, char **err)
 	return rv;
 }
 
-char const Name[] = "test_restripe";
+static char const Name[] = "test_restripe";
 int main(int argc, char *argv[])
 {
 	/* save/restore file raid_disks chunk_size level layout start length devices...
@@ -944,6 +944,9 @@ int main(int argc, char *argv[])
 	int i;
 
 	char *err = NULL;
+
+	mdlib_set_name(Name);
+
 	if (argc < 10) {
 		fprintf(stderr, "Usage: test_stripe save/restore file raid_disks chunk_size level layout start length devices...\n");
 		exit(1);
