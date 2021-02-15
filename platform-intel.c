@@ -17,6 +17,7 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "mdadm.h"
+#include "xmalloc.h"
 #include "platform-intel.h"
 #include "probe_roms.h"
 #include <stdio.h>
