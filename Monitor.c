@@ -31,6 +31,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
+#include	"policy.h"
 #include	<sys/wait.h>
 #include	<signal.h>
 #include	<limits.h>

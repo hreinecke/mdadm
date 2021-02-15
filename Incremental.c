@@ -35,6 +35,7 @@
 #include	"sysfs.h"
 #include	"super.h"
 #include	"uuid.h"
+#include	"policy.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

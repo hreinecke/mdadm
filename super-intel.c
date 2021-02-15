@@ -26,6 +26,7 @@
 #include "util.h"
 #include "mdstat.h"
 #include "sysfs.h"
+#include "policy.h"
 #include "restripe.h"
 #include "super.h"
 #include "uuid.h"

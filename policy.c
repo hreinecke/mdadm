@@ -25,6 +25,7 @@
 #include "mdadm.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "policy.h"
 #include <dirent.h>
 #include <fnmatch.h>
 #include <ctype.h>
