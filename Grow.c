@@ -25,6 +25,7 @@
 #include	"dlink.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"util.h"
 #include	"bswap.h"
 #include	<sys/mman.h>
 #include	<stddef.h>

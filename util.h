@@ -1,6 +1,25 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+/*
+ * min()/max()/clamp() macros that also do
+ * strict type-checking.. See the
+ * "unnecessary" pointer comparison.
+ */
+#define min(x, y) ({                            \
+	typeof(x) _min1 = (x);                  \
+	typeof(y) _min2 = (y);                  \
+	(void) (&_min1 == &_min2);              \
+	_min1 < _min2 ? _min1 : _min2; })
+
+#define max(x, y) ({                            \
+	typeof(x) _max1 = (x);                  \
+	typeof(y) _max2 = (y);                  \
+	(void) (&_max1 == &_max2);              \
+	_max1 > _max2 ? _max1 : _max2; })
+
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
 #ifdef NO_COROSYNC
 #define CS_OK 1
 typedef uint64_t cmap_handle_t;

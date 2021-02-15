@@ -117,25 +117,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #include	"bitmap.h"
 #include	"msg.h"
 
-/*
- * min()/max()/clamp() macros that also do
- * strict type-checking.. See the
- * "unnecessary" pointer comparison.
- */
-#define min(x, y) ({                            \
-	typeof(x) _min1 = (x);                  \
-	typeof(y) _min2 = (y);                  \
-	(void) (&_min1 == &_min2);              \
-	_min1 < _min2 ? _min1 : _min2; })
-
-#define max(x, y) ({                            \
-	typeof(x) _max1 = (x);                  \
-	typeof(y) _max2 = (y);                  \
-	(void) (&_max1 == &_max2);              \
-	_max1 > _max2 ? _max1 : _max2; })
-
-#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
-
 extern const char Name[];
 
 struct md_bb_entry {

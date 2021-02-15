@@ -23,6 +23,7 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"
+#include "util.h"
 #include "sha1.h"
 #include "platform-intel.h"
 #include <values.h>
