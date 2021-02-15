@@ -80,4 +80,6 @@ struct dlm_hooks {
 void set_dlm_hooks(void);
 int dlm_funs_ready(void);
 
+int zero_disk_range(int fd, unsigned long long sector, size_t count);
+
 #endif /* _UTIL_H */
