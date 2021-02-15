@@ -69,6 +69,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
+#include	"sysfs.h"
 
 char const Name[] = "mdmon";
 

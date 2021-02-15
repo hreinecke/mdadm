@@ -30,6 +30,7 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
+#include "sysfs.h"
 #include <ctype.h>
 
 static int scan_assemble(struct supertype *ss,

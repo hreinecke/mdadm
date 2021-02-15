@@ -25,6 +25,7 @@
 #include "bswap.h"
 #include "util.h"
 #include "mdstat.h"
+#include "sysfs.h"
 #include "sha1.h"
 #include "platform-intel.h"
 #include <values.h>
