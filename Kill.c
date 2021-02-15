@@ -26,6 +26,7 @@
  */
 
 #include	"mdadm.h"
+#include	"debug.h"
 #include	"md_u.h"
 #include	"md_p.h"
 

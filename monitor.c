@@ -20,6 +20,7 @@
 
 #include "mdadm.h"
 #include "mdmon.h"
+#include "debug.h"
 #include <sys/syscall.h>
 #include <sys/select.h>
 #include <signal.h>

@@ -24,6 +24,7 @@
 
 #include	"mdadm.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<ctype.h>
 
 static int name_matches(char *found, char *required, char *homehost, int require_homehost)

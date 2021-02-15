@@ -25,6 +25,7 @@
 #include	"mdadm.h"
 #include	"dlink.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<ctype.h>
 
 /* This fill contains various 'library' style function.  They
