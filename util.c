@@ -26,6 +26,7 @@
 #include	"md_p.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"dlm.h"
 #include	"bswap.h"
 #include	"mdstat.h"
 #include	"sysfs.h"

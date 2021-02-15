@@ -54,31 +54,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #define srandom srand
 #endif
 
-#ifdef NO_COROSYNC
-#define CS_OK 1
-typedef uint64_t cmap_handle_t;
-#else
-#include	<corosync/cmap.h>
-#endif
-
-#ifndef NO_DLM
-#include	<libdlm.h>
-#include	<errno.h>
-#else
-#define LKF_NOQUEUE	0x00000001
-#define LKM_PWMODE	4
-#define EUNLOCK		0x10002
-
-typedef void *dlm_lshandle_t;
-
-struct dlm_lksb {
-	int sb_status;
-	uint32_t sb_lkid;
-	char sb_flags;
-	char *sb_lvbptr;
-};
-#endif
-
 #include	<linux/kdev_t.h>
 /*#include	<linux/fs.h> */
 #include	<sys/mount.h>
@@ -1199,44 +1174,11 @@ extern void udev_unblock(void);
 
 extern int in_initrd(void);
 
-struct cmap_hooks {
-	void *cmap_handle;      /* corosync lib related */
-
-	int (*initialize)(cmap_handle_t *handle);
-	int (*get_string)(cmap_handle_t handle,
-			  const char *string,
-			  char **name);
-	int (*finalize)(cmap_handle_t handle);
-};
-
-extern void set_cmap_hooks(void);
+/* util.c */
 extern void set_hooks(void);
-
-struct dlm_hooks {
-	void *dlm_handle;	/* dlm lib related */
-
-	dlm_lshandle_t (*create_lockspace)(const char *name,
-					   unsigned int mode);
-	dlm_lshandle_t (*open_lockspace)(const char *name);
-	int (*release_lockspace)(const char *name, dlm_lshandle_t ls,
-				 int force);
-	int (*ls_lock)(dlm_lshandle_t lockspace, uint32_t mode,
-		       struct dlm_lksb *lksb, uint32_t flags,
-		       const void *name, unsigned int namelen,
-		       uint32_t parent, void (*astaddr) (void *astarg),
-		       void *astarg, void (*bastaddr) (void *astarg),
-		       void *range);
-	int (*ls_unlock_wait)(dlm_lshandle_t lockspace, uint32_t lkid,
-			      uint32_t flags, struct dlm_lksb *lksb);
-	int (*ls_get_fd)(dlm_lshandle_t ls);
-	int (*dispatch)(int fd);
-};
-
 extern int get_cluster_name(char **name);
-extern int dlm_funs_ready(void);
 extern int cluster_get_dlmlock(void);
 extern int cluster_release_dlmlock(void);
-extern void set_dlm_hooks(void);
 
 #define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
 #define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
