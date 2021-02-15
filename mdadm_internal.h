@@ -96,6 +96,25 @@ static inline char *map_dev(int major, int minor, int create)
 	return map_dev_preferred(major, minor, create, NULL);
 }
 
+struct spare_criteria {
+	unsigned long long min_size;
+	unsigned int sector_size;
+};
+
+enum prefix_standard {
+	JEDEC,
+	IEC
+};
+
+enum bitmap_update {
+    NoUpdate,
+    NameUpdate,
+    NodeNumUpdate,
+};
+
+struct active_array;
+struct metadata_update;
+
 /* A superswitch provides entry point to a metadata handler.
  *
  * The superswitch primarily operates on some "metadata" that

@@ -162,23 +162,7 @@ struct createinfo {
 	struct supertype *supertype;
 };
 
-struct spare_criteria {
-	unsigned long long min_size;
-	unsigned int sector_size;
-};
-
 extern char Version[];
-
-enum prefix_standard {
-	JEDEC,
-	IEC
-};
-
-enum bitmap_update {
-    NoUpdate,
-    NameUpdate,
-    NodeNumUpdate,
-};
 
 enum flag_mode {
 	FlagDefault, FlagSet, FlagClear,
@@ -322,10 +306,6 @@ struct map_ent {
 	char	*path;
 };
 
-struct active_array;
-struct metadata_update;
-
-
 extern int open_dev(char *devnm);
 
 /* maps.c */
@@ -344,11 +324,13 @@ extern int parse_layout_10(char *layout);
 extern int parse_layout_faulty(char *layout);
 extern long parse_num(char *num);
 extern int parse_uuid(char *str, int uuid[4]);
+
+/* config.c */
 extern int parse_auto(char *str, char *msg, int config);
-extern struct mddev_dev *conf_get_devs(void);
 extern struct mddev_ident *conf_get_ident(char *dev);
-extern void set_conffile(char *file);
+extern struct mddev_dev *conf_get_devs(void);
 extern struct createinfo *conf_get_create_info(void);
+extern void set_conffile(char *file);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
 extern int conf_verify_devnames(struct mddev_ident *array_list);
