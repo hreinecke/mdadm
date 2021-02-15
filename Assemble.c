@@ -29,6 +29,7 @@
 #include	"super.h"
 #include	"sysfs.h"
 #include	"uuid.h"
+#include	"policy.h"
 #include	<ctype.h>
 
 mapping_t assemble_statuses[] = {
