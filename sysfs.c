@@ -30,6 +30,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"sysfs.h"
+#include	"uuid.h"
 
 #define MAX_SYSFS_PATH_LEN	120
 

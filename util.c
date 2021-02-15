@@ -31,6 +31,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
+#include	"uuid.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>

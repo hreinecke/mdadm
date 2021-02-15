@@ -23,6 +23,7 @@
 #include "debug.h"
 #include "bswap.h"
 #include "super.h"
+#include "uuid.h"
 
 static inline void sb_le_to_cpu(bitmap_super_t *sb)
 {

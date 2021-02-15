@@ -28,6 +28,7 @@
 #include "sysfs.h"
 #include "restripe.h"
 #include "super.h"
+#include "uuid.h"
 #include "sha1.h"
 #include "platform-intel.h"
 #include <values.h>
