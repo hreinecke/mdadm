@@ -1197,7 +1197,7 @@ static int start_array(int mdfd,
 			rv = sysfs_set_str(content, NULL,
 					   "array_state", "readonly");
 			if (rv == 0)
-				rv = Grow_continue(mdfd, st, content,
+				rv = mdadm_grow_continue(mdfd, st, content,
 						   c->backup_file, 0,
 						   c->freeze_reshape);
 		} else if (c->readonly &&
@@ -1338,10 +1338,10 @@ static int start_array(int mdfd,
 	return 1;
 }
 
-int Assemble(struct supertype *st, char *mddev,
-	     struct mddev_ident *ident,
-	     struct mddev_dev *devlist,
-	     struct context *c)
+int mdadm_assemble(struct supertype *st, char *mddev,
+		   struct mddev_ident *ident,
+		   struct mddev_dev *devlist,
+		   struct context *c)
 {
 	/*
 	 * The task of Assemble is to find a collection of
@@ -1881,7 +1881,7 @@ try_again:
 			if (st->ss->external && st->ss->recover_backup)
 				err = st->ss->recover_backup(st, content);
 			else
-				err = Grow_restart(st, content, fdlist, bestcnt/2,
+				err = mdadm_grow_restart(st, content, fdlist, bestcnt/2,
 						   c->backup_file, c->verbose > 0);
 			if (err && c->invalid_backup) {
 				if (c->verbose > 0)
@@ -2185,7 +2185,7 @@ int assemble_container_content(struct supertype *st, int mdfd,
 				st->update_tail = &st->updates;
 		}
 
-		err = Grow_continue(mdfd, st, content, c->backup_file,
+		err = mdadm_grow_continue(mdfd, st, content, c->backup_file,
 				    0, c->freeze_reshape);
 	} else switch(content->array.level) {
 		case LEVEL_LINEAR:

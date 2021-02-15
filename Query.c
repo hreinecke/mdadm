@@ -26,7 +26,7 @@
 #include	"md_p.h"
 #include	"md_u.h"
 
-int Query(char *dev)
+int mdadm_query(char *dev)
 {
 	/* Give a brief description of the device,
 	 * whether it is an md device and whether it has

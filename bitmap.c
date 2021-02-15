@@ -236,7 +236,7 @@ static __u32 swapl(__u32 l)
 	c[2] = t;
 	return l;
 }
-int ExamineBitmap(char *filename, int brief, struct supertype *st)
+int mdadm_examine_bitmap(char *filename, int brief, struct supertype *st)
 {
 	/*
 	 * Read the bitmap file and display its contents
@@ -366,7 +366,7 @@ free_info:
 	return rv;
 }
 
-int IsBitmapDirty(char *filename)
+int mdadm_is_bitmap_dirty(char *filename)
 {
 	/*
 	 * Read the bitmap file
@@ -425,11 +425,11 @@ out:
 	return -1;
 }
 
-int CreateBitmap(char *filename, int force, char uuid[16],
-		 unsigned long chunksize, unsigned long daemon_sleep,
-		 unsigned long write_behind,
-		 unsigned long long array_size /* sectors */,
-		 int major)
+int mdadm_create_bitmap(char *filename, int force, char uuid[16],
+			unsigned long chunksize, unsigned long daemon_sleep,
+			unsigned long write_behind,
+			unsigned long long array_size /* sectors */,
+			int major)
 {
 	/*
 	 * Create a bitmap file with a superblock and (optionally) a full bitmap

@@ -825,7 +825,7 @@ char *find_rule(struct rule *rule, char *rule_type)
 "RUN+=\"" BINDIR "/mdadm --incremental $env{DEVNAME}\"\n"
 
 /* Write rule in the rule file. Use format from UDEV_RULE_FORMAT */
-int write_rule(struct rule *rule, int fd, int force_part)
+static int write_rule(struct rule *rule, int fd, int force_part)
 {
 	char line[1024];
 	char *pth = find_rule(rule, rule_path);
@@ -891,7 +891,7 @@ int generate_entries(int fd)
 /* Write_rules routine creates dynamic udev rules used to handle
  * hot-plug events for bare devices (and making them spares)
  */
-int Write_rules(char *rule_name)
+int mdadm_write_rules(char *rule_name)
 {
 	int fd;
 	char udev_rule_file[PATH_MAX];

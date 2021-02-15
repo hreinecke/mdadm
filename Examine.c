@@ -30,9 +30,10 @@
 #endif
 #include	"md_u.h"
 #include	"md_p.h"
-int Examine(struct mddev_dev *devlist,
-	    struct context *c,
-	    struct supertype *forcest)
+
+int mdadm_examine(struct mddev_dev *devlist,
+		  struct context *c,
+		  struct supertype *forcest)
 {
 
 	/* Read the raid superblock from a device and
@@ -191,7 +192,7 @@ int Examine(struct mddev_dev *devlist,
 	return rv;
 }
 
-int ExamineBadblocks(char *devname, int brief, struct supertype *forcest)
+int mdadm_examine_badblocks(char *devname, int brief, struct supertype *forcest)
 {
 	int fd = dev_open(devname, O_RDONLY);
 	struct supertype *st = forcest;

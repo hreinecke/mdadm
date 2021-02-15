@@ -76,11 +76,11 @@ static int default_layout(struct supertype *st, int level, int verbose)
 	return layout;
 }
 
-int Create(struct supertype *st, char *mddev,
-	   char *name, int *uuid,
-	   int subdevs, struct mddev_dev *devlist,
-	   struct shape *s,
-	   struct context *c, unsigned long long data_offset)
+int mdadm_create(struct supertype *st, char *mddev,
+		 char *name, int *uuid,
+		 int subdevs, struct mddev_dev *devlist,
+		 struct shape *s,
+		 struct context *c, unsigned long long data_offset)
 {
 	/*
 	 * Create a new raid array.
@@ -836,10 +836,10 @@ int Create(struct supertype *st, char *mddev,
 		int uuid[4];
 
 		st->ss->uuid_from_super(st, uuid);
-		if (CreateBitmap(s->bitmap_file, c->force, (char*)uuid, s->bitmap_chunk,
-				 c->delay, s->write_behind,
-				 bitmapsize,
-				 major_num)) {
+		if (mdadm_create_bitmap(s->bitmap_file, c->force, (char*)uuid,
+					s->bitmap_chunk,
+					c->delay, s->write_behind,
+					bitmapsize, major_num)) {
 			goto abort_locked;
 		}
 		bitmap_fd = open(s->bitmap_file, O_RDWR);
