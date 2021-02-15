@@ -64,6 +64,7 @@
 #endif
 
 #include	"mdadm.h"
+#include	"mdadm_exec.h"
 #include	"mdmon.h"
 
 char const Name[] = "mdmon";

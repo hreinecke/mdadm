@@ -26,6 +26,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_exec.h"
 
 #ifndef VERSION
 #define VERSION "4.2"
