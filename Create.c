@@ -26,6 +26,7 @@
 #include	"md_u.h"
 #include	"md_p.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<ctype.h>
 
 static int round_size_and_verify(unsigned long long *size, int chunk)

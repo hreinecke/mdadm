@@ -24,6 +24,7 @@
 
 #include	"mdadm.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<ctype.h>
 
 mapping_t assemble_statuses[] = {

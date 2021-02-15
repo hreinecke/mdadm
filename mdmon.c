@@ -68,6 +68,7 @@
 #include	"mdadm_exec.h"
 #include	"mdmon.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 
 char const Name[] = "mdmon";
 

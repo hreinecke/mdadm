@@ -1620,36 +1620,6 @@ static inline char *to_subarray(struct mdstat_ent *ent, char *container)
 	return &ent->metadata_version[10+strlen(container)+1];
 }
 
-#ifdef DEBUG
-#define dprintf(fmt, arg...) \
-	fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##arg)
-#define dprintf_cont(fmt, arg...) \
-	fprintf(stderr, fmt, ##arg)
-#else
-#define dprintf(fmt, arg...) \
-        ({ if (0) fprintf(stderr, "%s: %s: " fmt, Name, __func__, ##arg); 0; })
-#define dprintf_cont(fmt, arg...) \
-        ({ if (0) fprintf(stderr, fmt, ##arg); 0; })
-#endif
-#include <assert.h>
-#include <stdarg.h>
-static inline int xasprintf(char **strp, const char *fmt, ...) {
-	va_list ap;
-	int ret;
-	va_start(ap, fmt);
-	ret = vasprintf(strp, fmt, ap);
-	va_end(ap);
-	assert(ret >= 0);
-	return ret;
-}
-
-#ifdef DEBUG
-#define pr_err(fmt, args...) fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##args)
-#else
-#define pr_err(fmt, args...) fprintf(stderr, "%s: "fmt, Name, ##args)
-#endif
-#define cont_err(fmt ...) fprintf(stderr, "       " fmt)
-
 #define	LEVEL_MULTIPATH		(-4)
 #define	LEVEL_LINEAR		(-1)
 #define	LEVEL_FAULTY		(-5)

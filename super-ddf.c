@@ -29,6 +29,7 @@
 #include "mdadm.h"
 #include "mdmon.h"
 #include "xmalloc.h"
+#include "debug.h"
 #include "sha1.h"
 #include <values.h>
 #include <stddef.h>

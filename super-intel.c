@@ -21,6 +21,7 @@
 #include "mdadm.h"
 #include "mdmon.h"
 #include "xmalloc.h"
+#include "debug.h"
 #include "sha1.h"
 #include "platform-intel.h"
 #include <values.h>

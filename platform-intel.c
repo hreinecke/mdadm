@@ -18,6 +18,7 @@
  */
 #include "mdadm.h"
 #include "xmalloc.h"
+#include "debug.h"
 #include "platform-intel.h"
 #include "probe_roms.h"
 #include <stdio.h>

@@ -25,6 +25,7 @@
 #include	"mdadm.h"
 #include	"dlink.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<dirent.h>
 #include	<glob.h>
 #include	<fnmatch.h>

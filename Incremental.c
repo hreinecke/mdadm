@@ -30,6 +30,7 @@
 
 #include	"mdadm.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

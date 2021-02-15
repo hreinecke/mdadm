@@ -25,6 +25,7 @@
 #include	"mdadm.h"
 #include	"md_p.h"
 #include	"xmalloc.h"
+#include	"debug.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>
