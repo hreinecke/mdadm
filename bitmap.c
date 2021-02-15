@@ -21,6 +21,7 @@
 #include "mdadm.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "bswap.h"
 
 static inline void sb_le_to_cpu(bitmap_super_t *sb)
 {

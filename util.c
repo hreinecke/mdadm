@@ -27,6 +27,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"util.h"
+#include	"bswap.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>
