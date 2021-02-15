@@ -503,29 +503,6 @@ extern int map_lock(struct map_ent **melp);
 extern void map_unlock(struct map_ent **melp);
 extern void map_fork(void);
 
-/* various details can be requested */
-enum sysfs_read_flags {
-	GET_LEVEL	= (1 << 0),
-	GET_LAYOUT	= (1 << 1),
-	GET_COMPONENT	= (1 << 2),
-	GET_CHUNK	= (1 << 3),
-	GET_CACHE	= (1 << 4),
-	GET_MISMATCH	= (1 << 5),
-	GET_VERSION	= (1 << 6),
-	GET_DISKS	= (1 << 7),
-	GET_SAFEMODE	= (1 << 9),
-	GET_BITMAP_LOCATION = (1 << 10),
-
-	GET_DEVS	= (1 << 20), /* gets role, major, minor */
-	GET_OFFSET	= (1 << 21),
-	GET_SIZE	= (1 << 22),
-	GET_STATE	= (1 << 23),
-	GET_ERROR	= (1 << 24),
-	GET_ARRAY_STATE = (1 << 25),
-	GET_CONSISTENCY_POLICY	= (1 << 26),
-	GET_DEVS_ALL	= (1 << 27),
-};
-
 extern char *locate_backup(char *name);
 
 #ifndef Sendmail
