@@ -25,7 +25,8 @@
  *    Paul Clements, SteelEye Technology, Inc.
  */
 
-#include "mdadm.h"
+#include "mdadm_include.h"
+#include "mdadm_lib.h"
 #include "mdadm_exec.h"
 #include "md_p.h"
 #include "xmalloc.h"
@@ -64,7 +65,6 @@ int main(int argc, char *argv[])
 	int opt;
 	int option_index;
 	int rv;
-	int i;
 
 	unsigned long long array_size = 0;
 	unsigned long long data_offset = INVALID_SECTORS;
@@ -425,8 +425,7 @@ int main(int argc, char *argv[])
 				pr_err("metadata information already given\n");
 				exit(2);
 			}
-			for(i = 0; !ss && superlist[i]; i++)
-				ss = superlist[i]->match_metadata_desc(optarg);
+			ss = lookup_super_type(optarg);
 
 			if (!ss) {
 				pr_err("unrecognised metadata identifier: %s\n", optarg);
@@ -822,9 +821,7 @@ int main(int argc, char *argv[])
 					pr_err("must not set metadata type with --update=byteorder.\n");
 					exit(2);
 				}
-				for(i = 0; !ss && superlist[i]; i++)
-					ss = superlist[i]->match_metadata_desc(
-						"0.swap");
+				ss = lookup_super_type("0.swap");
 				if (!ss) {
 					pr_err("INTERNAL ERROR cannot find 0.swap\n");
 					exit(2);
@@ -1645,7 +1642,7 @@ int main(int argc, char *argv[])
 			}
 			rv = Examine(devlist, &c, ss);
 		} else if (devmode == DetailPlatform) {
-			rv = Detail_Platform(ss ? ss->ss : NULL, ss ? c.scan : 1,
+			rv = Detail_Platform(ss, ss ? c.scan : 1,
 					     c.verbose, c.export,
 					     devlist ? devlist->devname : NULL);
 		} else if (devlist == NULL) {

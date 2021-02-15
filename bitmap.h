@@ -288,4 +288,11 @@ void bitmap_close_sync(struct bitmap *bitmap);
 int bitmap_unplug(struct bitmap *bitmap);
 #endif
 
+int bitmap_update_uuid(int fd, int *uuid, int swap);
+int IsBitmapDirty(char *filename);
+extern int CreateBitmap(char *filename, int force, char uuid[16],
+			unsigned long chunksize, unsigned long daemon_sleep,
+			unsigned long write_behind,
+			unsigned long long array_size,
+			int major);
 #endif

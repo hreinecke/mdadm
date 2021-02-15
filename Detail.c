@@ -31,6 +31,8 @@
 #include	"super.h"
 #include	"sysfs.h"
 #include	"uuid.h"
+#include	"bitmap.h"
+#include	"util.h"
 #include	<ctype.h>
 #include	<dirent.h>
 
@@ -833,8 +835,9 @@ out:
 	return rv;
 }
 
-int Detail_Platform(struct superswitch *ss, int scan, int verbose, int export, char *controller_path)
+int Detail_Platform(struct supertype *st, int scan, int verbose, int export, char *controller_path)
 {
+	struct superswitch *ss = st ? st->ss : NULL;
 	/* display platform capabilities for the given metadata format
 	 * 'scan' in this context means iterate over all metadata types
 	 */

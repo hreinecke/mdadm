@@ -82,4 +82,6 @@ int dlm_funs_ready(void);
 
 int zero_disk_range(int fd, unsigned long long sector, size_t count);
 
+int md_array_is_active(struct mdinfo *info);
+
 #endif /* _UTIL_H */

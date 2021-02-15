@@ -1,6 +1,13 @@
 #ifndef _MDADM_EXEC_H
 #define _MDADM_EXEC_H
 
+#define SYSLOG_FACILITY LOG_DAEMON
+
+#define DEFAULT_BITMAP_DELAY 5
+#define DEFAULT_MAX_WRITE_BEHIND 256
+
+extern char DefaultConfFile[];
+
 enum mode {
 	ASSEMBLE=1,
 	BUILD,
@@ -92,4 +99,6 @@ enum special_options {
 	ConsistencyPolicy,
 };
 
+extern int open_mddev(char *dev, int report_errors);
+int Write_rules(char *rule_name);
 #endif /* _MDADM_EXEC_H */

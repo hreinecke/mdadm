@@ -1334,6 +1334,16 @@ struct supertype *guess_super_type(int fd, enum guess_types guess_type)
 	return NULL;
 }
 
+struct supertype *lookup_super_type(char *metadata)
+{
+	struct supertype *ss = NULL;
+	int i;
+
+	for (i = 0; !ss && superlist[i]; i++)
+		ss = superlist[i]->match_metadata_desc(metadata);
+	return ss;
+}
+
 /* Return size of device in bytes */
 int get_dev_size(int fd, char *dname, unsigned long long *sizep)
 {
