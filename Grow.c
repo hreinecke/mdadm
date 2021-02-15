@@ -29,6 +29,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"restripe.h"
+#include	"reshape.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>
@@ -3598,7 +3599,7 @@ started:
 	if (st->ss->external) {
 		/* metadata handler takes it from here */
 		done = st->ss->manage_reshape(
-			fd, sra, &reshape, st, blocks,
+			fd, sra, st, blocks,
 			fdlist, offsets, d - odisks, fdlist + odisks,
 			offsets + odisks);
 	} else

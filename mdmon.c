@@ -72,6 +72,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"restripe.h"
+#include	"reshape.h"
 
 char const Name[] = "mdmon";
 

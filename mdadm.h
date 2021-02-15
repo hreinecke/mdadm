@@ -484,35 +484,6 @@ static inline char *map_dev(int major, int minor, int create)
 struct active_array;
 struct metadata_update;
 
-/* 'struct reshape' records the intermediate states of
- * a general reshape.
- * The starting geometry is converted to the 'before' geometry
- * by at most an atomic level change. They could be the same.
- * Similarly the 'after' geometry is converted to the final
- * geometry by at most a level change.
- * Note that 'before' and 'after' must have the same level.
- * 'blocks' is the minimum number of sectors for a reshape unit.
- * This will be a multiple of the stripe size in each of the
- * 'before' and 'after' geometries.
- * If 'blocks' is 0, no restriping is necessary.
- * 'min_offset_change' is the minimum change to data_offset to
- * allow the reshape to happen.  It is at least the larger of
- * the old  and new chunk sizes, and typically the same as 'blocks'
- * divided by number of data disks.
- */
-struct reshape {
-	int level;
-	int parity; /* number of parity blocks/devices */
-	struct {
-		int layout;
-		int data_disks;
-	} before, after;
-	unsigned long long backup_blocks;
-	unsigned long long min_offset_change;
-	unsigned long long stripes; /* number of old stripes that comprise 'blocks'*/
-	unsigned long long new_size; /* New size of array in sectors */
-};
-
 /* A superswitch provides entry point to a metadata handler.
  *
  * The superswitch primarily operates on some "metadata" that
@@ -769,7 +740,7 @@ extern struct superswitch {
 			     int direction,
 			     int verbose); /* optional */
 	int (*manage_reshape)( /* optional */
-		int afd, struct mdinfo *sra, struct reshape *reshape,
+		int afd, struct mdinfo *sra,
 		struct supertype *st, unsigned long blocks,
 		int *fds, unsigned long long *offsets,
 		int dests, int *destfd, unsigned long long *destoffsets);
@@ -1324,12 +1295,6 @@ extern int check_env(char *name);
 extern __u32 random32(void);
 extern void random_uuid(__u8 *buf);
 extern int start_mdmon(char *devnm);
-
-extern int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
-			 struct supertype *st, unsigned long stripes,
-			 int *fds, unsigned long long *offsets,
-			 int dests, int *destfd, unsigned long long *destoffsets);
-void abort_reshape(struct mdinfo *sra);
 
 void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
 
