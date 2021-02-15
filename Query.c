@@ -24,6 +24,7 @@
 
 #include	"mdadm.h"
 #include	"debug.h"
+#include	"sysfs.h"
 #include	"md_p.h"
 #include	"md_u.h"
 

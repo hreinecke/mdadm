@@ -29,6 +29,7 @@
 #include	"dlink.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"sysfs.h"
 
 #define MAX_SYSFS_PATH_LEN	120
 

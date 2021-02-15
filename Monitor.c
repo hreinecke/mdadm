@@ -28,6 +28,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
+#include	"sysfs.h"
 #include	<sys/wait.h>
 #include	<signal.h>
 #include	<limits.h>

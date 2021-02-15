@@ -28,6 +28,7 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
+#include "sysfs.h"
 #include <ctype.h>
 
 int mdadm_manage_ro(char *devname, int fd, int readonly)

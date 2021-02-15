@@ -26,6 +26,7 @@
 #include	"dlink.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"sysfs.h"
 #include	"mdstat.h"
 #include	<dirent.h>
 #include	<glob.h>
