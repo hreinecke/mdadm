@@ -114,7 +114,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 
 #include	"md_u.h"
 #include	"md_p.h"
-#include	"bitmap.h"
 #include	"msg.h"
 
 #include <endian.h>

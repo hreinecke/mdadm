@@ -19,6 +19,7 @@
  */
 
 #include "mdadm.h"
+#include "bitmap.h"
 
 static inline void sb_le_to_cpu(bitmap_super_t *sb)
 {

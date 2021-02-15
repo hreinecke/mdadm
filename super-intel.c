@@ -21,6 +21,7 @@
 #include "mdadm.h"
 #include "mdmon.h"
 #include "sha1.h"
+#include "bitmap.h"
 #include "platform-intel.h"
 #include <values.h>
 #include <scsi/sg.h>
