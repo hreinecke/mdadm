@@ -24,6 +24,7 @@
 
 #include	"mdadm.h"
 #include	"md_p.h"
+#include	"dlm.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>
