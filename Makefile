@@ -158,7 +158,7 @@ CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
 
 SRCS =  $(patsubst %.o,%.c,$(OBJS))
 
-INCL = mdadm.h part.h bitmap.h xmalloc.h debug.h bswap.h
+INCL = mdadm.h part.h bitmap.h xmalloc.h debug.h bswap.h restripe.h
 
 MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	policy.o lib.o \
@@ -166,6 +166,8 @@ MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	super-mbr.o super-gpt.o \
 	super-ddf.o sha1.o crc32.o msg.o bitmap.o xmalloc.o \
 	platform-intel.o probe_roms.o crc32c.o
+
+MON_INCL = $(INCL) mdmon.h
 
 MON_SRCS = $(patsubst %.o,%.c,$(MON_OBJS))
 
@@ -211,7 +213,7 @@ mdadm.Os : $(SRCS) $(INCL) mdadm_exec.h
 mdadm.O2 : $(SRCS) $(INCL) mdadm_exec.h mdmon.O2
 	$(CC) -o mdadm.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(SRCS) $(LDLIBS)
 
-mdmon.O2 : $(MON_SRCS) $(INCL) mdmon.h mdadm_exec.h
+mdmon.O2 : $(MON_SRCS) $(MON_INCL) mdadm_exec.h
 	$(CC) -o mdmon.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(MON_SRCS) $(LDLIBS)
 
 # use '-z now' to guarantee no dynamic linker interactions with the monitor thread

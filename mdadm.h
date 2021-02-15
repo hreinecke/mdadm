@@ -143,31 +143,6 @@ struct dlm_lksb {
 #include	"msg.h"
 
 /*
-  * Check at compile time that something is of a particular type.
-  * Always evaluates to 1 so you may use it easily in comparisons.
-*/
-
-#define typecheck(type,x) \
-({	   type __dummy; \
-	   typeof(x) __dummy2; \
-	   (void)(&__dummy == &__dummy2); \
-	   1; \
-})
-
-/*
- *  These inlines deal with timer wrapping correctly.
- *
- * time_after(a,b) returns true if the time a is after time b.
-*/
-
-#define time_after(a,b)	\
-        (typecheck(unsigned int, a) && \
-         typecheck(unsigned int, b) && \
-         ((int)((b) - (a)) < 0))
-
-#define time_before(a,b)        time_after(b,a)
-
-/*
  * min()/max()/clamp() macros that also do
  * strict type-checking.. See the
  * "unnecessary" pointer comparison.
@@ -485,40 +460,7 @@ extern void map_fork(void);
 
 extern int zero_disk_range(int fd, unsigned long long sector, size_t count);
 
-extern int reshape_prepare_fdlist(char *devname,
-				  struct mdinfo *sra,
-				  int raid_disks,
-				  int nrdisks,
-				  unsigned long blocks,
-				  char *backup_file,
-				  int *fdlist,
-				  unsigned long long *offsets);
-extern void reshape_free_fdlist(int *fdlist,
-				unsigned long long *offsets,
-				int size);
-extern int reshape_open_backup_file(char *backup,
-				    int fd,
-				    char *devname,
-				    long blocks,
-				    int *fdlist,
-				    unsigned long long *offsets,
-				    char *sysfs_name,
-				    int restart);
-extern unsigned long compute_backup_blocks(int nchunk, int ochunk,
-					   unsigned int ndata, unsigned int odata);
 extern char *locate_backup(char *name);
-extern char *make_backup(char *name);
-
-extern int save_stripes(int *source, unsigned long long *offsets,
-			int raid_disks, int chunk_size, int level, int layout,
-			int nwrites, int *dest,
-			unsigned long long start, unsigned long long length,
-			char *buf);
-extern int restore_stripes(int *dest, unsigned long long *offsets,
-			   int raid_disks, int chunk_size, int level, int layout,
-			   int source, unsigned long long read_offset,
-			   unsigned long long start, unsigned long long length,
-			   char *src_buf);
 
 #ifndef Sendmail
 #define Sendmail "/usr/lib/sendmail -t"
