@@ -46,8 +46,8 @@ static int try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 static int Incremental_container(struct supertype *st, char *devname,
 				 struct context *c, char *only);
 
-int Incremental(struct mddev_dev *devlist, struct context *c,
-		struct supertype *st)
+int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
+		      struct supertype *st)
 {
 	/* Add this device to an array, creating the array if necessary
 	 * and starting the array if sensible or - if runstop>0 - if possible.
@@ -1024,8 +1024,8 @@ static int array_try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 			devlist.disposition = 'a';
 			close(dfd);
 			*dfdp = -1;
-			rv =  Manage_subdevs(chosen->sys_name, mdfd, &devlist,
-					     -1, 0, NULL, 0);
+			rv =  mdadm_manage_subdevs(chosen->sys_name, mdfd,
+						   &devlist, -1, 0, NULL, 0);
 			close(mdfd);
 		}
 		if (verbose > 0) {
@@ -1303,7 +1303,7 @@ static int try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 	return rv;
 }
 
-int IncrementalScan(struct context *c, char *devnm)
+int mdadm_incremental_scan(struct context *c, char *devnm)
 {
 	/* look at every device listed in the 'map' file.
 	 * If one is found that is not running then:
@@ -1647,7 +1647,7 @@ static int force_remove(char *devnm, int fd, struct mdinfo *mdi, int verbose)
 	int devid = devnm2devid(devnm);
 
 	run_udisks("--unmount", map_dev(major(devid), minor(devid), 0));
-	rv = Manage_stop(devnm, fd, verbose, 1);
+	rv = mdadm_manage_stop(devnm, fd, verbose, 1);
 	if (rv) {
 		/* At least we can try to trigger a 'remove' */
 		sysfs_uevent(mdi, "remove");
@@ -1665,8 +1665,8 @@ static void remove_from_member_array(struct mdstat_ent *memb,
 	int subfd = open_dev(memb->devnm);
 
 	if (subfd >= 0) {
-		rv = Manage_subdevs(memb->devnm, subfd, devlist, verbose,
-				    0, NULL, 0);
+		rv = mdadm_manage_subdevs(memb->devnm, subfd, devlist, verbose,
+					  0, NULL, 0);
 		if (rv & 2) {
 			if (sysfs_init(&mmdi, -1, memb->devnm))
 				pr_err("unable to initialize sysfs for: %s\n",
@@ -1680,8 +1680,9 @@ static void remove_from_member_array(struct mdstat_ent *memb,
 }
 
 /*
- * IncrementalRemove - Attempt to see if the passed in device belongs to any
- * raid arrays, and if so first fail (if needed) and then remove the device.
+ * mdadm_incremental_remove - Attempt to see if the passed in device belongs
+ * to any raid arrays, and if so first fail (if needed) and then remove the
+ * device.
  *
  * @devname - The device we want to remove
  * @id_path - name as found in /dev/disk/by-path for this device
@@ -1689,7 +1690,7 @@ static void remove_from_member_array(struct mdstat_ent *memb,
  * Note: the device name must be a kernel name like "sda", so
  * that we can find it in /proc/mdstat
  */
-int IncrementalRemove(char *devname, char *id_path, int verbose)
+int mdadm_incremental_remove(char *devname, char *id_path, int verbose)
 {
 	int mdfd;
 	int rv = 0;
@@ -1757,8 +1758,8 @@ int IncrementalRemove(char *devname, char *id_path, int verbose)
 		}
 		free_mdstat(mdstat);
 	} else {
-		rv |= Manage_subdevs(ent->devnm, mdfd, &devlist,
-				    verbose, 0, NULL, 0);
+		rv |= mdadm_manage_subdevs(ent->devnm, mdfd, &devlist,
+					   verbose, 0, NULL, 0);
 		if (rv & 2) {
 		/* Failed due to EBUSY, try to stop the array.
 		 * Give udisks a chance to unmount it first.
@@ -1769,7 +1770,7 @@ int IncrementalRemove(char *devname, char *id_path, int verbose)
 	}
 
 	devlist.disposition = 'r';
-	rv = Manage_subdevs(ent->devnm, mdfd, &devlist,
+	rv = mdadm_manage_subdevs(ent->devnm, mdfd, &devlist,
 			    verbose, 0, NULL, 0);
 end:
 	close(mdfd);

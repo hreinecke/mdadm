@@ -1419,27 +1419,28 @@ struct stat64;
 
 extern int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s);
 
-extern int Manage_ro(char *devname, int fd, int readonly);
-extern int Manage_run(char *devname, int fd, struct context *c);
-extern int Manage_stop(char *devname, int fd, int quiet,
-		       int will_retry);
-extern int Manage_subdevs(char *devname, int fd,
-			  struct mddev_dev *devlist, int verbose, int test,
-			  char *update, int force);
-extern int autodetect(void);
-extern int Grow_Add_device(char *devname, int fd, char *newdev);
-extern int Grow_addbitmap(char *devname, int fd,
-			  struct context *c, struct shape *s);
-extern int Grow_reshape(char *devname, int fd,
-			struct mddev_dev *devlist,
-			struct context *c, struct shape *s);
-extern int Grow_restart(struct supertype *st, struct mdinfo *info,
-			int *fdlist, int cnt, char *backup_file, int verbose);
-extern int Grow_continue(int mdfd, struct supertype *st,
-			 struct mdinfo *info, char *backup_file,
-			 int forked, int freeze_reshape);
-extern int Grow_consistency_policy(char *devname, int fd,
-				   struct context *c, struct shape *s);
+extern int mdadm_manage_ro(char *devname, int fd, int readonly);
+extern int mdadm_manage_run(char *devname, int fd, struct context *c);
+extern int mdadm_manage_stop(char *devname, int fd, int quiet,
+			     int will_retry);
+extern int mdadm_manage_subdevs(char *devname, int fd,
+				struct mddev_dev *devlist, int verbose,
+				int test, char *update, int force);
+extern int mdadm_autodetect(void);
+extern int mdadm_grow_add_device(char *devname, int fd, char *newdev);
+extern int mdadm_grow_add_bitmap(char *devname, int fd,
+				 struct context *c, struct shape *s);
+extern int mdadm_grow_reshape(char *devname, int fd,
+			      struct mddev_dev *devlist,
+			      struct context *c, struct shape *s);
+extern int mdadm_grow_restart(struct supertype *st, struct mdinfo *info,
+			      int *fdlist, int cnt, char *backup_file,
+			      int verbose);
+extern int mdadm_grow_continue(int mdfd, struct supertype *st,
+			       struct mdinfo *info, char *backup_file,
+			       int forked, int freeze_reshape);
+extern int mdadm_grow_consistency_policy(char *devname, int fd,
+					 struct context *c, struct shape *s);
 
 extern int restore_backup(struct supertype *st,
 			  struct mdinfo *content,
@@ -1447,56 +1448,61 @@ extern int restore_backup(struct supertype *st,
 			  int spares,
 			  char **backup_filep,
 			  int verbose);
-extern int Grow_continue_command(char *devname, int fd,
-				 char *backup_file, int verbose);
+extern int mdadm_grow_continue_command(char *devname, int fd,
+				       char *backup_file, int verbose);
 
-extern int Assemble(struct supertype *st, char *mddev,
-		    struct mddev_ident *ident,
-		    struct mddev_dev *devlist,
-		    struct context *c);
+extern int mdadm_assemble(struct supertype *st, char *mddev,
+			  struct mddev_ident *ident,
+			  struct mddev_dev *devlist,
+			  struct context *c);
 
-extern int Build(char *mddev, struct mddev_dev *devlist,
-		 struct shape *s, struct context *c);
+extern int mdadm_build(char *mddev, struct mddev_dev *devlist,
+		       struct shape *s, struct context *c);
 
-extern int Create(struct supertype *st, char *mddev,
-		  char *name, int *uuid,
-		  int subdevs, struct mddev_dev *devlist,
-		  struct shape *s,
-		  struct context *c);
+extern int mdadm_create(struct supertype *st, char *mddev,
+			char *name, int *uuid,
+			int subdevs, struct mddev_dev *devlist,
+			struct shape *s, struct context *c);
 
-extern int Detail(char *dev, struct context *c);
-extern int Detail_Platform(struct superswitch *ss, int scan, int verbose, int export, char *controller_path);
-extern int Query(char *dev);
-extern int ExamineBadblocks(char *devname, int brief, struct supertype *forcest);
-extern int Examine(struct mddev_dev *devlist, struct context *c,
-		   struct supertype *forcest);
-extern int Monitor(struct mddev_dev *devlist,
-		   char *mailaddr, char *alert_cmd,
-		   struct context *c,
-		   int daemonise, int oneshot,
-		   int dosyslog, char *pidfile, int increments,
-		   int share);
+extern int mdadm_detail(char *dev, struct context *c);
+extern int mdadm_detail_platform(struct superswitch *ss, int scan, int verbose,
+				 int export, char *controller_path);
+extern int mdadm_query(char *dev);
+extern int mdadm_examine_badblocks(char *devname, int brief,
+				  struct supertype *forcest);
+extern int mdadm_examine(struct mddev_dev *devlist, struct context *c,
+			 struct supertype *forcest);
+extern int mdadm_monitor(struct mddev_dev *devlist,
+			 char *mailaddr, char *alert_cmd,
+			 struct context *c,
+			 int daemonise, int oneshot,
+			 int dosyslog, char *pidfile, int increments,
+			 int share);
 
-extern int Kill(char *dev, struct supertype *st, int force, int verbose, int noexcl);
-extern int Kill_subarray(char *dev, char *subarray, int verbose);
-extern int Update_subarray(char *dev, char *subarray, char *update, struct mddev_ident *ident, int quiet);
-extern int Wait(char *dev);
-extern int WaitClean(char *dev, int verbose);
-extern int SetAction(char *dev, char *action);
+extern int mdadm_kill(char *dev, struct supertype *st, int force, int verbose,
+		      int noexcl);
+extern int mdadm_kill_subarray(char *dev, char *subarray, int verbose);
+extern int mdadm_update_subarray(char *dev, char *subarray, char *update,
+				 struct mddev_ident *ident, int quiet);
+extern int mdadm_wait(char *dev);
+extern int mdadm_wait_clean(char *dev, int verbose);
+extern int mdadm_set_action(char *dev, char *action);
 
-extern int Incremental(struct mddev_dev *devlist, struct context *c,
-		       struct supertype *st);
-extern void RebuildMap(void);
-extern int IncrementalScan(struct context *c, char *devnm);
-extern int IncrementalRemove(char *devname, char *path, int verbose);
-extern int CreateBitmap(char *filename, int force, char uuid[16],
-			unsigned long chunksize, unsigned long daemon_sleep,
-			unsigned long write_behind,
-			unsigned long long array_size,
-			int major);
-extern int ExamineBitmap(char *filename, int brief, struct supertype *st);
-extern int IsBitmapDirty(char *filename);
-extern int Write_rules(char *rule_name);
+extern int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
+			     struct supertype *st);
+extern void mdadm_rebuild_map(void);
+extern int mdadm_incremental_scan(struct context *c, char *devnm);
+extern int mdadm_incremental_remove(char *devname, char *path, int verbose);
+extern int mdadm_create_bitmap(char *filename, int force, char uuid[16],
+			       unsigned long chunksize,
+			       unsigned long daemon_sleep,
+			       unsigned long write_behind,
+			       unsigned long long array_size,
+			       int major);
+extern int mdadm_examine_bitmap(char *filename, int brief,
+				struct supertype *st);
+extern int mdadm_is_bitmap_dirty(char *filename);
+extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
 /* calculate the size of the bitmap given the array size and bitmap chunksize */
@@ -1506,10 +1512,10 @@ bitmap_bits(unsigned long long array_size, unsigned long chunksize)
 	return (array_size * 512 + chunksize - 1) / chunksize;
 }
 
-extern int Dump_metadata(char *dev, char *dir, struct context *c,
-			 struct supertype *st);
-extern int Restore_metadata(char *dev, char *dir, struct context *c,
-			    struct supertype *st, int only);
+extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
+			       struct supertype *st);
+extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
+				  struct supertype *st, int only);
 
 int md_array_valid(int fd);
 int md_array_active(int fd);

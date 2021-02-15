@@ -6688,7 +6688,7 @@ static int write_init_super_imsm(struct supertype *st)
 	} else {
 		struct dl *d;
 		for (d = super->disks; d; d = d->next)
-			Kill(d->devname, NULL, 0, -1, 1);
+			mdadm_kill(d->devname, NULL, 0, -1, 1);
 		if (current_vol >= 0) {
 			rv = write_init_ppl_imsm_all(st, &info);
 			if (!rv)

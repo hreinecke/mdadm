@@ -78,12 +78,12 @@ static void link_containers_with_subarrays(struct state *list);
 static int check_udev_activity(void);
 #endif
 
-int Monitor(struct mddev_dev *devlist,
-	    char *mailaddr, char *alert_cmd,
-	    struct context *c,
-	    int daemonise, int oneshot,
-	    int dosyslog, char *pidfile, int increments,
-	    int share)
+int mdadm_monitor(struct mddev_dev *devlist,
+		  char *mailaddr, char *alert_cmd,
+		  struct context *c,
+		  int daemonise, int oneshot,
+		  int dosyslog, char *pidfile, int increments,
+		  int share)
 {
 	/*
 	 * Every few seconds, scan every md device looking for changes
@@ -1115,7 +1115,7 @@ out:
 #endif
 
 /* Not really Monitor but ... */
-int Wait(char *dev)
+int mdadm_wait(char *dev)
 {
 	char devnm[32];
 	dev_t rdev;
@@ -1187,7 +1187,7 @@ int Wait(char *dev)
 static char *clean_states[] = {
 	"clear", "inactive", "readonly", "read-auto", "clean", "broken", NULL };
 
-int WaitClean(char *dev, int verbose)
+int mdadm_wait_clean(char *dev, int verbose)
 {
 	int fd;
 	struct mdinfo *mdi;

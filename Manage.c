@@ -27,7 +27,7 @@
 #include "md_p.h"
 #include <ctype.h>
 
-int Manage_ro(char *devname, int fd, int readonly)
+int mdadm_manage_ro(char *devname, int fd, int readonly)
 {
 	/* switch to readonly or rw
 	 *
@@ -152,7 +152,7 @@ static void remove_devices(char *devnm, char *path)
 	free(path2);
 }
 
-int Manage_run(char *devname, int fd, struct context *c)
+int mdadm_manage_run(char *devname, int fd, struct context *c)
 {
 	/* Run the array.  Array must already be configured
 	 *  Requires >= 0.90.0
@@ -165,10 +165,10 @@ int Manage_run(char *devname, int fd, struct context *c)
 		return 1;
 	}
 	strcpy(nm, nmp);
-	return IncrementalScan(c, nm);
+	return mdadm_incremental_scan(c, nm);
 }
 
-int Manage_stop(char *devname, int fd, int verbose, int will_retry)
+int mdadm_manage_stop(char *devname, int fd, int verbose, int will_retry)
 {
 	/* Stop the array.  Array must already be configured
 	 * 'will_retry' means that error messages are not wanted.
@@ -711,11 +711,11 @@ skip_re_add:
 	return 0;
 }
 
-int Manage_add(int fd, int tfd, struct mddev_dev *dv,
-	       struct supertype *tst, mdu_array_info_t *array,
-	       int force, int verbose, char *devname,
-	       char *update, unsigned long rdev, unsigned long long array_size,
-	       int raid_slot)
+int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
+		     struct supertype *tst, mdu_array_info_t *array,
+		     int force, int verbose, char *devname,
+		     char *update, unsigned long rdev,
+		     unsigned long long array_size, int raid_slot)
 {
 	unsigned long long ldsize;
 	struct supertype *dev_st;
@@ -999,7 +999,7 @@ int Manage_add(int fd, int tfd, struct mddev_dev *dv,
 			return -1;
 		}
 
-		Kill(dv->devname, NULL, 0, -1, 0);
+		mdadm_kill(dv->devname, NULL, 0, -1, 0);
 		dfd = dev_open(dv->devname, O_RDWR | O_EXCL|O_DIRECT);
 		if (tst->ss->add_to_super(tst, &disc, dfd,
 					  dv->devname, INVALID_SECTORS)) {
@@ -1049,7 +1049,7 @@ int Manage_add(int fd, int tfd, struct mddev_dev *dv,
 		}
 		if (dv->disposition == 'j') {
 			pr_err("Journal added successfully, making %s read-write\n", devname);
-			if (Manage_ro(devname, fd, -1))
+			if (mdadm_manage_ro(devname, fd, -1))
 				pr_err("Failed to make %s read-write\n", devname);
 		}
 
@@ -1059,8 +1059,9 @@ int Manage_add(int fd, int tfd, struct mddev_dev *dv,
 	return 1;
 }
 
-int Manage_remove(struct supertype *tst, int fd, struct mddev_dev *dv,
-		  int sysfd, unsigned long rdev, int force, int verbose, char *devname)
+int mdadm_manage_remove(struct supertype *tst, int fd, struct mddev_dev *dv,
+			int sysfd, unsigned long rdev, int force, int verbose,
+			char *devname)
 {
 	int lfd = -1;
 	int err;
@@ -1180,8 +1181,8 @@ int Manage_remove(struct supertype *tst, int fd, struct mddev_dev *dv,
 	return 1;
 }
 
-int Manage_replace(struct supertype *tst, int fd, struct mddev_dev *dv,
-		   unsigned long rdev, int verbose, char *devname)
+int mdadm_manage_replace(struct supertype *tst, int fd, struct mddev_dev *dv,
+			unsigned long rdev, int verbose, char *devname)
 {
 	struct mdinfo *mdi, *di;
 	if (tst->ss->external) {
@@ -1237,8 +1238,8 @@ int Manage_replace(struct supertype *tst, int fd, struct mddev_dev *dv,
 	return -1;
 }
 
-int Manage_with(struct supertype *tst, int fd, struct mddev_dev *dv,
-		unsigned long rdev, int verbose, char *devname)
+int mdadm_manage_with(struct supertype *tst, int fd, struct mddev_dev *dv,
+		      unsigned long rdev, int verbose, char *devname)
 {
 	struct mdinfo *mdi, *di;
 	/* try to set 'slot' for 'rdev' in 'fd' to 'dv->used' */
@@ -1285,9 +1286,9 @@ int Manage_with(struct supertype *tst, int fd, struct mddev_dev *dv,
 	return -1;
 }
 
-int Manage_subdevs(char *devname, int fd,
-		   struct mddev_dev *devlist, int verbose, int test,
-		   char *update, int force)
+int mdadm_manage_subdevs(char *devname, int fd,
+			 struct mddev_dev *devlist, int verbose, int test,
+			 char *update, int force)
 {
 	/* Do something to each dev.
 	 * devmode can be
@@ -1568,9 +1569,9 @@ int Manage_subdevs(char *devname, int fd,
 				else
 					frozen = -1;
 			}
-			rv = Manage_add(fd, tfd, dv, tst, &array,
-					force, verbose, devname, update,
-					rdev, array_size, raid_slot);
+			rv = mdadm_manage_add(fd, tfd, dv, tst, &array,
+					      force, verbose, devname, update,
+					      rdev, array_size, raid_slot);
 			close(tfd);
 			tfd = -1;
 			if (rv < 0)
@@ -1585,9 +1586,9 @@ int Manage_subdevs(char *devname, int fd,
 				pr_err("Cannot remove disks from a \'member\' array, perform this operation on the parent container\n");
 				rv = -1;
 			} else
-				rv = Manage_remove(tst, fd, dv, sysfd,
-						   rdev, verbose, force,
-						   devname);
+				rv = mdadm_manage_remove(tst, fd, dv, sysfd,
+							 rdev, verbose, force,
+							 devname);
 			if (sysfd >= 0)
 				close(sysfd);
 			sysfd = -1;
@@ -1629,9 +1630,9 @@ int Manage_subdevs(char *devname, int fd,
 					else
 						frozen = -1;
 				}
-				rv = Manage_replace(tst, fd, dv,
-						    rdev, verbose,
-						    devname);
+				rv = mdadm_manage_replace(tst, fd, dv,
+							  rdev, verbose,
+							  devname);
 			}
 			if (rv < 0)
 				goto abort;
@@ -1643,8 +1644,8 @@ int Manage_subdevs(char *devname, int fd,
 			       dv->devname);
 			goto abort;
 		case 'w': /* --with device which was matched */
-			rv = Manage_with(tst, fd, dv,
-					 rdev, verbose, devname);
+			rv = mdadm_manage_with(tst, fd, dv,
+					       rdev, verbose, devname);
 			if (rv < 0)
 				goto abort;
 			break;
@@ -1662,7 +1663,7 @@ abort:
 	return !test && busy ? 2 : 1;
 }
 
-int autodetect(void)
+int mdadm_autodetect(void)
 {
 	/* Open any md device, and issue the RAID_AUTORUN ioctl */
 	int rv = 1;
@@ -1675,7 +1676,8 @@ int autodetect(void)
 	return rv;
 }
 
-int Update_subarray(char *dev, char *subarray, char *update, struct mddev_ident *ident, int verbose)
+int mdadm_update_subarray(char *dev, char *subarray, char *update,
+			  struct mddev_ident *ident, int verbose)
 {
 	struct supertype supertype, *st = &supertype;
 	int fd, rv = 2;
@@ -1756,9 +1758,9 @@ int move_spare(char *from_devname, char *to_devname, dev_t devid)
 	sprintf(devname, "%d:%d", major(devid), minor(devid));
 
 	devlist.disposition = 'r';
-	if (Manage_subdevs(from_devname, fd2, &devlist, -1, 0, NULL, 0) == 0) {
+	if (mdadm_manage_subdevs(from_devname, fd2, &devlist, -1, 0, NULL, 0) == 0) {
 		devlist.disposition = 'a';
-		if (Manage_subdevs(to_devname, fd1, &devlist, -1, 0,
+		if (mdadm_manage_subdevs(to_devname, fd1, &devlist, -1, 0,
 				   NULL, 0) == 0) {
 			/* make sure manager is aware of changes */
 			ping_manager(to_devname);
@@ -1768,8 +1770,8 @@ int move_spare(char *from_devname, char *to_devname, dev_t devid)
 			return 1;
 		}
 		else
-			Manage_subdevs(from_devname, fd2, &devlist,
-				       -1, 0, NULL, 0);
+			mdadm_manage_subdevs(from_devname, fd2, &devlist,
+					     -1, 0, NULL, 0);
 	}
 	close(fd1);
 	close(fd2);

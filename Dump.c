@@ -20,8 +20,8 @@
 #include "mdadm.h"
 #include <sys/dir.h>
 
-int Dump_metadata(char *dev, char *dir, struct context *c,
-		  struct supertype *st)
+int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
+			struct supertype *st)
 {
 	/* create a new file in 'dir' named for the basename of 'dev'.
 	 * Truncate to the same size as 'dev' and ask the metadata
@@ -155,8 +155,8 @@ int Dump_metadata(char *dev, char *dir, struct context *c,
 	return 0;
 }
 
-int Restore_metadata(char *dev, char *dir, struct context *c,
-		     struct supertype *st, int only)
+int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
+			   struct supertype *st, int only)
 {
 	/* If 'dir' really is a directory we choose a name
 	 * from it that matches a suitable name in /dev/disk/by-id,

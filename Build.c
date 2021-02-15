@@ -24,8 +24,8 @@
 
 #include "mdadm.h"
 
-int Build(char *mddev, struct mddev_dev *devlist,
-	  struct shape *s, struct context *c)
+int mdadm_build(char *mddev, struct mddev_dev *devlist,
+		struct shape *s, struct context *c)
 {
 	/* Build a linear or raid0 arrays without superblocks
 	 * We cannot really do any checks, we just do it.
@@ -165,9 +165,10 @@ int Build(char *mddev, struct mddev_dev *devlist,
 			}
 #endif
 			bitmapsize = s->size >> 9; /* FIXME wrong for RAID10 */
-			if (CreateBitmap(s->bitmap_file, 1, NULL,
-					 s->bitmap_chunk, c->delay,
-					 s->write_behind, bitmapsize, major)) {
+			if (mdadm_create_bitmap(s->bitmap_file, 1, NULL,
+						s->bitmap_chunk, c->delay,
+						s->write_behind, bitmapsize,
+						major)) {
 				goto abort;
 			}
 			bitmap_fd = open(s->bitmap_file, O_RDWR);
