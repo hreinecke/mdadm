@@ -27,6 +27,7 @@
 #include	"md_p.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"super.h"
 #include	"sysfs.h"
 #include	<ctype.h>
 

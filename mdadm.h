@@ -852,7 +852,7 @@ struct metadata_update {
  * sub-version of that metadata type.
  * metadata read in or created is stored in 'sb' and 'info'.
  * There are also fields used by mdmon to track containers.
- *
+q *
  * A supertype may refer to:
  *   Just an array, possibly in a container
  *   A container, not identifying any particular array
@@ -896,20 +896,6 @@ struct supertype {
 	struct mdinfo *devs;
 
 };
-
-extern struct supertype *super_by_fd(int fd, char **subarray);
-enum guess_types { guess_any, guess_array, guess_partitions };
-extern struct supertype *guess_super_type(int fd, enum guess_types guess_type);
-static inline struct supertype *guess_super(int fd) {
-	return guess_super_type(fd, guess_any);
-}
-extern struct supertype *dup_super(struct supertype *st);
-extern int get_dev_size(int fd, char *dname, unsigned long long *sizep);
-extern int get_dev_sector_size(int fd, char *dname, unsigned int *sectsizep);
-extern int must_be_container(int fd);
-extern int dev_size_from_id(dev_t id, unsigned long long *size);
-extern int dev_sector_size_from_id(dev_t id, unsigned int *size);
-void wait_for(char *dev, int fd);
 
 /*
  * Data structures for policy management.
@@ -1221,8 +1207,6 @@ extern const int uuid_zero[4];
 extern int same_uuid(int a[4], int b[4], int swapuuid);
 extern void copy_uuid(void *a, int b[4], int swapuuid);
 extern char *__fname_from_uuid(int id[4], int swap, char *buf, char sep);
-extern char *fname_from_uuid(struct supertype *st,
-			     struct mdinfo *info, char *buf, char sep);
 extern unsigned long calc_csum(void *super, int bytes);
 extern int enough(int level, int raid_disks, int layout, int clean,
 		   char *avail);

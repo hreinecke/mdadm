@@ -24,6 +24,7 @@
 
 #include "mdadm.h"
 #include "debug.h"
+#include "super.h"
 
 int mdadm_build(char *mddev, struct mddev_dev *devlist,
 		struct shape *s, struct context *c)
