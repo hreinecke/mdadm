@@ -26,6 +26,7 @@
 #include "mdadm.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "bswap.h"
 
 /*
  * The version-1 superblock :

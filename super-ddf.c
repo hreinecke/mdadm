@@ -30,6 +30,7 @@
 #include "mdmon.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "bswap.h"
 #include "sha1.h"
 #include <values.h>
 #include <stddef.h>
