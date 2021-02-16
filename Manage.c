@@ -1767,3 +1767,73 @@ int move_spare(char *from_devname, char *to_devname, dev_t devid)
 	close(fd2);
 	return 0;
 }
+
+int mdadm_set_action(char *dev, char *action)
+{
+	int fd = open(dev, O_RDONLY);
+	struct mdinfo mdi;
+	int retval;
+
+	if (fd < 0) {
+		pr_err("Couldn't open %s: %s\n", dev, strerror(errno));
+		return 1;
+	}
+	retval = sysfs_init(&mdi, fd, NULL);
+	close(fd);
+	if (retval) {
+		pr_err("%s is no an md array\n", dev);
+		return 1;
+	}
+
+	if (sysfs_set_str(&mdi, NULL, "sync_action", action) < 0) {
+		pr_err("Count not set action for %s to %s: %s\n",
+		       dev, action, strerror(errno));
+		return 1;
+	}
+	return 0;
+}
+
+int mdadm_stop_scan(int verbose)
+{
+	/* apply --stop to all devices in /proc/mdstat */
+	/* Due to possible stacking of devices, repeat until
+	 * nothing more can be stopped
+	 */
+	int progress = 1, err;
+	int last = 0;
+	int rv = 0;
+	do {
+		struct mdstat_ent *ms = mdstat_read(0, 0);
+		struct mdstat_ent *e;
+
+		if (!progress) last = 1;
+		progress = 0; err = 0;
+		for (e = ms; e; e = e->next) {
+			char *name = get_md_name(e->devnm);
+			int mdfd;
+
+			if (!name) {
+				pr_err("cannot find device file for %s\n",
+					e->devnm);
+				continue;
+			}
+			mdfd = open(name, O_RDONLY);
+			if (mdfd < 0)
+				pr_err("error opening %s: %s\n",
+				       name, strerror(errno));
+			else {
+				if (mdadm_manage_stop(name, mdfd, verbose, !last))
+					err = 1;
+				else
+					progress = 1;
+				close(mdfd);
+			}
+
+			put_md_name(name);
+		}
+		free_mdstat(ms);
+	} while (!last && err);
+	if (err)
+		rv |= 1;
+	return rv;
+}
