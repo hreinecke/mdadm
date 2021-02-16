@@ -383,7 +383,7 @@ int mdadm_grow_add_bitmap(char *devname, int fd, struct context *c,
 	}
 	if (array.level <= 0) {
 		pr_err("Bitmaps not meaningful with level %s\n",
-			map_num(pers, array.level)?:"of this array");
+			mdadm_personality_name(array.level)?:"of this array");
 		return 1;
 	}
 	bitmapsize = array.size;
@@ -579,7 +579,7 @@ int mdadm_grow_consistency_policy(char *devname, int fd, struct context *c, stru
 	if (s->consistency_policy != CONSISTENCY_POLICY_RESYNC &&
 	    s->consistency_policy != CONSISTENCY_POLICY_PPL) {
 		pr_err("Operation not supported for consistency policy %s\n",
-		       map_num(consistency_policies, s->consistency_policy));
+		       mdadm_consistency_policy_name(s->consistency_policy));
 		return 1;
 	}
 
@@ -610,14 +610,14 @@ int mdadm_grow_consistency_policy(char *devname, int fd, struct context *c, stru
 
 	if (sra->consistency_policy == (unsigned)s->consistency_policy) {
 		pr_err("Consistency policy is already %s\n",
-		       map_num(consistency_policies, s->consistency_policy));
+		       mdadm_consistency_policy_name(s->consistency_policy));
 		ret = 1;
 		goto free_info;
 	} else if (sra->consistency_policy != CONSISTENCY_POLICY_RESYNC &&
 		   sra->consistency_policy != CONSISTENCY_POLICY_PPL) {
 		pr_err("Current consistency policy is %s, cannot change to %s\n",
-		       map_num(consistency_policies, sra->consistency_policy),
-		       map_num(consistency_policies, s->consistency_policy));
+		       mdadm_consistency_policy_name(sra->consistency_policy),
+		       mdadm_consistency_policy_name(s->consistency_policy));
 		ret = 1;
 		goto free_info;
 	}
@@ -736,7 +736,7 @@ int mdadm_grow_consistency_policy(char *devname, int fd, struct context *c, stru
 	}
 
 	ret = sysfs_set_str(sra, NULL, "consistency_policy",
-			    map_num(consistency_policies,
+			    mdadm_consistency_policy_name(
 				    s->consistency_policy));
 	if (ret)
 		pr_err("Failed to change array consistency policy\n");
@@ -1508,14 +1508,18 @@ char *analyse_change(char *devname, struct mdinfo *info, struct reshape *re)
 			re->level = 5;
 			re->before.layout = ALGORITHM_PARITY_N;
 			if (info->new_layout == UnSet)
-				info->new_layout = map_name(r5layout, "default");
+				info->new_layout =
+					mdadm_raid_layout_num(re->level,
+							      "default");
 			break;
 		case 6:
 			delta_parity = 2;
 			re->level = 6;
 			re->before.layout = ALGORITHM_PARITY_N;
 			if (info->new_layout == UnSet)
-				info->new_layout = map_name(r6layout, "default");
+				info->new_layout =
+					mdadm_raid_layout_num(re->level,
+							      "default");
 			break;
 		default:
 			return "Impossible level change requested";
@@ -1658,14 +1662,14 @@ char *analyse_change(char *devname, struct mdinfo *info, struct reshape *re)
 				re->after.layout = ALGORITHM_PARITY_N;
 			else {
 				char layout[40];
-				char *ls = map_num(r5layout, info->new_layout);
+				char *ls = mdadm_raid_layout_name(5, info->new_layout);
 				int l;
 				if (ls) {
 					/* Current RAID6 layout has a RAID5
 					 * equivalent - good
 					 */
 					strcat(strcpy(layout, ls), "-6");
-					l = map_name(r6layout, layout);
+					l = mdadm_raid_layout_num(6, layout);
 					if (l == UnSet)
 						return "Cannot find RAID6 layout to convert to";
 				} else {
@@ -1674,7 +1678,7 @@ char *analyse_change(char *devname, struct mdinfo *info, struct reshape *re)
 					 * can leave it unchanged, else we must
 					 * fail
 					 */
-					ls = map_num(r6layout,
+					ls = mdadm_raid_layout_name(6,
 						     info->new_layout);
 					if (!ls ||
 					    strcmp(ls+strlen(ls)-2, "-6") != 0)
@@ -2267,11 +2271,11 @@ size_change_error:
 		info.new_layout = UnSet;
 		if (info.array.level == 6 && info.new_level == UnSet) {
 			char l[40], *h;
-			strcpy(l, map_num(r6layout, info.array.layout));
+			strcpy(l, mdadm_raid_layout_name(5, info.array.layout));
 			h = strrchr(l, '-');
 			if (h && strcmp(h, "-6") == 0) {
 				*h = 0;
-				info.new_layout = map_name(r6layout, l);
+				info.new_layout = mdadm_raid_layout_num(6, l);
 			}
 		} else {
 			pr_err("%s is only meaningful when reshaping a RAID6 array.\n", s->layout_str);
@@ -2292,9 +2296,9 @@ size_change_error:
 			info.new_layout = info.array.layout;
 		else if (info.array.level == 5 && info.new_level == 6) {
 			char l[40];
-			strcpy(l, map_num(r5layout, info.array.layout));
+			strcpy(l, mdadm_raid_layout_name(5, info.array.layout));
 			strcat(l, "-6");
-			info.new_layout = map_name(r6layout, l);
+			info.new_layout = mdadm_raid_layout_num(6, l);
 		} else {
 			pr_err("%s in only meaningful when reshaping to RAID6\n", s->layout_str);
 			rv = 1;
@@ -2306,10 +2310,10 @@ size_change_error:
 			l = info.array.level;
 		switch (l) {
 		case 5:
-			info.new_layout = map_name(r5layout, s->layout_str);
+			info.new_layout = mdadm_raid_layout_num(l, s->layout_str);
 			break;
 		case 6:
-			info.new_layout = map_name(r6layout, s->layout_str);
+			info.new_layout = mdadm_raid_layout_num(l, s->layout_str);
 			break;
 		case 10:
 			info.new_layout = parse_layout_10(s->layout_str);
@@ -3015,7 +3019,7 @@ static int impose_level(int fd, int level, char *devname, int verbose)
 			hot_remove_disk(fd, makedev(disk.major, disk.minor), 1);
 		}
 	}
-	c = map_num(pers, level);
+	c = mdadm_personality_name(level);
 	if (c) {
 		int err = sysfs_set_str(&info, NULL, "level", c);
 		if (err) {
@@ -3680,7 +3684,7 @@ release:
 	free(fdlist);
 	free(offsets);
 	if (orig_level != UnSet && sra) {
-		c = map_num(pers, orig_level);
+		c = mdadm_personality_name(orig_level);
 		if (c && sysfs_set_str(sra, NULL, "level", c) == 0)
 			pr_err("aborting level change\n");
 	}

@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
 	int opt;
 	int option_index;
 	int rv;
-	int i;
 
 	unsigned long long array_size = 0;
 	unsigned long long data_offset = INVALID_SECTORS;
@@ -425,9 +424,7 @@ int main(int argc, char *argv[])
 				pr_err("metadata information already given\n");
 				exit(2);
 			}
-			for(i = 0; !ss && superlist[i]; i++)
-				ss = superlist[i]->match_metadata_desc(optarg);
-
+			ss = mdadm_lookup_supertype(optarg);
 			if (!ss) {
 				pr_err("unrecognised metadata identifier: %s\n", optarg);
 				exit(2);
@@ -519,7 +516,7 @@ int main(int argc, char *argv[])
 				pr_err("raid level may only be set once.  Second value is %s.\n", optarg);
 				exit(2);
 			}
-			s.level = map_name(pers, optarg);
+			s.level = mdadm_personality_num(optarg);
 			if (s.level == UnSet) {
 				pr_err("invalid raid level: %s\n",
 					optarg);
@@ -559,59 +556,9 @@ int main(int argc, char *argv[])
 				pr_err("layout may only be sent once.  Second value was %s\n", optarg);
 				exit(2);
 			}
-			switch(s.level) {
-			default:
-				pr_err("layout not meaningful for %s arrays.\n",
-					map_num(pers, s.level));
+			s.layout = mdadm_get_layout(s.level, optarg);
+			if (s.layout < -1)
 				exit(2);
-			case UnSet:
-				pr_err("raid level must be given before layout.\n");
-				exit(2);
-
-			case 0:
-				s.layout = map_name(r0layout, optarg);
-				if (s.layout == UnSet) {
-					pr_err("layout %s not understood for raid0.\n",
-						optarg);
-					exit(2);
-				}
-				break;
-			case 5:
-				s.layout = map_name(r5layout, optarg);
-				if (s.layout == UnSet) {
-					pr_err("layout %s not understood for raid5.\n",
-						optarg);
-					exit(2);
-				}
-				break;
-			case 6:
-				s.layout = map_name(r6layout, optarg);
-				if (s.layout == UnSet) {
-					pr_err("layout %s not understood for raid6.\n",
-						optarg);
-					exit(2);
-				}
-				break;
-
-			case 10:
-				s.layout = parse_layout_10(optarg);
-				if (s.layout < 0) {
-					pr_err("layout for raid10 must be 'nNN', 'oNN' or 'fNN' where NN is a number, not %s\n", optarg);
-					exit(2);
-				}
-				break;
-			case LEVEL_FAULTY:
-				/* Faulty
-				 * modeNNN
-				 */
-				s.layout = parse_layout_faulty(optarg);
-				if (s.layout == -1) {
-					pr_err("layout %s not understood for faulty.\n",
-						optarg);
-					exit(2);
-				}
-				break;
-			}
 			continue;
 
 		case O(CREATE,AssumeClean):
@@ -824,9 +771,7 @@ int main(int argc, char *argv[])
 					pr_err("must not set metadata type with --update=byteorder.\n");
 					exit(2);
 				}
-				for(i = 0; !ss && superlist[i]; i++)
-					ss = superlist[i]->match_metadata_desc(
-						"0.swap");
+				ss = mdadm_lookup_supertype("0.swap");
 				if (!ss) {
 					pr_err("INTERNAL ERROR cannot find 0.swap\n");
 					exit(2);
@@ -1265,8 +1210,7 @@ int main(int argc, char *argv[])
 			continue;
 		case O(CREATE, 'k'):
 		case O(GROW, 'k'):
-			s.consistency_policy = map_name(consistency_policies,
-							optarg);
+			s.consistency_policy = mdadm_consistency_policy_num(optarg);
 			if (s.consistency_policy < CONSISTENCY_POLICY_RESYNC) {
 				pr_err("Invalid consistency policy: %s\n",
 				       optarg);
@@ -1308,7 +1252,7 @@ int main(int argc, char *argv[])
 		if (s.consistency_policy != CONSISTENCY_POLICY_UNKNOWN &&
 		    s.consistency_policy != CONSISTENCY_POLICY_JOURNAL) {
 			pr_err("--write-journal is not supported with consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		}
 	}
@@ -1317,12 +1261,12 @@ int main(int argc, char *argv[])
 	    s.consistency_policy != CONSISTENCY_POLICY_UNKNOWN) {
 		if (s.level <= 0) {
 			pr_err("--consistency-policy not meaningful with level %s.\n",
-			       map_num(pers, s.level));
+			       mdadm_personality_name(s.level));
 			exit(2);
 		} else if (s.consistency_policy == CONSISTENCY_POLICY_JOURNAL &&
 			   !s.journaldisks) {
 			pr_err("--write-journal is required for consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		} else if (s.consistency_policy == CONSISTENCY_POLICY_PPL &&
 			   s.level != 5) {
@@ -1332,14 +1276,14 @@ int main(int argc, char *argv[])
 			   (!s.bitmap_file ||
 			    strcmp(s.bitmap_file, "none") == 0)) {
 			pr_err("--bitmap is required for consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		} else if (s.bitmap_file &&
 			   strcmp(s.bitmap_file, "none") != 0 &&
 			   s.consistency_policy != CONSISTENCY_POLICY_BITMAP &&
 			   s.consistency_policy != CONSISTENCY_POLICY_JOURNAL) {
 			pr_err("--bitmap is not compatible with consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		}
 	}

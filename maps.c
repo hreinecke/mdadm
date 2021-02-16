@@ -23,6 +23,8 @@
  */
 
 #include "mdadm.h"
+#include "debug.h"
+#include "policy.h"
 
 /* name/number mappings */
 
@@ -153,6 +155,14 @@ mapping_t sysfs_array_states[] = {
 	{ NULL, ARRAY_UNKNOWN_STATE }
 };
 
+mapping_t assemble_statuses[] = {
+	{ "but cannot be started", INCR_NO },
+	{ "but not safe to start", INCR_UNSAFE },
+	{ "and started", INCR_YES },
+	{ NULL, INCR_ALREADY }
+};
+
+
 char *map_num(mapping_t *map, int num)
 {
 	while (map->name) {
@@ -163,10 +173,168 @@ char *map_num(mapping_t *map, int num)
 	return NULL;
 }
 
-int map_name(mapping_t *map, char *name)
+static int map_name(mapping_t *map, char *name)
 {
 	while (map->name && strcmp(map->name, name) != 0)
 		map++;
 
 	return map->num;
+}
+
+int mdadm_get_layout(int level, char *name)
+{
+	int layout;
+
+	switch(level) {
+	case UnSet:
+		pr_err("raid level must be given before layout.\n");
+		return -EINVAL;
+	case 0:
+		layout = map_name(r0layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid0.\n", name);
+			return -EINVAL;
+		}
+		break;
+	case 5:
+		layout = map_name(r5layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid5.\n", name);
+			return -EINVAL;
+		}
+		break;
+	case 6:
+		layout = map_name(r6layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid6.\n", name);
+			return -EINVAL;
+		}
+		break;
+	case 10:
+		layout = parse_layout_10(optarg);
+		if (layout < 0) {
+			pr_err("layout for raid10 must be 'nNN', 'oNN' or 'fNN' where NN is a number, not %s\n", name);
+			return -EINVAL;
+		}
+		break;
+	case LEVEL_FAULTY:
+		/* Faulty
+		 * modeNNN
+		 */
+		layout = parse_layout_faulty(optarg);
+		if (layout < 0) {
+			pr_err("layout %s not understood for faulty.\n",
+			       optarg);
+			return -EINVAL;
+		}
+		break;
+	default:
+		pr_err("layout not meaningful for %s arrays.\n",
+		       map_num(pers, level));
+		return -EAGAIN;
+	}
+	return layout;
+}
+
+int mdadm_default_layout(int level, int verbose)
+{
+	int layout = 0; /* no layout */
+
+	switch(level) {
+	default:
+		break;
+	case 10:
+		layout = 0x102; /* near=2, far=1 */
+		if (verbose > 0)
+			pr_err("layout defaults to n1\n");
+		break;
+	case 5:
+	case 6:
+		layout = map_name(r5layout, "default");
+		if (verbose > 0)
+			pr_err("layout defaults to %s\n",
+			       map_num(r5layout, layout));
+		break;
+	case 0:
+		layout = RAID0_ORIG_LAYOUT;
+		break;
+	case LEVEL_FAULTY:
+		layout = map_name(faultylayout, "default");
+
+		if (verbose > 0)
+			pr_err("layout defaults to %s\n",
+			       map_num(faultylayout, layout));
+			break;
+	}
+	return layout;
+}
+
+int mdadm_faulty_layout(char *name)
+{
+	return map_name(faultylayout, name);
+}
+
+char *mdadm_raid_layout_name(int level, int layout)
+{
+	switch (level) {
+	case 0:
+		return map_num(r0layout, layout);
+	case 5:
+		return map_num(r5layout, layout);
+	case 6:
+		return map_num(r6layout, layout);
+	default:
+		break;
+	}
+	return NULL;
+}
+
+int mdadm_raid_layout_num(int level, char *layout)
+{
+	switch (level) {
+	case 0:
+		return map_name(r0layout, layout);
+	case 5:
+		return map_name(r5layout, layout);
+	case 6:
+		return map_name(r6layout, layout);
+	default:
+		break;
+	}
+	return -1;
+}
+
+int mdadm_personality_num(char *name)
+{
+	return map_name(pers, name);
+}
+
+char *mdadm_personality_name(int num)
+{
+	return map_num(pers, num);
+}
+
+int mdadm_consistency_policy_num(char *name)
+{
+	return map_name(consistency_policies, name);
+}
+
+char *mdadm_consistency_policy_name(int num)
+{
+	return map_num(consistency_policies, num);
+}
+
+int mdadm_array_state_num(char *name)
+{
+	return map_name(sysfs_array_states, name);
+}
+
+char *mdadm_array_state_name(int num)
+{
+	return map_num(sysfs_array_states, num);
+}
+
+char *mdadm_assemble_status(int status)
+{
+	return map_num(assemble_statuses, status);
 }

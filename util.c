@@ -436,7 +436,7 @@ int parse_layout_faulty(char *layout)
 	char *m = xstrdup(layout);
 	int mode;
 	m[ln] = 0;
-	mode = map_name(faultylayout, m);
+	mode = mdadm_faulty_layout(m);
 	if (mode == UnSet)
 		return -1;
 
@@ -691,7 +691,7 @@ int check_raid(int fd, char *name)
 		st->ss->getinfo_super(st, &info, NULL);
 		st->ss->free_super(st);
 		crtime = info.array.ctime;
-		level = map_num(pers, info.array.level);
+		level = mdadm_personality_name(info.array.level);
 		if (!level)
 			level = "-unknown-";
 		cont_err("level=%s devices=%d ctime=%s",
@@ -1332,6 +1332,19 @@ struct supertype *guess_super_type(int fd, enum guess_types guess_type)
 	}
 	free(st);
 	return NULL;
+}
+
+struct supertype *mdadm_lookup_supertype(char *metadata)
+{
+	struct supertype *ss = NULL;
+	int i;
+
+	for (i = 0; !ss && superlist[i]; i++) {
+		ss = superlist[i]->match_metadata_desc(metadata);
+		if (ss)
+			break;
+	}
+	return ss;
 }
 
 /* Return size of device in bytes */

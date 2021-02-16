@@ -365,7 +365,7 @@ static void examine_super1(struct supertype *st, char *homehost)
 		printf("   Cluster Name : %-64s\n", bms->cluster_name);
 	atime = __le64_to_cpu(sb->ctime) & 0xFFFFFFFFFFULL;
 	printf("  Creation Time : %.24s\n", ctime(&atime));
-	c=map_num(pers, __le32_to_cpu(sb->level));
+	c = mdadm_personality_name(__le32_to_cpu(sb->level));
 	printf("     Raid Level : %s\n", c?c:"-unknown-");
 	printf("   Raid Devices : %d\n", __le32_to_cpu(sb->raid_disks));
 	printf("\n");
@@ -449,22 +449,18 @@ static void examine_super1(struct supertype *st, char *homehost)
 				delta_extra = -__le32_to_cpu(sb->delta_disks);
 		}
 		if (__le32_to_cpu(sb->new_level) != __le32_to_cpu(sb->level)) {
-			c = map_num(pers, __le32_to_cpu(sb->new_level));
+			c = mdadm_personality_name(__le32_to_cpu(sb->new_level));
 			printf("      New Level : %s\n", c?c:"-unknown-");
 		}
 		if (__le32_to_cpu(sb->new_layout) !=
 		    __le32_to_cpu(sb->layout)) {
-			if (__le32_to_cpu(sb->level) == 5) {
-				c = map_num(r5layout,
+			int level = __le32_to_cpu(sb->level);
+			if (level == 5 || level == 6) {
+				c = mdadm_raid_layout_name(level,
 					    __le32_to_cpu(sb->new_layout));
 				printf("     New Layout : %s\n", c?c:"-unknown-");
 			}
-			if (__le32_to_cpu(sb->level) == 6) {
-				c = map_num(r6layout,
-					    __le32_to_cpu(sb->new_layout));
-				printf("     New Layout : %s\n", c?c:"-unknown-");
-			}
-			if (__le32_to_cpu(sb->level) == 10) {
+			if (level == 10) {
 				printf("     New Layout :");
 				print_r10_layout(__le32_to_cpu(sb->new_layout));
 				printf("\n");
@@ -509,15 +505,15 @@ static void examine_super1(struct supertype *st, char *homehost)
 	printf("\n");
 	if (__le32_to_cpu(sb->level) == 0 &&
 	    (sb->feature_map & __cpu_to_le32(MD_FEATURE_RAID0_LAYOUT))) {
-		c = map_num(r0layout, __le32_to_cpu(sb->layout));
+		c = mdadm_raid_layout_name(0, __le32_to_cpu(sb->layout));
 		printf("         Layout : %s\n", c?c:"-unknown-");
 	}
 	if (__le32_to_cpu(sb->level) == 5) {
-		c = map_num(r5layout, __le32_to_cpu(sb->layout));
+		c = mdadm_raid_layout_name(5, __le32_to_cpu(sb->layout));
 		printf("         Layout : %s\n", c?c:"-unknown-");
 	}
 	if (__le32_to_cpu(sb->level) == 6) {
-		c = map_num(r6layout, __le32_to_cpu(sb->layout));
+		c = mdadm_raid_layout_name(6, __le32_to_cpu(sb->layout));
 		printf("         Layout : %s\n", c?c:"-unknown-");
 	}
 	if (__le32_to_cpu(sb->level) == 10) {
@@ -630,7 +626,7 @@ static void brief_examine_super1(struct supertype *st, int verbose)
 	int i;
 	unsigned long long sb_offset;
 	char *nm;
-	char *c = map_num(pers, __le32_to_cpu(sb->level));
+	char *c = mdadm_personality_name(__le32_to_cpu(sb->level));
 
 	nm = strchr(sb->set_name, ':');
 	if (nm)
@@ -677,7 +673,7 @@ static void export_examine_super1(struct supertype *st)
 	int len = 32;
 	int layout;
 
-	printf("MD_LEVEL=%s\n", map_num(pers, __le32_to_cpu(sb->level)));
+	printf("MD_LEVEL=%s\n", mdadm_personality_name(__le32_to_cpu(sb->level)));
 	printf("MD_DEVICES=%d\n", __le32_to_cpu(sb->raid_disks));
 	for (i = 0; i < 32; i++)
 		if (sb->set_name[i] == '\n' || sb->set_name[i] == '\0') {

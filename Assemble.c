@@ -32,14 +32,6 @@
 #include	"policy.h"
 #include	<ctype.h>
 
-mapping_t assemble_statuses[] = {
-	{ "but cannot be started", INCR_NO },
-	{ "but not safe to start", INCR_UNSAFE },
-	{ "and started", INCR_YES },
-	{ NULL, INCR_ALREADY }
-};
-
-
 /**
  * struct assembly_array_info - General, meaningful information for assembly.
  * @name: Array name.
@@ -70,7 +62,7 @@ static void set_array_assembly_status(struct context *c,
 				   struct assembly_array_info *arr)
 {
 	int raid_disks = arr->preexist_cnt + arr->new_cnt;
-	char *status_msg = map_num(assemble_statuses, status);
+	char *status_msg = mdadm_assemble_status(status);
 
 	if (c->export && result)
 		*result |= status;
