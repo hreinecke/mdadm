@@ -572,7 +572,7 @@ static int check_array(struct state *st, struct mdstat_ent *mdstat,
 	if (md_get_array_info(fd, &array) < 0)
 		goto disappeared;
 
-	if (!is_container && map_name(pers, mse->level) > 0)
+	if (!is_container && mdadm_personality_num(mse->level) > 0)
 		redundancy_only_flags |= GET_MISMATCH;
 
 	sra = sysfs_read(-1, st->devnm, GET_LEVEL | GET_DISKS | GET_DEVS |

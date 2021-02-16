@@ -221,9 +221,9 @@ int mdadm_detail(char *dev, struct context *c)
 
 	/* Ok, we have some info to print... */
 	if (inactive && info)
-		str = map_num(pers, info->array.level);
+		str = mdadm_personality_name(info->array.level);
 	else
-		str = map_num(pers, array.level);
+		str = mdadm_personality_name(array.level);
 
 	if (c->export) {
 		if (array.raid_disks) {
@@ -495,8 +495,8 @@ int mdadm_detail(char *dev, struct context *c)
 			if (array.state & (1 << MD_SB_CLEAN)) {
 				if ((array.level == 0) ||
 				    (array.level == LEVEL_LINEAR))
-					arrayst = map_num_s(sysfs_array_states,
-							       sra->array_state);
+					arrayst = mdadm_array_state_name(
+							  sra->array_state);
 				else
 					arrayst = "clean";
 			} else {
@@ -549,17 +549,17 @@ int mdadm_detail(char *dev, struct context *c)
 		}
 		printf("\n");
 		if (array.level == 5) {
-			str = map_num(r5layout, array.layout);
+			str = mdadm_raid_layout_name(array.level, array.layout);
 			printf("            Layout : %s\n",
 			       str ? str : "-unknown-");
 		}
 		if (array.level == 0 && array.layout) {
-			str = map_num(r0layout, array.layout);
+			str = mdadm_raid_layout_name(array.level, array.layout);
 			printf("            Layout : %s\n",
 			       str ? str : "-unknown-");
 		}
 		if (array.level == 6) {
-			str = map_num(r6layout, array.layout);
+			str = mdadm_raid_layout_name(array.level, array.layout);
 			printf("            Layout : %s\n",
 			       str ? str : "-unknown-");
 		}
@@ -591,7 +591,7 @@ int mdadm_detail(char *dev, struct context *c)
 
 			mdi = sysfs_read(fd, NULL, GET_CONSISTENCY_POLICY);
 			if (mdi) {
-				char *policy = map_num(consistency_policies,
+				char *policy = mdadm_consistency_policy_name(
 						       mdi->consistency_policy);
 				sysfs_free(mdi);
 				if (policy)
@@ -621,21 +621,23 @@ This is pretty boring
 				       array.raid_disks - info->delta_disks,
 				       array.raid_disks);
 			if (info->new_level != array.level) {
-				str = map_num(pers, info->new_level);
+				str = mdadm_personality_name(info->new_level);
 				printf("         New Level : %s\n",
 				       str ? str : "-unknown-");
 			}
 			if (info->new_level != array.level ||
 			    info->new_layout != array.layout) {
 				if (info->new_level == 5) {
-					str = map_num(r5layout,
-						      info->new_layout);
+					str = mdadm_raid_layout_name(
+						info->new_level,
+						info->new_layout);
 					printf("        New Layout : %s\n",
 					       str ? str : "-unknown-");
 				}
 				if (info->new_level == 6) {
-					str = map_num(r6layout,
-						      info->new_layout);
+					str = mdadm_raid_layout_name(
+						info->new_level,
+						info->new_layout);
 					printf("        New Layout : %s\n",
 					       str ? str : "-unknown-");
 				}

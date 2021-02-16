@@ -71,7 +71,7 @@ int mdadm_build(char *mddev, struct mddev_dev *devlist,
 	}
 
 	if (s->layout == UnSet)
-		s->layout = default_layout(NULL, s->level, c->verbose);
+		s->layout = mdadm_default_layout(s->level, c->verbose);
 
 	/* We need to create the device.  It can have no name. */
 	map_lock(&map);
@@ -117,7 +117,7 @@ int mdadm_build(char *mddev, struct mddev_dev *devlist,
 		s->bitmap_file = NULL;
 	if (s->bitmap_file && s->level <= 0) {
 		pr_err("bitmaps not meaningful with level %s\n",
-			map_num(pers, s->level)?:"given");
+			mdadm_personality_name(s->level)?:"given");
 		goto abort;
 	}
 	/* now add the devices */

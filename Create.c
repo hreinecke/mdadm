@@ -52,41 +52,12 @@ static int round_size_and_verify(unsigned long long *size, int chunk)
 int default_layout(struct supertype *st, int level, int verbose)
 {
 	int layout = UnSet;
-	mapping_t *layout_map = NULL;
-	char *layout_name = NULL;
 
 	if (st && st->ss->default_geometry)
 		st->ss->default_geometry(st, &level, &layout, NULL);
 
-	if (layout != UnSet)
-		return layout;
-
-	switch (level) {
-	default: /* no layout */
-		layout = 0;
-		break;
-	case 0:
-		layout = RAID0_ORIG_LAYOUT;
-		break;
-	case 10:
-		layout = 0x102; /* near=2, far=1 */
-		layout_name = "n2";
-		break;
-	case 5:
-	case 6:
-		layout_map = r5layout;
-		break;
-	case LEVEL_FAULTY:
-		layout_map = faultylayout;
-		break;
-	}
-
-	if (layout_map) {
-		layout = map_name(layout_map, "default");
-		layout_name = map_num_s(layout_map, layout);
-	}
-	if (layout_name && verbose > 0)
-		pr_err("layout defaults to %s\n", layout_name);
+	if (layout == UnSet)
+		layout = mdadm_default_layout(level, verbose);
 
 	return layout;
 }
@@ -224,7 +195,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 	}
 	if (s->bitmap_file && s->level <= 0) {
 		pr_err("bitmaps not meaningful with level %s\n",
-			map_num(pers, s->level)?:"given");
+			mdadm_personality_name(s->level)?:"given");
 		return 1;
 	}
 

@@ -41,16 +41,16 @@ static inline void sb_cpu_to_le(bitmap_super_t *sb)
 	sb_le_to_cpu(sb); /* these are really the same thing */
 }
 
-mapping_t bitmap_states[] = {
-	{ "OK", 0 },
-	{ "Out of date", 2 },
-	{ NULL, -1 }
-};
-
 static const char *bitmap_state(int state_num)
 {
-	char *state = map_num(bitmap_states, state_num);
-	return state ? state : "Unknown";
+	switch (state_num) {
+	case 0:
+		return "OK";
+	case 2:
+		return "Out of date";
+	default:
+		return "Unknown";
+	}
 }
 
 static const char *human_chunksize(unsigned long bytes)
