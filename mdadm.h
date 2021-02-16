@@ -1011,8 +1011,23 @@ extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
+/* Assemble.c */
+int mdadm_scan_assemble(struct supertype *ss, struct context *c,
+			struct mddev_ident *ident);
+
+/* Detail.c */
+int mdadm_misc_scan(char devmode, struct context *c);
+
+/* Grow.c */
+int mdadm_grow_set_size(int mdfd, unsigned long long array_size);
+
+/* Manage.c */
+int mdadm_set_action(char *dev, char *action);
+int mdadm_stop_scan(int verbose);
+
 extern struct supertype *mdadm_lookup_supertype(char *metadata);
 
+extern char *mdlib_get_conffile(void);
 extern void mdlib_set_conffile(char *file);
 extern void mdlib_set_name(const char *name);
 extern const char *mdlib_get_name(void);

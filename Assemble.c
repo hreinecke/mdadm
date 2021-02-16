@@ -2226,3 +2226,86 @@ int assemble_container_content(struct supertype *st, int mdfd,
 	return err;
 	/* FIXME should have an O_EXCL and wait for read-auto */
 }
+
+int mdadm_scan_assemble(struct supertype *ss,
+			struct context *c,
+			struct mddev_ident *ident)
+{
+	struct mddev_ident *a, *array_list =  conf_get_ident(NULL);
+	struct mddev_dev *devlist = conf_get_devs();
+	struct map_ent *map = NULL;
+	int cnt = 0;
+	int rv = 0;
+	int failures, successes;
+
+	if (conf_verify_devnames(array_list)) {
+		pr_err("Duplicate MD device names in conf file were found.\n");
+		return 1;
+	}
+	if (devlist == NULL) {
+		pr_err("No devices listed in conf file were found.\n");
+		return 1;
+	}
+	for (a = array_list; a; a = a->next) {
+		a->assembled = 0;
+		if (a->autof == 0)
+			a->autof = c->autof;
+	}
+	if (map_lock(&map))
+		pr_err("failed to get exclusive lock on mapfile\n");
+	do {
+		failures = 0;
+		successes = 0;
+		rv = 0;
+		for (a = array_list; a; a = a->next) {
+			int r;
+			if (a->assembled)
+				continue;
+			if (a->devname &&
+			    strcasecmp(a->devname, "<ignore>") == 0)
+				continue;
+
+			r = mdadm_assemble(ss, a->devname,
+				     a, NULL, c);
+			if (r == 0) {
+				a->assembled = 1;
+				successes++;
+			} else
+				failures++;
+			rv |= r;
+			cnt++;
+		}
+	} while (failures && successes);
+	if (c->homehost && cnt == 0) {
+		/* Maybe we can auto-assemble something.
+		 * Repeatedly call Assemble in auto-assemble mode
+		 * until it fails
+		 */
+		int rv2;
+		int acnt;
+		ident->autof = c->autof;
+		do {
+			struct mddev_dev *devlist = conf_get_devs();
+			acnt = 0;
+			do {
+				rv2 = mdadm_assemble(ss, NULL, ident,
+						     devlist, c);
+				if (rv2 == 0) {
+					cnt++;
+					acnt++;
+				}
+			} while (rv2 != 2);
+			/* Incase there are stacked devices, we need to go around again */
+		} while (acnt);
+		if (cnt == 0 && rv == 0) {
+			pr_err("No arrays found in config file or automatically\n");
+			rv = 1;
+		} else if (cnt)
+			rv = 0;
+	} else if (cnt == 0 && rv == 0) {
+		pr_err("No arrays found in config file\n");
+		rv = 1;
+	}
+	map_unlock(&map);
+	return rv;
+}

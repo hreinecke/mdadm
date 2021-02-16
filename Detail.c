@@ -886,3 +886,48 @@ int mdadm_detail_platform(struct superswitch *ss, int scan, int verbose,
 
 	return err;
 }
+
+int mdadm_misc_scan(char devmode, struct context *c)
+{
+	/* apply --detail or --wait-clean to
+	 * all devices in /proc/mdstat
+	 */
+	struct mdstat_ent *ms = mdstat_read(0, 1);
+	struct mdstat_ent *e;
+	struct map_ent *map = NULL;
+	int members;
+	int rv = 0;
+
+	for (members = 0; members <= 1; members++) {
+		for (e = ms; e; e = e->next) {
+			char *name = NULL;
+			struct map_ent *me;
+			struct stat stb;
+			int member = e->metadata_version &&
+				strncmp(e->metadata_version,
+					"external:/", 10) == 0;
+			if (members != member)
+				continue;
+			me = map_by_devnm(&map, e->devnm);
+			if (me && me->path && strcmp(me->path, "/unknown") != 0)
+				name = me->path;
+			if (name == NULL || stat(name, &stb) != 0)
+				name = get_md_name(e->devnm);
+
+			if (!name) {
+				pr_err("cannot find device file for %s\n",
+					e->devnm);
+				continue;
+			}
+			if (devmode == 'D')
+				rv |= mdadm_detail(name, c);
+			else
+				rv |= mdadm_wait_clean(name, c->verbose);
+			put_md_name(name);
+			map_free(map);
+			map = NULL;
+		}
+	}
+	free_mdstat(ms);
+	return rv;
+}
