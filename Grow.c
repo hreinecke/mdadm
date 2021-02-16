@@ -5255,3 +5255,24 @@ char *locate_backup(char *name)
 	free(fl);
 	return NULL;
 }
+
+int mdadm_grow_set_size(int mdfd, unsigned long long array_size)
+{
+	struct mdinfo sra;
+	int err;
+	if (sysfs_init(&sra, mdfd, NULL))
+		return 1;
+
+	if (array_size == MAX_SIZE)
+		err = sysfs_set_str(&sra, NULL, "array_size", "default");
+	else
+		err = sysfs_set_num(&sra, NULL, "array_size", array_size / 2);
+	if (err < 0) {
+		if (errno == E2BIG)
+			pr_err("--array-size setting is too large.\n");
+		else
+			pr_err("current kernel does not support setting --array-size\n");
+		return 1;
+	}
+	return 0;
+}

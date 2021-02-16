@@ -30,11 +30,6 @@
 #include "md_p.h"
 #include <ctype.h>
 
-static int scan_assemble(struct supertype *ss,
-			 struct context *c,
-			 struct mddev_ident *ident);
-static int misc_scan(char devmode, struct context *c);
-static int stop_scan(int verbose);
 static int misc_list(struct mddev_dev *devlist,
 		     struct mddev_ident *ident,
 		     char *dump_directory,
@@ -1487,7 +1482,7 @@ int main(int argc, char *argv[])
 				pr_err("--backup_file not meaningful with a --scan assembly.\n");
 				exit(1);
 			}
-			rv = scan_assemble(ss, &c, &ident);
+			rv = mdadm_scan_assemble(ss, &c, &ident);
 		}
 
 		break;
@@ -1567,10 +1562,10 @@ int main(int argc, char *argv[])
 						   devlist ? devlist->devname : NULL);
 		} else if (devlist == NULL) {
 			if (devmode == 'S' && c.scan)
-				rv = stop_scan(c.verbose);
+				rv = mdadm_stop_scan(c.verbose);
 			else if ((devmode == 'D' || devmode == Waitclean) &&
 				 c.scan)
-				rv = misc_scan(devmode, &c);
+				rv = mdadm_misc_scan(devmode, &c);
 			else if (devmode == UdevRules)
 				rv = mdadm_write_rules(udev_filename);
 			else {
@@ -1599,35 +1594,15 @@ int main(int argc, char *argv[])
 
 	case GROW:
 		if (array_size > 0) {
-			/* alway impose array size first, independent of
-			 * anything else
-			 * Do not allow level or raid_disks changes at the
-			 * same time as that can be irreversibly destructive.
-			 */
-			struct mdinfo sra;
-			int err;
 			if (s.raiddisks || s.level != UnSet) {
 				pr_err("cannot change array size in same operation as changing raiddisks or level.\n"
-					"    Change size first, then check that data is still intact.\n");
+				       "    Change size first, then check that data is still intact.\n");
 				rv = 1;
 				break;
 			}
-			if (sysfs_init(&sra, mdfd, NULL)) {
-				rv = 1;
+			rv = mdadm_grow_set_size(mdfd, array_size);
+			if (rv)
 				break;
-			}
-			if (array_size == MAX_SIZE)
-				err = sysfs_set_str(&sra, NULL, "array_size", "default");
-			else
-				err = sysfs_set_num(&sra, NULL, "array_size", array_size / 2);
-			if (err < 0) {
-				if (errno == E2BIG)
-					pr_err("--array-size setting is too large.\n");
-				else
-					pr_err("current kernel does not support setting --array-size\n");
-				rv = 1;
-				break;
-			}
 		}
 		if (devs_found > 1 && s.raiddisks == 0 && s.level == UnSet) {
 			/* must be '-a'. */
@@ -1715,176 +1690,6 @@ int main(int argc, char *argv[])
 		cluster_release_dlmlock();
 	close_fd(&mdfd);
 	exit(rv);
-}
-
-static int scan_assemble(struct supertype *ss,
-			 struct context *c,
-			 struct mddev_ident *ident)
-{
-	struct mddev_ident *a, *array_list =  conf_get_ident(NULL);
-	struct mddev_dev *devlist = conf_get_devs();
-	struct map_ent *map = NULL;
-	int cnt = 0;
-	int rv = 0;
-	int failures, successes;
-
-	if (conf_verify_devnames(array_list)) {
-		pr_err("Duplicate MD device names in conf file were found.\n");
-		return 1;
-	}
-	if (devlist == NULL) {
-		pr_err("No devices listed in conf file were found.\n");
-		return 1;
-	}
-	for (a = array_list; a; a = a->next) {
-		a->assembled = 0;
-		if (a->autof == 0)
-			a->autof = c->autof;
-	}
-	if (map_lock(&map))
-		pr_err("failed to get exclusive lock on mapfile\n");
-	do {
-		failures = 0;
-		successes = 0;
-		rv = 0;
-		for (a = array_list; a; a = a->next) {
-			int r;
-			if (a->assembled)
-				continue;
-			if (a->devname &&
-			    strcasecmp(a->devname, "<ignore>") == 0)
-				continue;
-
-			r = mdadm_assemble(ss, a->devname,
-				     a, NULL, c);
-			if (r == 0) {
-				a->assembled = 1;
-				successes++;
-			} else
-				failures++;
-			rv |= r;
-			cnt++;
-		}
-	} while (failures && successes);
-	if (c->homehost && cnt == 0) {
-		/* Maybe we can auto-assemble something.
-		 * Repeatedly call Assemble in auto-assemble mode
-		 * until it fails
-		 */
-		int rv2;
-		int acnt;
-		ident->autof = c->autof;
-		do {
-			struct mddev_dev *devlist = conf_get_devs();
-			acnt = 0;
-			do {
-				rv2 = mdadm_assemble(ss, NULL, ident,
-						     devlist, c);
-				if (rv2 == 0) {
-					cnt++;
-					acnt++;
-				}
-			} while (rv2 != 2);
-			/* Incase there are stacked devices, we need to go around again */
-		} while (acnt);
-		if (cnt == 0 && rv == 0) {
-			pr_err("No arrays found in config file or automatically\n");
-			rv = 1;
-		} else if (cnt)
-			rv = 0;
-	} else if (cnt == 0 && rv == 0) {
-		pr_err("No arrays found in config file\n");
-		rv = 1;
-	}
-	map_unlock(&map);
-	return rv;
-}
-
-static int misc_scan(char devmode, struct context *c)
-{
-	/* apply --detail or --wait-clean to
-	 * all devices in /proc/mdstat
-	 */
-	struct mdstat_ent *ms = mdstat_read(0, 1);
-	struct mdstat_ent *e;
-	struct map_ent *map = NULL;
-	int members;
-	int rv = 0;
-
-	for (members = 0; members <= 1; members++) {
-		for (e = ms; e; e = e->next) {
-			char *name = NULL;
-			struct map_ent *me;
-			struct stat stb;
-			int member = e->metadata_version &&
-				strncmp(e->metadata_version,
-					"external:/", 10) == 0;
-			if (members != member)
-				continue;
-			me = map_by_devnm(&map, e->devnm);
-			if (me && me->path && strcmp(me->path, "/unknown") != 0)
-				name = me->path;
-			if (name == NULL || stat(name, &stb) != 0)
-				name = get_md_name(e->devnm);
-
-			if (!name) {
-				pr_err("cannot find device file for %s\n",
-					e->devnm);
-				continue;
-			}
-			if (devmode == 'D')
-				rv |= mdadm_detail(name, c);
-			else
-				rv |= mdadm_wait_clean(name, c->verbose);
-			put_md_name(name);
-			map_free(map);
-			map = NULL;
-		}
-	}
-	free_mdstat(ms);
-	return rv;
-}
-
-static int stop_scan(int verbose)
-{
-	/* apply --stop to all devices in /proc/mdstat */
-	/* Due to possible stacking of devices, repeat until
-	 * nothing more can be stopped
-	 */
-	int progress = 1, err;
-	int last = 0;
-	int rv = 0;
-	do {
-		struct mdstat_ent *ms = mdstat_read(0, 0);
-		struct mdstat_ent *e;
-
-		if (!progress) last = 1;
-		progress = 0; err = 0;
-		for (e = ms; e; e = e->next) {
-			char *name = get_md_name(e->devnm);
-			int mdfd;
-
-			if (!name) {
-				pr_err("cannot find device file for %s\n",
-					e->devnm);
-				continue;
-			}
-			mdfd = open_mddev(name, 1);
-			if (mdfd >= 0) {
-				if (mdadm_manage_stop(name, mdfd, verbose, !last))
-					err = 1;
-				else
-					progress = 1;
-				close(mdfd);
-			}
-
-			put_md_name(name);
-		}
-		free_mdstat(ms);
-	} while (!last && err);
-	if (err)
-		rv |= 1;
-	return rv;
 }
 
 static int misc_list(struct mddev_dev *devlist,
@@ -1985,29 +1790,4 @@ static int misc_list(struct mddev_dev *devlist,
 			rv |= 1;
 	}
 	return rv;
-}
-
-int mdadm_set_action(char *dev, char *action)
-{
-	int fd = open(dev, O_RDONLY);
-	struct mdinfo mdi;
-	int retval;
-
-	if (fd < 0) {
-		pr_err("Couldn't open %s: %s\n", dev, strerror(errno));
-		return 1;
-	}
-	retval = sysfs_init(&mdi, fd, NULL);
-	close(fd);
-	if (retval) {
-		pr_err("%s is no an md array\n", dev);
-		return 1;
-	}
-
-	if (sysfs_set_str(&mdi, NULL, "sync_action", action) < 0) {
-		pr_err("Count not set action for %s to %s: %s\n",
-		       dev, action, strerror(errno));
-		return 1;
-	}
-	return 0;
 }
