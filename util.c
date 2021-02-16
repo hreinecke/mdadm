@@ -436,7 +436,7 @@ int parse_layout_faulty(char *layout)
 	char *m = xstrdup(layout);
 	int mode;
 	m[ln] = 0;
-	mode = map_name(faultylayout, m);
+	mode = mdadm_faulty_layout(m);
 	if (mode == UnSet)
 		return -1;
 
@@ -691,7 +691,7 @@ int check_raid(int fd, char *name)
 		st->ss->getinfo_super(st, &info, NULL);
 		st->ss->free_super(st);
 		crtime = info.array.ctime;
-		level = map_num(pers, info.array.level);
+		level = mdadm_personality_name(info.array.level);
 		if (!level)
 			level = "-unknown-";
 		cont_err("level=%s devices=%d ctime=%s",

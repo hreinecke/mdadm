@@ -228,6 +228,74 @@ int mdadm_get_layout(int level, char *name)
 	return layout;
 }
 
+int mdadm_default_layout(int level, int verbose)
+{
+	int layout = 0; /* no layout */
+
+	switch(level) {
+	default:
+		break;
+	case 10:
+		layout = 0x102; /* near=2, far=1 */
+		if (verbose > 0)
+			pr_err("layout defaults to n1\n");
+		break;
+	case 5:
+	case 6:
+		layout = map_name(r5layout, "default");
+		if (verbose > 0)
+			pr_err("layout defaults to %s\n",
+			       map_num(r5layout, layout));
+		break;
+	case 0:
+		layout = RAID0_ORIG_LAYOUT;
+		break;
+	case LEVEL_FAULTY:
+		layout = map_name(faultylayout, "default");
+
+		if (verbose > 0)
+			pr_err("layout defaults to %s\n",
+			       map_num(faultylayout, layout));
+			break;
+	}
+	return layout;
+}
+
+int mdadm_faulty_layout(char *name)
+{
+	return map_name(faultylayout, name);
+}
+
+char *mdadm_raid_layout_name(int level, int layout)
+{
+	switch (level) {
+	case 0:
+		return map_num(r0layout, layout);
+	case 5:
+		return map_num(r5layout, layout);
+	case 6:
+		return map_num(r6layout, layout);
+	default:
+		break;
+	}
+	return NULL;
+}
+
+int mdadm_raid_layout_num(int level, char *layout)
+{
+	switch (level) {
+	case 0:
+		return map_name(r0layout, layout);
+	case 5:
+		return map_name(r5layout, layout);
+	case 6:
+		return map_name(r6layout, layout);
+	default:
+		break;
+	}
+	return -1;
+}
+
 int mdadm_personality_num(char *name)
 {
 	return map_name(pers, name);
@@ -246,4 +314,14 @@ int mdadm_consistency_policy_num(char *name)
 char *mdadm_consistency_policy_name(int num)
 {
 	return map_num(consistency_policies, num);
+}
+
+int mdadm_array_state_num(char *name)
+{
+	return map_name(sysfs_array_states, name);
+}
+
+char *mdadm_array_state_name(int num)
+{
+	return map_num(sysfs_array_states, num);
 }

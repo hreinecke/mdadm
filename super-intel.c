@@ -5557,7 +5557,7 @@ static int init_super_imsm_volume(struct supertype *st, mdu_array_info_t *info,
 		free(dev);
 		free(dv);
 		pr_err("imsm does not support consistency policy %s\n",
-		       map_num(consistency_policies, s->consistency_policy));
+		       mdadm_consistency_policy_name(s->consistency_policy));
 		return 0;
 	}
 

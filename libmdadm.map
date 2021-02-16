@@ -46,10 +46,16 @@ LIBMDADM_1.0.1 {
 		mdlib_set_conffile;
 		mdadm_lookup_supertype;
 		mdadm_get_layout;
+		mdadm_default_layout;
+		mdadm_faulty_layout;
+		mdadm_raid_layout_name;
+		mdadm_raid_layout_num;
 		mdadm_personality_name;
 		mdadm_personality_num;
 		mdadm_consistency_policy_name;
 		mdadm_consistency_policy_num;
+		mdadm_array_state_name;
+		mdadm_array_state_num;
 		md_get_array_info;
 		conf_get_ident;
 		conf_get_devs;

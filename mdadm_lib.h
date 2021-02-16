@@ -1,7 +1,3 @@
-#include	"md_u.h"
-#include	"md_p.h"
-#include	"msg.h"
-
 /* We want to use unsigned numbers for sector counts, but need
  * a value for 'invalid'.  Use '1'.
  */
@@ -18,9 +14,7 @@
 /* Define PATH_MAX in case we don't use glibc or standard library does
  * not have PATH_MAX defined. Assume max path length is 4K characters.
  */
-#ifndef PATH_MAX
 #define PATH_MAX	4096
-#endif
 
 #define	MD_MAJOR 9
 
@@ -50,7 +44,7 @@ struct md_bb {
 struct mdinfo {
 	mdu_array_info_t	array;
 	mdu_disk_info_t		disk;
-	__u64			events;
+	uint64_t	events;
 	int			uuid[4];
 	char			name[33];
 	unsigned long long	data_offset;
@@ -95,7 +89,7 @@ struct mdinfo {
 	union {
 		unsigned long long resync_start; /* per-array resync position */
 		unsigned long long recovery_start; /* per-device rebuild position */
-		#define MaxSector  (~0ULL) /* resync/recovery complete position */
+#define MaxSector  (uint64_t)-1 /* resync/recovery complete position */
 	};
 	long			bitmap_offset;	/* 0 == none, 1 == a file */
 	unsigned int		ppl_size;
@@ -271,11 +265,6 @@ typedef struct mapping {
 	int num;
 } mapping_t;
 
-extern mapping_t r0layout[], r5layout[], r6layout[],
-	pers[], modes[], faultylayout[];
-
-extern mapping_t consistency_policies[], sysfs_array_states[];
-
 struct mdstat_ent {
 	char		devnm[32];
 	int		active;
@@ -306,10 +295,16 @@ extern int open_dev(char *devnm);
 
 /* maps.c */
 extern int mdadm_get_layout(int level, char *name);
+extern int mdadm_default_layout(int level, int verbose);
 extern int mdadm_personality_num(char *name);
 extern char *mdadm_personality_name(int num);
 extern int mdadm_consistency_policy_num(char *name);
 extern char *mdadm_consistency_policy_name(int num);
+extern char *mdadm_raid_layout_name(int level, int layout);
+extern int mdadm_raid_layout_num(int level, char *layout);
+extern int mdadm_faulty_layout(char *name);
+extern int mdadm_array_state_num(char *name);
+extern char *mdadm_array_state_name(int num);
 
 /* lib.c */
 extern int get_linux_version(void);

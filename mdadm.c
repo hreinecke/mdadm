@@ -26,9 +26,10 @@
  */
 
 #include "mdadm_include.h"
+#include "md_u.h"
+#include "md_p.h"
 #include "mdadm_lib.h"
 #include "mdadm_exec.h"
-#include "md_p.h"
 #include "debug.h"
 #include "mdstat.h"
 #include "sysfs.h"
