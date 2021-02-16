@@ -569,14 +569,6 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 }
 
 /* Some stub functions so super-* can link with us */
-int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
-		  struct supertype *st, unsigned long blocks,
-		  int *fds, unsigned long long *offsets,
-		  int dests, int *destfd, unsigned long long *destoffsets)
-{
-	return 0;
-}
-
 int restore_stripes(int *dest, unsigned long long *offsets,
 		    int raid_disks, int chunk_size, int level, int layout,
 		    int source, unsigned long long read_offset,

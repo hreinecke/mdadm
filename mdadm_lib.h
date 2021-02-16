@@ -305,15 +305,11 @@ struct map_ent {
 extern int open_dev(char *devnm);
 
 /* maps.c */
-extern char *map_num(mapping_t *map, int num);
-extern int map_name(mapping_t *map, char *name);
-extern int map_lock(struct map_ent **melp);
-extern void map_unlock(struct map_ent **melp);
-extern void map_free(struct map_ent *map);
-extern struct map_ent *map_by_devnm(struct map_ent **map, char *devnm);
-extern struct map_ent *map_by_name(struct map_ent **map, char *name);
 extern int mdadm_get_layout(int level, char *name);
-extern int mdadm_get_consistency_policy(char *name);
+extern int mdadm_personality_num(char *name);
+extern char *mdadm_personality_name(int num);
+extern int mdadm_consistency_policy_num(char *name);
+extern char *mdadm_consistency_policy_name(int num);
 
 /* lib.c */
 extern int get_linux_version(void);
@@ -332,7 +328,7 @@ extern int parse_auto(char *str, char *msg, int config);
 extern struct mddev_ident *conf_get_ident(char *dev);
 extern struct mddev_dev *conf_get_devs(void);
 extern struct createinfo *conf_get_create_info(void);
-extern void set_conffile(char *file);
+extern void mdlib_set_conffile(char *file);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
 extern int conf_verify_devnames(struct mddev_ident *array_list);
@@ -346,7 +342,7 @@ extern int cluster_release_dlmlock(void);
 
 extern char *get_md_name(char *devnm);
 extern void put_md_name(char *name);
-int md_get_array_info(int fd, struct mdu_array_info_s *array);
+extern int md_get_array_info(int fd, struct mdu_array_info_s *array);
 
 struct supertype *mdadm_lookup_supertype(char *metadata);
 
@@ -434,3 +430,4 @@ extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
 				  struct supertype *st, int only);
 extern int mdadm_misc_scan(char devmode, struct context *c);
 
+extern int mdadm_write_rules(char *rule_name);

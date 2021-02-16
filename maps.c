@@ -228,7 +228,22 @@ int mdadm_get_layout(int level, char *name)
 	return layout;
 }
 
-int mdadm_get_consistency_policy(char *name)
+int mdadm_personality_num(char *name)
+{
+	return map_name(pers, name);
+}
+
+char *mdadm_personality_name(int num)
+{
+	return map_num(pers, num);
+}
+
+int mdadm_consistency_policy_num(char *name)
 {
 	return map_name(consistency_policies, name);
+}
+
+char *mdadm_consistency_policy_name(int num)
+{
+	return map_num(consistency_policies, num);
 }

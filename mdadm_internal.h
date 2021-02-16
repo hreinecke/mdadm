@@ -84,6 +84,13 @@ extern void map_delete(struct map_ent **mapp, char *devnm);
 extern void map_add(struct map_ent **melp,
 		    char *devnm, char *metadata, int uuid[4], char *path);
 extern void map_fork(void);
+extern char *map_num(mapping_t *map, int num);
+extern int map_name(mapping_t *map, char *name);
+extern int map_lock(struct map_ent **melp);
+extern void map_unlock(struct map_ent **melp);
+extern void map_free(struct map_ent *map);
+extern struct map_ent *map_by_devnm(struct map_ent **map, char *devnm);
+extern struct map_ent *map_by_name(struct map_ent **map, char *name);
 
 extern char *locate_backup(char *name);
 

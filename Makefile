@@ -197,7 +197,7 @@ everything-test: all mdadm.static swap_super test_stripe \
 $(LIB): $(LIB_OBJS)
 	rm -f $(LIB)
 	$(AR) r $(LIB) $(LIB_OBJS)
-	$(RANLIB) $(LIB)
+	ranlib $(LIB)
 
 $(SHLIB): $(LIB_SHOBJS) $(MAP)
 	$(CC) $(CFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,--version-script,$(MAP) -o $@ $(LIB_SHOBJS) -shared $(LINK_FLAGS) $(LDLIBS)
@@ -225,8 +225,8 @@ mdmon.O2 : $(MON_SRCS) $(INCL) mdmon.h
 	$(CC) -o mdmon.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(MON_SRCS) $(LDLIBS)
 
 # use '-z now' to guarantee no dynamic linker interactions with the monitor thread
-mdmon : $(MON_OBJS) $(SHLIB) | check_rundir
-	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) -L. -lmdadm $(LDLIBS)
+mdmon : $(MON_OBJS) $(LIB) | check_rundir
+	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) $(LIB) $(LDLIBS)
 msg.o: msg.c msg.h
 
 test_stripe : restripe.c xmalloc.o mdadm.h

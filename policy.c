@@ -894,7 +894,7 @@ int generate_entries(int fd)
 /* Write_rules routine creates dynamic udev rules used to handle
  * hot-plug events for bare devices (and making them spares)
  */
-int Write_rules(char *rule_name)
+int mdadm_write_rules(char *rule_name)
 {
 	int fd;
 	char udev_rule_file[PATH_MAX];

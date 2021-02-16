@@ -29,7 +29,6 @@
 #include "mdadm_lib.h"
 #include "mdadm_exec.h"
 #include "md_p.h"
-#include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
 #include "sysfs.h"
@@ -53,6 +52,17 @@ mapping_t modes[] = {
 	{ "auto-detect", AUTODETECT},
 	{ NULL, UnSet }
 };
+
+char *get_mode_name(int num)
+{
+	mapping_t *map = modes;
+	while (map->name) {
+		if (map->num == num)
+			return map->name;
+		map++;
+	}
+	return NULL;
+}
 
 int main(int argc, char *argv[])
 {
@@ -295,8 +305,7 @@ int main(int argc, char *argv[])
 			else
 				fprintf(stderr, "-%c", opt);
 			fprintf(stderr, " would set mdadm mode to \"%s\", but it is already set to \"%s\".\n",
-				map_num(modes, newmode),
-				map_num(modes, mode));
+				get_mode_name(newmode), get_mode_name(mode));
 			exit(2);
 		} else if (!mode && newmode) {
 			mode = newmode;
@@ -318,7 +327,11 @@ int main(int argc, char *argv[])
 			/* If first option is a device, don't force the mode yet */
 			if (opt == 1) {
 				if (devs_found == 0) {
-					dv = xmalloc(sizeof(*dv));
+					dv = malloc(sizeof(*dv));
+					if (!dv) {
+						pr_err("Failed to allocate memory\n");
+						exit(4);
+					}
 					dv->devname = optarg;
 					dv->disposition = devmode;
 					dv->writemostly = writemostly;
@@ -375,7 +388,11 @@ int main(int argc, char *argv[])
 				pr_err("Must give -a/--add for devices to add: %s\n", optarg);
 				exit(2);
 			}
-			dv = xmalloc(sizeof(*dv));
+			dv = malloc(sizeof(*dv));
+			if (!dv) {
+				pr_err("Failed to allocate memory\n");
+				exit(4);
+			}
 			dv->devname = optarg;
 			dv->disposition = devmode;
 			dv->writemostly = writemostly;
@@ -515,7 +532,7 @@ int main(int argc, char *argv[])
 				pr_err("raid level may only be set once.  Second value is %s.\n", optarg);
 				exit(2);
 			}
-			s.level = map_name(pers, optarg);
+			s.level = mdadm_personality_num(optarg);
 			if (s.level == UnSet) {
 				pr_err("invalid raid level: %s\n",
 					optarg);
@@ -837,7 +854,7 @@ int main(int argc, char *argv[])
 				exit(2);
 			}
 			configfile = optarg;
-			set_conffile(configfile);
+			mdlib_set_conffile(configfile);
 			/* FIXME possibly check that config file exists.  Even parse it */
 			continue;
 		case O(ASSEMBLE,'s'): /* scan */
@@ -1194,7 +1211,11 @@ int main(int argc, char *argv[])
 				pr_err("Ignoring --write-journal %s...\n", optarg);
 				continue;
 			}
-			dv = xmalloc(sizeof(*dv));
+			dv = malloc(sizeof(*dv));
+			if (!dv) {
+				pr_err("Failed to allocate memory\n");
+				exit(4);
+			}
 			dv->devname = optarg;
 			dv->disposition = 'j';  /* WriteJournal */
 			dv->used = 0;
@@ -1207,7 +1228,7 @@ int main(int argc, char *argv[])
 			continue;
 		case O(CREATE, 'k'):
 		case O(GROW, 'k'):
-			s.consistency_policy = mdadm_get_consistency_policy(optarg);
+			s.consistency_policy = mdadm_consistency_policy_num(optarg);
 			if (s.consistency_policy < CONSISTENCY_POLICY_RESYNC) {
 				pr_err("Invalid consistency policy: %s\n",
 				       optarg);
@@ -1221,10 +1242,10 @@ int main(int argc, char *argv[])
 		if (option_index > 0)
 			pr_err(":option --%s not valid in %s mode\n",
 				long_options[option_index].name,
-				map_num(modes, mode));
+				get_mode_name(mode));
 		else
 			pr_err("option -%c not valid in %s mode\n",
-				opt, map_num(modes, mode));
+				opt, get_mode_name(mode));
 		exit(2);
 
 	}
@@ -1249,7 +1270,7 @@ int main(int argc, char *argv[])
 		if (s.consistency_policy != CONSISTENCY_POLICY_UNKNOWN &&
 		    s.consistency_policy != CONSISTENCY_POLICY_JOURNAL) {
 			pr_err("--write-journal is not supported with consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		}
 	}
@@ -1258,12 +1279,12 @@ int main(int argc, char *argv[])
 	    s.consistency_policy != CONSISTENCY_POLICY_UNKNOWN) {
 		if (s.level <= 0) {
 			pr_err("--consistency-policy not meaningful with level %s.\n",
-			       map_num(pers, s.level));
+			       mdadm_personality_name(s.level));
 			exit(2);
 		} else if (s.consistency_policy == CONSISTENCY_POLICY_JOURNAL &&
 			   !s.journaldisks) {
 			pr_err("--write-journal is required for consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		} else if (s.consistency_policy == CONSISTENCY_POLICY_PPL &&
 			   s.level != 5) {
@@ -1273,14 +1294,14 @@ int main(int argc, char *argv[])
 			   (!s.bitmap_file ||
 			    strcmp(s.bitmap_file, "none") == 0)) {
 			pr_err("--bitmap is required for consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		} else if (s.bitmap_file &&
 			   strcmp(s.bitmap_file, "none") != 0 &&
 			   s.consistency_policy != CONSISTENCY_POLICY_BITMAP &&
 			   s.consistency_policy != CONSISTENCY_POLICY_JOURNAL) {
 			pr_err("--bitmap is not compatible with consistency policy: %s\n",
-			       map_num(consistency_policies, s.consistency_policy));
+			       mdadm_consistency_policy_name(s.consistency_policy));
 			exit(2);
 		}
 	}
@@ -1599,7 +1620,7 @@ int main(int argc, char *argv[])
 				 c.scan)
 				rv = mdadm_misc_scan(devmode, &c);
 			else if (devmode == UdevRules)
-				rv = Write_rules(udev_filename);
+				rv = mdadm_write_rules(udev_filename);
 			else {
 				pr_err("No devices given.\n");
 				exit(2);
