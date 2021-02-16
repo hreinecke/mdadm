@@ -23,6 +23,7 @@
  */
 
 #include "mdadm.h"
+#include "debug.h"
 
 /* name/number mappings */
 
@@ -169,4 +170,65 @@ int map_name(mapping_t *map, char *name)
 		map++;
 
 	return map->num;
+}
+
+int mdadm_get_layout(int level, char *name)
+{
+	int layout;
+
+	switch(level) {
+	case UnSet:
+		pr_err("raid level must be given before layout.\n");
+		return -EINVAL;
+	case 0:
+		layout = map_name(r0layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid0.\n", name);
+			return -EINVAL;
+		}
+		break;
+	case 5:
+		layout = map_name(r5layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid5.\n", name);
+			return -EINVAL;
+		}
+		break;
+	case 6:
+		layout = map_name(r6layout, optarg);
+		if (layout == UnSet) {
+			pr_err("layout %s not understood for raid6.\n", name);
+			return -EINVAL;
+		}
+		break;
+		
+	case 10:
+		layout = parse_layout_10(optarg);
+		if (layout < 0) {
+			pr_err("layout for raid10 must be 'nNN', 'oNN' or 'fNN' where NN is a number, not %s\n", name);
+			return -EINVAL;
+		}
+		break;
+	case LEVEL_FAULTY:
+		/* Faulty
+		 * modeNNN
+		 */
+		layout = parse_layout_faulty(optarg);
+		if (layout < 0) {
+			pr_err("layout %s not understood for faulty.\n",
+			       optarg);
+			return -EINVAL;
+		}
+		break;
+	default:
+		pr_err("layout not meaningful for %s arrays.\n",
+		       map_num(pers, level));
+		return -EAGAIN;
+	}
+	return layout;
+}
+
+int mdadm_get_consistency_policy(char *name)
+{
+	return map_name(consistency_policies, name);
 }

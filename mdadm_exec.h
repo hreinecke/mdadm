@@ -6,8 +6,6 @@
 #define DEFAULT_BITMAP_DELAY 5
 #define DEFAULT_MAX_WRITE_BEHIND 256
 
-extern char DefaultConfFile[];
-
 enum mode {
 	ASSEMBLE=1,
 	BUILD,

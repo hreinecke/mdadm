@@ -1,9 +1,11 @@
-LIBMDADM_0.1 {
+LIBMDADM_1.0.1 {
 	global:
 		mdadm_manage_ro;
 		mdadm_manage_run;
 		mdadm_manage_stop;
 		mdadm_manage_subdevs;
+		mdadm_set_action;
+		mdadm_stop_scan;
 		mdadm_autodetect;
 		mdadm_grow_add_device;
 		mdadm_grow_addbitmap;
@@ -12,7 +14,9 @@ LIBMDADM_0.1 {
 		mdadm_grow_continue;
 		mdadm_grow_consistency_policy;
 		mdadm_grow_continue_command;
+		mdadm_grow_set_size;
 		mdadm_assemble;
+		mdadm_scan_assemble;
 		mdadm_build;
 		mdadm_create;
 		mdadm_detail;
@@ -33,6 +37,13 @@ LIBMDADM_0.1 {
 		mdadm_examine_bitmap;
 		mdadm_dump_metadata;
 		mdadm_restore_metadata;
+		mdadm_misc_scan;
+		mdlib_get_name;
+		mdlib_set_name;
+		mdlib_get_version;
+		mdlib_get_conffile;
+		mdadm_lookup_supertype;
+		mdadm_get_consistency_policy;
 	local:
 		*;
 };

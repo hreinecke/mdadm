@@ -312,6 +312,8 @@ extern void map_unlock(struct map_ent **melp);
 extern void map_free(struct map_ent *map);
 extern struct map_ent *map_by_devnm(struct map_ent **map, char *devnm);
 extern struct map_ent *map_by_name(struct map_ent **map, char *name);
+extern int mdadm_get_layout(int level, char *name);
+extern int mdadm_get_consistency_policy(char *name);
 
 /* lib.c */
 extern int get_linux_version(void);
@@ -334,6 +336,7 @@ extern void set_conffile(char *file);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
 extern int conf_verify_devnames(struct mddev_ident *array_list);
+extern char *mdlib_get_conffile(void);
 
 /* util.c */
 extern void set_hooks(void);
@@ -345,7 +348,7 @@ extern char *get_md_name(char *devnm);
 extern void put_md_name(char *name);
 int md_get_array_info(int fd, struct mdu_array_info_s *array);
 
-struct supertype *lookup_super_type(char *metadata);
+struct supertype *mdadm_lookup_supertype(char *metadata);
 
 /* mdadm functions */
 extern int mdadm_manage_ro(char *devname, int fd, int readonly);
@@ -355,6 +358,8 @@ extern int mdadm_manage_stop(char *devname, int fd, int quiet,
 extern int mdadm_manage_subdevs(char *devname, int fd,
 			  struct mddev_dev *devlist, int verbose, int test,
 			  char *update, int force);
+extern int mdadm_set_action(char *dev, char *action);
+extern int mdadm_stop_scan(int verbose);
 extern int mdadm_autodetect(void);
 extern int mdadm_grow_add_device(char *devname, int fd, char *newdev);
 extern int mdadm_grow_addbitmap(char *devname, int fd,
@@ -374,10 +379,16 @@ extern int mdadm_grow_consistency_policy(char *devname, int fd,
 extern int mdadm_grow_continue_command(char *devname, int fd,
 				 char *backup_file, int verbose);
 
+extern int mdadm_grow_set_size(int fd, unsigned long long array_size);
+
 extern int mdadm_assemble(struct supertype *st, char *mddev,
 			  struct mddev_ident *ident,
 			  struct mddev_dev *devlist,
 			  struct context *c);
+
+extern int mdadm_scan_assemble(struct supertype *ss,
+			       struct context *c,
+			       struct mddev_ident *ident);
 
 extern int mdadm_build(char *mddev, struct mddev_dev *devlist,
 		       struct shape *s, struct context *c);
@@ -421,4 +432,5 @@ extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
 			       struct supertype *st);
 extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
 				  struct supertype *st, int only);
+extern int mdadm_misc_scan(char devmode, struct context *c);
 

@@ -103,6 +103,11 @@ char *keywords[] = {
 	[LTEnd]    = NULL
 };
 
+char *mdlib_get_conffile(void)
+{
+	return DefaultConfFile;
+}
+
 /*
  * match_keyword returns an index into the keywords array, or -1 for no match
  * case is ignored, and at least three characters must be given

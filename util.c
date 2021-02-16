@@ -1334,7 +1334,7 @@ struct supertype *guess_super_type(int fd, enum guess_types guess_type)
 	return NULL;
 }
 
-struct supertype *lookup_super_type(char *metadata)
+struct supertype *mdadm_lookup_supertype(char *metadata)
 {
 	struct supertype *ss = NULL;
 	int i;

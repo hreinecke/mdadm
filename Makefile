@@ -153,6 +153,7 @@ CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
 SONAME = libmdadm.so.1
 SHLIB = $(SONAME).0.1
 LIB = libmdadm.a
+MAP = libmdadm.map
 
 LIB_OBJS =  $(patsubst %.c,%.os,$(LIB_SRCS))
 LIB_SHOBJS =  $(patsubst %.c,%.ol,$(LIB_SRCS))
@@ -198,8 +199,8 @@ $(LIB): $(LIB_OBJS)
 	$(AR) r $(LIB) $(LIB_OBJS)
 	$(RANLIB) $(LIB)
 
-$(SHLIB): $(LIB_SHOBJS)
-	$(CC) $(CFLAGS) -shared -Wl,-soname,$(SONAME) -o $@ $(LIB_SHOBJS) -shared $(LINK_FLAGS) $(LDLIBS)
+$(SHLIB): $(LIB_SHOBJS) $(MAP)
+	$(CC) $(CFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,--version-script,$(MAP) -o $@ $(LIB_SHOBJS) -shared $(LINK_FLAGS) $(LDLIBS)
 
 mdadm : $(MDADM_OBJS) $(SHLIB) | check_rundir
 	$(CC) $(CFLAGS) $(LDFLAGS) -o mdadm $(MDADM_OBJS) -L. -lmdadm $(LDLIBS)
