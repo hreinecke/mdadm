@@ -622,6 +622,14 @@ extern int check_partitions(int fd, char *dname,
 extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
 extern int stat_is_blkdev(char *devname, dev_t *rdev);
 
+/* lib.c */
+extern int parse_layout_10(char *layout);
+extern int parse_layout_faulty(char *layout);
+
+/* util.c */
+extern char *get_md_name(char *devnm);
+extern void put_md_name(char *name);
+
 extern int get_mdp_major(void);
 extern int get_maj_min(char *dev, int *major, int *minor);
 extern int dev_open(char *dev, int flags);
@@ -635,6 +643,7 @@ extern void enable_fds(int devices);
 extern void manage_fork_fds(int close_all);
 extern int continue_via_systemd(char *devnm, char *service_name);
 
+extern int conf_verify_devnames(struct mddev_ident *array_list);
 extern int conf_test_dev(char *devname);
 extern int conf_test_metadata(const char *version, struct dev_policy *pol, int is_homehost);
 extern char *conf_get_mailaddr(void);

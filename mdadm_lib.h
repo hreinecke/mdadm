@@ -310,8 +310,6 @@ extern char *mdadm_array_state_name(int num);
 extern int get_linux_version(void);
 extern int is_near_layout_10(int layout);
 extern unsigned long long parse_size(char *size);
-extern int parse_layout_10(char *layout);
-extern int parse_layout_faulty(char *layout);
 extern long parse_num(char *num);
 extern int parse_uuid(char *str, int uuid[4]);
 extern void mdlib_set_name(const char *name);
@@ -326,7 +324,6 @@ extern struct createinfo *conf_get_create_info(void);
 extern void mdlib_set_conffile(char *file);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
-extern int conf_verify_devnames(struct mddev_ident *array_list);
 extern char *mdlib_get_conffile(void);
 
 /* util.c */
@@ -335,8 +332,6 @@ extern int get_cluster_name(char **name);
 extern int cluster_get_dlmlock(void);
 extern int cluster_release_dlmlock(void);
 
-extern char *get_md_name(char *devnm);
-extern void put_md_name(char *name);
 extern int md_get_array_info(int fd, struct mdu_array_info_s *array);
 
 struct supertype *mdadm_lookup_supertype(char *metadata);
