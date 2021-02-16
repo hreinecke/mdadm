@@ -491,7 +491,7 @@ static void manage_member(struct mdstat_ent *mdstat,
 		frozen = 1;
 
 	if (mdstat->level) {
-		int level = map_name(pers, mdstat->level);
+		int level = mdadm_personality_num(mdstat->level);
 		if (level == 0 || level == LEVEL_LINEAR) {
 			a->to_remove = 1;
 			wakeup_monitor();

@@ -47,31 +47,7 @@ static int default_layout(struct supertype *st, int level, int verbose)
 		st->ss->default_geometry(st, &level, &layout, NULL);
 
 	if (layout == UnSet)
-		switch(level) {
-		default: /* no layout */
-			layout = 0;
-			break;
-		case 0:
-			layout = RAID0_ORIG_LAYOUT;
-			break;
-		case 10:
-			layout = 0x102; /* near=2, far=1 */
-			if (verbose > 0)
-				pr_err("layout defaults to n2\n");
-			break;
-		case 5:
-		case 6:
-			layout = map_name(r5layout, "default");
-			if (verbose > 0)
-				pr_err("layout defaults to %s\n", map_num(r5layout, layout));
-			break;
-		case LEVEL_FAULTY:
-			layout = map_name(faultylayout, "default");
-
-			if (verbose > 0)
-				pr_err("layout defaults to %s\n", map_num(faultylayout, layout));
-			break;
-		}
+		layout = mdadm_default_layout(level, verbose);
 
 	return layout;
 }
@@ -210,7 +186,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 	}
 	if (s->bitmap_file && s->level <= 0) {
 		pr_err("bitmaps not meaningful with level %s\n",
-			map_num(pers, s->level)?:"given");
+			mdadm_personality_name(s->level)?:"given");
 		return 1;
 	}
 

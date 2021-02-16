@@ -167,7 +167,7 @@ struct mdinfo *sysfs_read(int fd, char *devnm, unsigned long options)
 		strcpy(base, "level");
 		if (load_sys(fname, buf, sizeof(buf)))
 			goto abort;
-		sra->array.level = map_name(pers, buf);
+		sra->array.level = mdadm_personality_num(buf);
 	}
 	if (options & GET_LAYOUT) {
 		strcpy(base, "layout");
@@ -256,7 +256,7 @@ struct mdinfo *sysfs_read(int fd, char *devnm, unsigned long options)
 		strcpy(base, "array_state");
 		if (load_sys(fname, buf, sizeof(buf)))
 			goto abort;
-		sra->array_state = map_name(sysfs_array_states, buf);
+		sra->array_state = mdadm_array_state_num(buf);
 	}
 
 	if (options & GET_CONSISTENCY_POLICY) {
@@ -264,8 +264,8 @@ struct mdinfo *sysfs_read(int fd, char *devnm, unsigned long options)
 		if (load_sys(fname, buf, sizeof(buf)))
 			sra->consistency_policy = CONSISTENCY_POLICY_UNKNOWN;
 		else
-			sra->consistency_policy = map_name(consistency_policies,
-							   buf);
+			sra->consistency_policy =
+				mdadm_consistency_policy_num(buf);
 	}
 
 	if (! (options & GET_DEVS))
@@ -689,7 +689,7 @@ int sysfs_set_array(struct mdinfo *info, int vers)
 	if (info->array.level < 0)
 		return 0; /* FIXME */
 	rv |= sysfs_set_str(info, NULL, "level",
-			    map_num(pers, info->array.level));
+			    mdadm_personality_name(info->array.level));
 	if (info->reshape_active && info->delta_disks != UnSet)
 		raid_disks -= info->delta_disks;
 	rv |= sysfs_set_num(info, NULL, "raid_disks", raid_disks);
@@ -725,7 +725,7 @@ int sysfs_set_array(struct mdinfo *info, int vers)
 
 	if (info->consistency_policy == CONSISTENCY_POLICY_PPL) {
 		if (sysfs_set_str(info, NULL, "consistency_policy",
-				  map_num(consistency_policies,
+				  mdadm_consistency_policy_name(
 					  info->consistency_policy))) {
 			pr_err("This kernel does not support PPL. Falling back to consistency-policy=resync.\n");
 			info->consistency_policy = CONSISTENCY_POLICY_RESYNC;

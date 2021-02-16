@@ -681,10 +681,6 @@ extern int restore_stripes(int *dest, unsigned long long *offsets,
 #define SYSLOG_FACILITY LOG_DAEMON
 
 extern char *map_num(mapping_t *map, int num);
-extern int map_name(mapping_t *map, char *name);
-extern mapping_t r0layout[], r5layout[], r6layout[],
-	pers[], modes[], faultylayout[];
-extern mapping_t consistency_policies[], sysfs_array_states[];
 
 extern char *map_dev_preferred(int major, int minor, int create,
 			       char *prefer);
@@ -1380,6 +1376,20 @@ extern int mdadm_examine_bitmap(char *filename, int brief,
 extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
+
+/* maps.c */
+extern int mdadm_get_layout(int level, char *name);
+extern int mdadm_default_layout(int level, int verbose);
+extern int mdadm_personality_num(char *name);
+extern char *mdadm_personality_name(int num);
+extern int mdadm_consistency_policy_num(char *name);
+extern char *mdadm_consistency_policy_name(int num);
+extern char *mdadm_raid_layout_name(int level, int layout);
+extern int mdadm_raid_layout_num(int level, char *layout);
+extern int mdadm_faulty_layout(char *name);
+extern int mdadm_array_state_num(char *name);
+extern char *mdadm_array_state_name(int num);
+extern char *mdadm_assemble_status(int status);
 
 /* calculate the size of the bitmap given the array size and bitmap chunksize */
 static inline unsigned long long

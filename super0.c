@@ -107,7 +107,7 @@ static void examine_super0(struct supertype *st, char *homehost)
 
 	atime = sb->ctime;
 	printf("  Creation Time : %.24s\n", ctime(&atime));
-	c = map_num(pers, sb->level);
+	c = mdadm_personality_name(sb->level);
 	printf("     Raid Level : %s\n", c?c:"-unknown-");
 	if ((int)sb->level > 0) {
 		int ddsks = 0, ddsks_denom = 1;
@@ -152,17 +152,19 @@ static void examine_super0(struct supertype *st, char *homehost)
 				delta_extra = - sb->delta_disks;
 		}
 		if (sb->new_level != sb->level) {
-			c = map_num(pers, sb->new_level);
+			c = mdadm_personality_name(sb->new_level);
 			printf("      New Level : %s\n", c?c:"-unknown-");
 		}
 		if (sb->new_layout != sb->layout) {
 			if (sb->level == 5) {
-				c = map_num(r5layout, sb->new_layout);
+				c = mdadm_raid_layout_name(sb->level,
+							   sb->new_layout);
 				printf("     New Layout : %s\n",
 				       c?c:"-unknown-");
 			}
 			if (sb->level == 6) {
-				c = map_num(r6layout, sb->new_layout);
+				c = mdadm_raid_layout_name(sb->level,
+							   sb->new_layout);
 				printf("     New Layout : %s\n",
 				       c?c:"-unknown-");
 			}
@@ -195,12 +197,8 @@ static void examine_super0(struct supertype *st, char *homehost)
 	printf("         Events : %llu\n",
 	       ((unsigned long long)sb->events_hi << 32) + sb->events_lo);
 	printf("\n");
-	if (sb->level == 5) {
-		c = map_num(r5layout, sb->layout);
-		printf("         Layout : %s\n", c?c:"-unknown-");
-	}
-	if (sb->level == 6) {
-		c = map_num(r6layout, sb->layout);
+	if (sb->level == 5 || sb->level == 6) {
+		c = mdadm_raid_layout_name(sb->level, sb->layout);
 		printf("         Layout : %s\n", c?c:"-unknown-");
 	}
 	if (sb->level == 10) {
@@ -264,7 +262,7 @@ static void examine_super0(struct supertype *st, char *homehost)
 static void brief_examine_super0(struct supertype *st, int verbose)
 {
 	mdp_super_t *sb = st->sb;
-	char *c=map_num(pers, sb->level);
+	char *c = mdadm_personality_name(sb->level);
 	char devname[20];
 
 	sprintf(devname, "/dev/md%d", sb->md_minor);
@@ -288,7 +286,7 @@ static void export_examine_super0(struct supertype *st)
 {
 	mdp_super_t *sb = st->sb;
 
-	printf("MD_LEVEL=%s\n", map_num(pers, sb->level));
+	printf("MD_LEVEL=%s\n", mdadm_personality_name(sb->level));
 	printf("MD_DEVICES=%d\n", sb->raid_disks);
 	if (sb->minor_version >= 90)
 		printf("MD_UUID=%08x:%08x:%08x:%08x\n",
