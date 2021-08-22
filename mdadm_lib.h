@@ -1,3 +1,6 @@
+#ifndef _MDADM_LIB_H
+#define _MDADM_LIB_H
+
 /* We want to use unsigned numbers for sector counts, but need
  * a value for 'invalid'.  Use '1'.
  */
@@ -421,3 +424,5 @@ extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
 extern int mdadm_misc_scan(char devmode, struct context *c);
 
 extern int mdadm_write_rules(char *rule_name);
+
+#endif /* _MDADM_LIB_H */
