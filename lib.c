@@ -539,6 +539,30 @@ void free_line(char *line)
 	dl_free(line);
 }
 
+char *make_backup(char *name)
+{
+	char *base = "backup_file-";
+	int len;
+	char *fname;
+
+	len = strlen(MAP_DIR) + 1 + strlen(base) + strlen(name)+1;
+	fname = xmalloc(len);
+	sprintf(fname, "%s/%s%s", MAP_DIR, base, name);
+	return fname;
+}
+
+char *locate_backup(char *name)
+{
+	char *fl = make_backup(name);
+	struct stat stb;
+
+	if (stat(fl, &stb) == 0 && S_ISREG(stb.st_mode))
+		return fl;
+
+	free(fl);
+	return NULL;
+}
+
 #ifndef VERSION
 #define VERSION "4.1"
 #endif

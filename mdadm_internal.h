@@ -74,8 +74,6 @@ extern const char *Name;
 #define GROW_SERVICE "mdadm-grow-continue"
 #endif /* GROW_SERVICE */
 
-extern char *locate_backup(char *name);
-
 #ifndef Sendmail
 #define Sendmail "/usr/lib/sendmail -t"
 #endif
@@ -573,8 +571,6 @@ struct stat64;
 # include <ftw.h>
 #endif
 
-extern int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s);
-
 /* calculate the size of the bitmap given the array size and bitmap chunksize */
 static inline unsigned long long
 bitmap_bits(unsigned long long array_size, unsigned long chunksize)
@@ -605,8 +601,11 @@ extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
 extern int stat_is_blkdev(char *devname, dev_t *rdev);
 
 /* lib.c */
+extern int add_dev(const char *name, const struct stat *stb, int flag,
+		   struct FTW *s);
 extern int parse_layout_10(char *layout);
 extern int parse_layout_faulty(char *layout);
+extern char *locate_backup(char *name);
 
 /* util.c */
 extern char *get_md_name(char *devnm);

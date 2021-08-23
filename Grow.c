@@ -40,12 +40,6 @@
 #include	<signal.h>
 #include	<sys/wait.h>
 
-#if ! defined(__BIG_ENDIAN) && ! defined(__LITTLE_ENDIAN)
-#error no endian defined
-#endif
-#include	"md_u.h"
-#include	"md_p.h"
-
 /*
   * Check at compile time that something is of a particular type.
   * Always evaluates to 1 so you may use it easily in comparisons.
@@ -5222,30 +5216,6 @@ int mdadm_grow_continue(int mdfd, struct supertype *st, struct mdinfo *info,
 					freeze_reshape);
 
 	return ret_val;
-}
-
-char *make_backup(char *name)
-{
-	char *base = "backup_file-";
-	int len;
-	char *fname;
-
-	len = strlen(MAP_DIR) + 1 + strlen(base) + strlen(name)+1;
-	fname = xmalloc(len);
-	sprintf(fname, "%s/%s%s", MAP_DIR, base, name);
-	return fname;
-}
-
-char *locate_backup(char *name)
-{
-	char *fl = make_backup(name);
-	struct stat stb;
-
-	if (stat(fl, &stb) == 0 && S_ISREG(stb.st_mode))
-		return fl;
-
-	free(fl);
-	return NULL;
 }
 
 int mdadm_grow_set_size(int mdfd, unsigned long long array_size)
