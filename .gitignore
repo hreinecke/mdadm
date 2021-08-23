@@ -10,6 +10,7 @@
 /mdmon
 /libmdadm.a
 /libmdadm.so
+/libmdadm.so.?.?.*
 /swap_super
 /test_stripe
 /TAGS
