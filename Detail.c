@@ -33,6 +33,7 @@
 #include	"uuid.h"
 #include	"bitmap.h"
 #include	"util.h"
+#include	"mapfile.h"
 #include	<ctype.h>
 #include	<dirent.h>
 

@@ -29,6 +29,7 @@
 #include	"mdstat.h"
 #include	"uuid.h"
 #include	"policy.h"
+#include	"mapfile.h"
 #include	<dirent.h>
 #include	<glob.h>
 #include	<fnmatch.h>

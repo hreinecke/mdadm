@@ -27,8 +27,7 @@
 #include	"sysfs.h"
 #include	"util.h"
 #include	"super.h"
-#include	"md_p.h"
-#include	"md_u.h"
+#include	"mapfile.h"
 
 int mdadm_query(char *dev)
 {

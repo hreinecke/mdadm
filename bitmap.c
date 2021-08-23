@@ -25,6 +25,7 @@
 #include "bswap.h"
 #include "super.h"
 #include "uuid.h"
+#include "mapfile.h"
 
 static inline void sb_le_to_cpu(bitmap_super_t *sb)
 {
