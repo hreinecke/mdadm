@@ -1,4 +1,6 @@
 /*.o
+/*.ol
+/*.os
 /*.man
 /*-stamp
 /mdadm
@@ -6,6 +8,8 @@
 /mdadm.udeb
 /mdassemble
 /mdmon
+/libmdadm.a
+/libmdadm.so
 /swap_super
 /test_stripe
 /TAGS
