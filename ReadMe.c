@@ -25,9 +25,7 @@
  *    Email: <Jes.Sorensen@gmail.com>
  */
 
-#include "mdadm_include.h"
-#include "md_u.h"
-#include "mdadm_lib.h"
+#include "mdadm.h"
 #include "mdadm_exec.h"
 
 /*

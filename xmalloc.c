@@ -22,14 +22,6 @@
  */
 
 #include	"mdadm.h"
-/*#include	<sys/socket.h>
-#include	<sys/utsname.h>
-#include	<sys/wait.h>
-#include	<sys/un.h>
-#include	<ctype.h>
-#include	<dirent.h>
-#include	<signal.h>
-*/
 
 void *xmalloc(size_t len)
 {

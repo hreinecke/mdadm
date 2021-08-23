@@ -24,12 +24,6 @@
 
 #include	"mdadm.h"
 #include	"dlink.h"
-
-#if ! defined(__BIG_ENDIAN) && ! defined(__LITTLE_ENDIAN)
-#error no endian defined
-#endif
-#include	"md_u.h"
-#include	"md_p.h"
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"super.h"

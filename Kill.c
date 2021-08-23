@@ -29,8 +29,6 @@
 #include	"debug.h"
 #include	"util.h"
 #include	"super.h"
-#include	"md_u.h"
-#include	"md_p.h"
 
 int mdadm_kill(char *dev, struct supertype *st, int force, int verbose, int noexcl)
 {
