@@ -24,8 +24,6 @@
 
 extern const char *Name;
 
-#define MdpMinorShift 6
-
 #ifndef BLKGETSIZE64
 #define BLKGETSIZE64 _IOR(0x12,114,size_t) /* return device size in bytes (u64 *arg) */
 #endif
@@ -77,13 +75,6 @@ extern const char *Name;
 #ifndef Sendmail
 #define Sendmail "/usr/lib/sendmail -t"
 #endif
-
-extern char *map_dev_preferred(int major, int minor, int create,
-			       char *prefer);
-static inline char *map_dev(int major, int minor, int create)
-{
-	return map_dev_preferred(major, minor, create, NULL);
-}
 
 struct spare_criteria {
 	unsigned long long min_size;
@@ -530,9 +521,6 @@ struct dev_policy {
 	const char *value;
 };
 
-extern void sysfs_rules_apply(char *devnm, struct mdinfo *dev);
-extern void sysfsline(char *line);
-
 #if __GNUC__ < 3
 struct stat64;
 #endif
@@ -571,155 +559,17 @@ struct stat64;
 # include <ftw.h>
 #endif
 
+#define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
+#define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
+#define ROUND_UP_PTR(ptr, base)	((typeof(ptr)) \
+				 (ROUND_UP((unsigned long)(ptr), base)))
+
 /* calculate the size of the bitmap given the array size and bitmap chunksize */
 static inline unsigned long long
 bitmap_bits(unsigned long long array_size, unsigned long chunksize)
 {
 	return (array_size * 512 + chunksize - 1) / chunksize;
 }
-
-extern int restore_backup(struct supertype *st,
-			  struct mdinfo *content,
-			  int working_disks,
-			  int spares,
-			  char **backup_filep,
-			  int verbose);
-
-int md_array_valid(int fd);
-int md_array_active(int fd);
-int md_set_array_info(int fd, struct mdu_array_info_s *array);
-int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
-extern int mdadm_version(char *version);
-extern int parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
-extern int check_ext2(int fd, char *name);
-extern int check_reiser(int fd, char *name);
-extern int check_raid(int fd, char *name);
-extern int check_partitions(int fd, char *dname,
-			    unsigned long long freesize,
-			    unsigned long long size);
-extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
-extern int stat_is_blkdev(char *devname, dev_t *rdev);
-
-/* lib.c */
-extern int add_dev(const char *name, const struct stat *stb, int flag,
-		   struct FTW *s);
-extern int parse_layout_10(char *layout);
-extern int parse_layout_faulty(char *layout);
-extern char *locate_backup(char *name);
-
-/* util.c */
-extern char *get_md_name(char *devnm);
-extern void put_md_name(char *name);
-
-extern int get_mdp_major(void);
-extern int get_maj_min(char *dev, int *major, int *minor);
-extern int dev_open(char *dev, int flags);
-extern void reopen_mddev(int mdfd);
-extern int open_dev_flags(char *devnm, int flags);
-extern int open_dev_excl(char *devnm);
-extern int is_standard(char *dev, int *nump);
-extern int same_dev(char *one, char *two);
-extern int compare_paths (char* path1,char* path2);
-extern void enable_fds(int devices);
-extern void manage_fork_fds(int close_all);
-extern int continue_via_systemd(char *devnm, char *service_name);
-
-extern int conf_verify_devnames(struct mddev_ident *array_list);
-extern int conf_test_dev(char *devname);
-extern int conf_test_metadata(const char *version, struct dev_policy *pol, int is_homehost);
-extern char *conf_get_mailaddr(void);
-extern char *conf_get_mailfrom(void);
-extern char *conf_get_program(void);
-extern char *conf_line(FILE *file);
-extern char *conf_word(FILE *file, int allow_key);
-extern void print_quoted(char *str);
-extern void print_escape(char *str);
-extern int use_udev(void);
-extern unsigned long GCD(unsigned long a, unsigned long b);
-extern int conf_name_is_free(char *name);
-extern int devname_matches(char *name, char *match);
-extern struct mddev_ident *conf_match(struct supertype *st,
-				      struct mdinfo *info,
-				      char *devname,
-				      int verbose, int *rvp);
-
-extern void free_line(char *line);
-extern int match_oneof(char *devices, char *devname);
-extern unsigned long calc_csum(void *super, int bytes);
-extern int enough(int level, int raid_disks, int layout, int clean,
-		   char *avail);
-extern int ask(char *mesg);
-extern unsigned long long get_component_size(int fd);
-extern void remove_partitions(int fd);
-extern int test_partition(int fd);
-extern int test_partition_from_id(dev_t id);
-extern int get_data_disks(int level, int layout, int raid_disks);
-extern unsigned long long calc_array_size(int level, int raid_disks, int layout,
-				   int chunksize, unsigned long long devsize);
-extern int flush_metadata_updates(struct supertype *st);
-extern void append_metadata_update(struct supertype *st, void *buf, int len);
-extern int assemble_container_content(struct supertype *st, int mdfd,
-				      struct mdinfo *content,
-				      struct context *c,
-				      char *chosen_name, int *result);
-
-extern int move_spare(char *from_devname, char *to_devname, dev_t devid);
-extern int add_disk(int mdfd, struct supertype *st,
-		    struct mdinfo *sra, struct mdinfo *info);
-extern int remove_disk(int mdfd, struct supertype *st,
-		       struct mdinfo *sra, struct mdinfo *info);
-extern int hot_remove_disk(int mdfd, unsigned long dev, int force);
-extern int sys_hot_remove_disk(int statefd, int force);
-extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
-unsigned long long min_recovery_start(struct mdinfo *array);
-
-extern char *human_size(long long bytes);
-extern char *human_size_brief(long long bytes, int prefix);
-extern void print_r10_layout(int layout);
-
-extern char *find_free_devnm(int use_partitions);
-
-extern char *devid2kname(dev_t devid);
-extern char *devid2devnm(dev_t devid);
-extern dev_t devnm2devid(char *devnm);
-
-extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
-			char *chosen, int block_udev);
-/* values for 'trustworthy' */
-#define	LOCAL	1
-#define	LOCAL_ANY 10
-#define	FOREIGN	2
-#define	METADATA 3
-extern int open_container(int fd);
-extern int metadata_container_matches(char *metadata, char *devnm);
-extern int metadata_subdev_matches(char *metadata, char *devnm);
-extern int is_container_member(struct mdstat_ent *ent, char *devname);
-extern int is_subarray_active(char *subarray, char *devname);
-extern int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet);
-extern struct superswitch *version_to_superswitch(char *vers);
-
-extern int mdmon_running(char *devnm);
-extern int mdmon_pid(char *devnm);
-extern int check_env(char *name);
-extern __u32 random32(void);
-extern void random_uuid(__u8 *buf);
-extern int start_mdmon(char *devnm);
-
-void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
-
-extern char *stat2kname(struct stat *st);
-extern char *fd2kname(int fd);
-extern char *stat2devnm(struct stat *st);
-extern char *fd2devnm(int fd);
-extern void udev_block(char *devnm);
-extern void udev_unblock(void);
-
-extern int in_initrd(void);
-
-#define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
-#define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
-#define ROUND_UP_PTR(ptr, base)	((typeof(ptr)) \
-				 (ROUND_UP((unsigned long)(ptr), base)))
 
 static inline int is_subarray(char *vers)
 {
@@ -739,6 +589,151 @@ static inline char *to_subarray(struct mdstat_ent *ent, char *container)
 {
 	return &ent->metadata_version[10+strlen(container)+1];
 }
+
+/* Grow.c */
+extern int restore_backup(struct supertype *st,
+			  struct mdinfo *content,
+			  int working_disks,
+			  int spares,
+			  char **backup_filep,
+			  int verbose);
+
+/* lib.c */
+extern int get_mdp_major(void);
+extern char *devid2kname(dev_t devid);
+extern char *devid2devnm(dev_t devid);
+extern dev_t devnm2devid(char *devnm);
+extern char *stat2kname(struct stat *st);
+extern char *fd2kname(int fd);
+extern char *stat2devnm(struct stat *st);
+extern char *fd2devnm(int fd);
+extern char *get_md_name(char *devnm);
+extern void put_md_name(char *name);
+extern void udev_block(char *devnm);
+extern void udev_unblock(void);
+
+extern char *map_dev_preferred(int major, int minor, int create,
+			       char *prefer);
+static inline char *map_dev(int major, int minor, int create)
+{
+	return map_dev_preferred(major, minor, create, NULL);
+}
+
+extern int add_dev(const char *name, const struct stat *stb, int flag,
+		   struct FTW *s);
+extern char *locate_backup(char *name);
+
+extern void print_quoted(char *str);
+extern void print_escape(char *str);
+extern int check_env(char *name);
+extern int use_udev(void);
+extern unsigned long GCD(unsigned long a, unsigned long b);
+extern void free_line(char *line);
+
+/* util.c */
+extern int parse_layout_10(char *layout);
+extern int parse_layout_faulty(char *layout);
+extern int md_array_valid(int fd);
+extern int md_array_active(int fd);
+extern int md_set_array_info(int fd, struct mdu_array_info_s *array);
+extern int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
+extern int mdadm_version(char *version);
+
+extern int get_maj_min(char *dev, int *major, int *minor);
+extern int dev_open(char *dev, int flags);
+extern void reopen_mddev(int mdfd);
+extern int open_dev_flags(char *devnm, int flags);
+extern int open_dev_excl(char *devnm);
+extern int is_standard(char *dev, int *nump);
+extern int same_dev(char *one, char *two);
+extern int compare_paths (char* path1,char* path2);
+extern void enable_fds(int devices);
+extern void manage_fork_fds(int close_all);
+extern int continue_via_systemd(char *devnm, char *service_name);
+
+extern int parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
+
+extern int check_ext2(int fd, char *name);
+extern int check_reiser(int fd, char *name);
+extern int check_raid(int fd, char *name);
+extern int check_partitions(int fd, char *dname,
+			    unsigned long long freesize,
+			    unsigned long long size);
+
+extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
+extern int stat_is_blkdev(char *devname, dev_t *rdev);
+
+extern int enough(int level, int raid_disks, int layout, int clean,
+		   char *avail);
+
+extern void remove_partitions(int fd);
+extern int test_partition(int fd);
+extern int test_partition_from_id(dev_t id);
+extern int get_data_disks(int level, int layout, int raid_disks);
+extern unsigned long long calc_array_size(int level, int raid_disks, int layout,
+				   int chunksize, unsigned long long devsize);
+extern int flush_metadata_updates(struct supertype *st);
+extern void append_metadata_update(struct supertype *st, void *buf, int len);
+extern int assemble_container_content(struct supertype *st, int mdfd,
+				      struct mdinfo *content,
+				      struct context *c,
+				      char *chosen_name, int *result);
+
+extern int add_disk(int mdfd, struct supertype *st,
+		    struct mdinfo *sra, struct mdinfo *info);
+extern int remove_disk(int mdfd, struct supertype *st,
+		       struct mdinfo *sra, struct mdinfo *info);
+extern int hot_remove_disk(int mdfd, unsigned long dev, int force);
+extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
+unsigned long long min_recovery_start(struct mdinfo *array);
+
+extern char *human_size(long long bytes);
+extern char *human_size_brief(long long bytes, int prefix);
+extern void print_r10_layout(int layout);
+
+/* values for 'trustworthy' */
+#define	LOCAL	1
+#define	LOCAL_ANY 10
+#define	FOREIGN	2
+#define	METADATA 3
+extern int open_container(int fd);
+extern int metadata_container_matches(char *metadata, char *devnm);
+extern int metadata_subdev_matches(char *metadata, char *devnm);
+extern int is_container_member(struct mdstat_ent *ent, char *devname);
+extern int is_subarray_active(char *subarray, char *devname);
+extern int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet);
+extern struct superswitch *version_to_superswitch(char *vers);
+
+extern int mdmon_running(char *devnm);
+extern int mdmon_pid(char *devnm);
+extern __u32 random32(void);
+extern void random_uuid(__u8 *buf);
+extern int start_mdmon(char *devnm);
+
+/* config.c */
+extern int conf_verify_devnames(struct mddev_ident *array_list);
+extern int conf_test_dev(char *devname);
+extern int conf_test_metadata(const char *version, struct dev_policy *pol, int is_homehost);
+extern char *conf_get_mailaddr(void);
+extern char *conf_get_mailfrom(void);
+extern char *conf_get_program(void);
+extern char *conf_line(FILE *file);
+extern char *conf_word(FILE *file, int allow_key);
+extern int match_oneof(char *devices, char *devname);
+extern int conf_name_is_free(char *name);
+extern int devname_matches(char *name, char *match);
+extern struct mddev_ident *conf_match(struct supertype *st,
+				      struct mdinfo *info,
+				      char *devname,
+				      int verbose, int *rvp);
+
+
+/* super1.c */
+void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
+
+/* mdopen.c */
+extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
+			char *chosen, int block_udev);
 
 /* faulty stuff */
 

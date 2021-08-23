@@ -62,5 +62,9 @@ extern int sysfs_unique_holder(char *devnm, long rdev);
 extern int sysfs_freeze_array(struct mdinfo *sra);
 extern int sysfs_wait(int fd, int *msec);
 extern int load_sys(char *path, char *buf, int len);
+extern void sysfs_rules_apply(char *devnm, struct mdinfo *dev);
+extern void sysfsline(char *line);
+
+extern unsigned long long get_component_size(int fd);
 
 #endif /* _SYSFS_H */

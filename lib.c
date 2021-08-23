@@ -30,6 +30,8 @@
 
 const char *Name;
 
+#define MdpMinorShift 6
+
 /* This fill contains various 'library' style function.  They
  * have no dependency on anything outside this file.
  */
@@ -164,6 +166,92 @@ char *fd2devnm(int fd)
 		return stat2devnm(&stb);
 
 	return NULL;
+}
+
+dev_t devnm2devid(char *devnm)
+{
+	/* First look in /sys/block/$DEVNM/dev for %d:%d
+	 * If that fails, try parsing out a number
+	 */
+	char path[100];
+	char *ep;
+	int fd;
+	int mjr,mnr;
+
+	sprintf(path, "/sys/block/%s/dev", devnm);
+	fd = open(path, O_RDONLY);
+	if (fd >= 0) {
+		char buf[20];
+		int n = read(fd, buf, sizeof(buf));
+		close(fd);
+		if (n > 0)
+			buf[n] = 0;
+		if (n > 0 && sscanf(buf, "%d:%d\n", &mjr, &mnr) == 2)
+			return makedev(mjr, mnr);
+	}
+	if (strncmp(devnm, "md_d", 4) == 0 &&
+	    isdigit(devnm[4]) &&
+	    (mnr = strtoul(devnm+4, &ep, 10)) >= 0 &&
+	    ep > devnm && *ep == 0)
+		return makedev(get_mdp_major(), mnr << MdpMinorShift);
+
+	if (strncmp(devnm, "md", 2) == 0 &&
+	    isdigit(devnm[2]) &&
+	    (mnr = strtoul(devnm+2, &ep, 10)) >= 0 &&
+	    ep > devnm && *ep == 0)
+		return makedev(MD_MAJOR, mnr);
+
+	return 0;
+}
+
+char *get_md_name(char *devnm)
+{
+	/* find /dev/md%d or /dev/md/%d or make a device /dev/.tmp.md%d */
+	/* if dev < 0, want /dev/md/d%d or find mdp in /proc/devices ... */
+
+	static char devname[50];
+	struct stat stb;
+	dev_t rdev = devnm2devid(devnm);
+	char *dn;
+
+	if (rdev == 0)
+		return 0;
+	if (strncmp(devnm, "md_", 3) == 0) {
+		snprintf(devname, sizeof(devname), "/dev/md/%s",
+			devnm + 3);
+		if (stat(devname, &stb) == 0 &&
+		    (S_IFMT&stb.st_mode) == S_IFBLK && (stb.st_rdev == rdev))
+			return devname;
+	}
+	snprintf(devname, sizeof(devname), "/dev/%s", devnm);
+	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
+	    (stb.st_rdev == rdev))
+		return devname;
+
+	snprintf(devname, sizeof(devname), "/dev/md/%s", devnm+2);
+	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
+	    (stb.st_rdev == rdev))
+		return devname;
+
+	dn = map_dev(major(rdev), minor(rdev), 0);
+	if (dn)
+		return dn;
+	snprintf(devname, sizeof(devname), "/dev/.tmp.%s", devnm);
+	if (mknod(devname, S_IFBLK | 0600, rdev) == -1)
+		if (errno != EEXIST)
+			return NULL;
+
+	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
+	    (stb.st_rdev == rdev))
+		return devname;
+	unlink(devname);
+	return NULL;
+}
+
+void put_md_name(char *name)
+{
+	if (strncmp(name, "/dev/.tmp.md", 12) == 0)
+		unlink(name);
 }
 
 /* When we create a new array, we don't want the content to
@@ -317,86 +405,6 @@ char *map_dev_preferred(int major, int minor, int create,
 	return preferred ? preferred : regular;
 }
 
-/* conf_word gets one word from the conf file.
- * if "allow_key", then accept words at the start of a line,
- * otherwise stop when such a word is found.
- * We assume that the file pointer is at the end of a word, so the
- * next character is a space, or a newline.  If not, it is the start of a line.
- */
-
-char *conf_word(FILE *file, int allow_key)
-{
-	int wsize = 100;
-	int len = 0;
-	int c;
-	int quote;
-	int wordfound = 0;
-	char *word = xmalloc(wsize);
-
-	while (wordfound == 0) {
-		/* at the end of a word.. */
-		c = getc(file);
-		if (c == '#')
-			while (c != EOF && c != '\n')
-				c = getc(file);
-		if (c == EOF)
-			break;
-		if (c == '\n')
-			continue;
-
-		if (c != ' ' && c != '\t' && ! allow_key) {
-			ungetc(c, file);
-			break;
-		}
-		/* looks like it is safe to get a word here, if there is one */
-		quote = 0;
-		/* first, skip any spaces */
-		while (c == ' ' || c == '\t')
-			c = getc(file);
-		if (c != EOF && c != '\n' && c != '#') {
-			/* we really have a character of a word, so start saving it */
-			while (c != EOF && c != '\n' &&
-			       (quote || (c != ' ' && c != '\t'))) {
-				wordfound = 1;
-				if (quote && c == quote)
-					quote = 0;
-				else if (quote == 0 && (c == '\'' || c == '"'))
-					quote = c;
-				else {
-					if (len == wsize-1) {
-						wsize += 100;
-						word = xrealloc(word, wsize);
-					}
-					word[len++] = c;
-				}
-				c = getc(file);
-				/* Hack for broken kernels (2.6.14-.24) that put
-				 *        "active(auto-read-only)"
-				 * in /proc/mdstat instead of
-				 *        "active (auto-read-only)"
-				 */
-				if (c == '(' && len >= 6 &&
-				    strncmp(word + len - 6, "active", 6) == 0)
-					c = ' ';
-			}
-		}
-		if (c != EOF)
-			ungetc(c, file);
-	}
-	word[len] = 0;
-
-	/* Further HACK for broken kernels.. 2.6.14-2.6.24 */
-	if (strcmp(word, "auto-read-only)") == 0)
-		strcpy(word, "(auto-read-only)");
-
-/*    printf("word is <%s>\n", word); */
-	if (!wordfound) {
-		free(word);
-		word = NULL;
-	}
-	return word;
-}
-
 void print_quoted(char *str)
 {
 	/* Printf the string with surrounding quotes
@@ -497,36 +505,6 @@ unsigned long GCD(unsigned long a, unsigned long b)
 			a -= b;
 	}
 	return a;
-}
-
-/*
- * conf_line reads one logical line from the conffile or mdstat.
- * It skips comments and continues until it finds a line that starts
- * with a non blank/comment.  This character is pushed back for the next call
- * A doubly linked list of words is returned.
- * the first word will be a keyword.  Other words will have had quotes removed.
- */
-
-char *conf_line(FILE *file)
-{
-	char *w;
-	char *list;
-
-	w = conf_word(file, 1);
-	if (w == NULL)
-		return NULL;
-
-	list = dl_strdup(w);
-	free(w);
-	dl_init(list);
-
-	while ((w = conf_word(file, 0))){
-		char *w2 = dl_strdup(w);
-		free(w);
-		dl_add(list, w2);
-	}
-/*    printf("got a line\n");*/
-	return list;
 }
 
 void free_line(char *line)

@@ -31,6 +31,7 @@
 #include "super.h"
 #include "uuid.h"
 #include "sha1.h"
+
 /*
  * All handling for the 0.90.0 version superblock is in
  * this file.
@@ -41,6 +42,28 @@
  *   - printing part of the superblock for --detail
  * .. other stuff
  */
+
+static unsigned long calc_csum(void *super, int bytes)
+{
+	unsigned long long newcsum = 0;
+	int i;
+	unsigned int csum;
+	unsigned int *superc = (unsigned int*) super;
+
+	for(i = 0; i < bytes/4; i++)
+		newcsum += superc[i];
+	csum = (newcsum& 0xffffffff) + (newcsum>>32);
+#ifdef __alpha__
+/* The in-kernel checksum calculation is always 16bit on
+ * the alpha, though it is 32 bit on i386...
+ * I wonder what it is elsewhere... (it uses an API in
+ * a way that it shouldn't).
+ */
+	csum = (csum & 0xffff) + (csum >> 16);
+	csum = (csum & 0xffff) + (csum >> 16);
+#endif
+	return csum;
+}
 
 static unsigned long calc_sb0_csum(mdp_super_t *super)
 {

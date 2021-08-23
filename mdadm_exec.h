@@ -97,6 +97,7 @@ enum special_options {
 	ConsistencyPolicy,
 };
 
+/* mdopen.c */
 extern int open_mddev(char *dev, int report_errors);
 int Write_rules(char *rule_name);
 #endif /* _MDADM_EXEC_H */

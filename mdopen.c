@@ -29,7 +29,7 @@
 #include "mapfile.h"
 #include <ctype.h>
 
-void make_parts(char *dev, int cnt)
+static void make_parts(char *dev, int cnt)
 {
 	/* make 'cnt' partition devices for 'dev'
 	 * If dev is a device name we use the
@@ -105,7 +105,7 @@ void make_parts(char *dev, int cnt)
 	free(name);
 }
 
-int create_named_array(char *devnm)
+static int create_named_array(char *devnm)
 {
 	int fd;
 	int n = -1;
@@ -129,6 +129,39 @@ int create_named_array(char *devnm)
 	}
 
 	return 1;
+}
+
+static char *find_free_devnm(int use_partitions)
+{
+	static char devnm[32];
+	int devnum;
+	for (devnum = 127; devnum != 128;
+	     devnum = devnum ? devnum-1 : (1<<9)-1) {
+
+		if (use_partitions)
+			sprintf(devnm, "md_d%d", devnum);
+		else
+			sprintf(devnm, "md%d", devnum);
+		if (mddev_busy(devnm))
+			continue;
+		if (!conf_name_is_free(devnm))
+			continue;
+		if (!use_udev()) {
+			/* make sure it is new to /dev too, at least as a
+			 * non-standard */
+			dev_t devid = devnm2devid(devnm);
+			if (devid) {
+				char *dn = map_dev(major(devid),
+						   minor(devid), 0);
+				if (dn && ! is_standard(dn, NULL))
+					continue;
+			}
+		}
+		break;
+	}
+	if (devnum == 128)
+		return NULL;
+	return devnm;
 }
 
 /*
@@ -476,37 +509,4 @@ int open_mddev(char *dev, int report_errors)
 	}
 
 	return mdfd;
-}
-
-char *find_free_devnm(int use_partitions)
-{
-	static char devnm[32];
-	int devnum;
-	for (devnum = 127; devnum != 128;
-	     devnum = devnum ? devnum-1 : (1<<9)-1) {
-
-		if (use_partitions)
-			sprintf(devnm, "md_d%d", devnum);
-		else
-			sprintf(devnm, "md%d", devnum);
-		if (mddev_busy(devnm))
-			continue;
-		if (!conf_name_is_free(devnm))
-			continue;
-		if (!use_udev()) {
-			/* make sure it is new to /dev too, at least as a
-			 * non-standard */
-			dev_t devid = devnm2devid(devnm);
-			if (devid) {
-				char *dn = map_dev(major(devid),
-						   minor(devid), 0);
-				if (dn && ! is_standard(dn, NULL))
-					continue;
-			}
-		}
-		break;
-	}
-	if (devnum == 128)
-		return NULL;
-	return devnm;
 }

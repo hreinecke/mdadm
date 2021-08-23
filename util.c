@@ -37,9 +37,7 @@
 #include	<sys/wait.h>
 #include	<sys/un.h>
 #include	<sys/resource.h>
-#include	<sys/vfs.h>
 #include	<sys/mman.h>
-#include	<linux/magic.h>
 #include	<poll.h>
 #include	<ctype.h>
 #include	<dirent.h>
@@ -736,26 +734,6 @@ int stat_is_blkdev(char *devname, dev_t *rdev)
 	return 1;
 }
 
-int ask(char *mesg)
-{
-	char *add = "";
-	int i;
-	for (i = 0; i < 5; i++) {
-		char buf[100];
-		fprintf(stderr, "%s%s", mesg, add);
-		fflush(stderr);
-		if (fgets(buf, 100, stdin)==NULL)
-			return 0;
-		if (buf[0]=='y' || buf[0]=='Y')
-			return 1;
-		if (buf[0]=='n' || buf[0]=='N')
-			return 0;
-		add = "(y/n) ";
-	}
-	pr_err("assuming 'no'\n");
-	return 0;
-}
-
 int is_standard(char *dev, int *nump)
 {
 	/* tests if dev is a "standard" md dev name.
@@ -790,28 +768,6 @@ int is_standard(char *dev, int *nump)
 	if (nump) *nump = num;
 
 	return type;
-}
-
-unsigned long calc_csum(void *super, int bytes)
-{
-	unsigned long long newcsum = 0;
-	int i;
-	unsigned int csum;
-	unsigned int *superc = (unsigned int*) super;
-
-	for(i = 0; i < bytes/4; i++)
-		newcsum += superc[i];
-	csum = (newcsum& 0xffffffff) + (newcsum>>32);
-#ifdef __alpha__
-/* The in-kernel checksum calculation is always 16bit on
- * the alpha, though it is 32 bit on i386...
- * I wonder what it is elsewhere... (it uses an API in
- * a way that it shouldn't).
- */
-	csum = (csum & 0xffff) + (csum >> 16);
-	csum = (csum & 0xffff) + (csum >> 16);
-#endif
-	return csum;
 }
 
 char *human_size(long long bytes)
@@ -948,92 +904,6 @@ int get_data_disks(int level, int layout, int raid_disks)
 	}
 
 	return data_disks;
-}
-
-dev_t devnm2devid(char *devnm)
-{
-	/* First look in /sys/block/$DEVNM/dev for %d:%d
-	 * If that fails, try parsing out a number
-	 */
-	char path[100];
-	char *ep;
-	int fd;
-	int mjr,mnr;
-
-	sprintf(path, "/sys/block/%s/dev", devnm);
-	fd = open(path, O_RDONLY);
-	if (fd >= 0) {
-		char buf[20];
-		int n = read(fd, buf, sizeof(buf));
-		close(fd);
-		if (n > 0)
-			buf[n] = 0;
-		if (n > 0 && sscanf(buf, "%d:%d\n", &mjr, &mnr) == 2)
-			return makedev(mjr, mnr);
-	}
-	if (strncmp(devnm, "md_d", 4) == 0 &&
-	    isdigit(devnm[4]) &&
-	    (mnr = strtoul(devnm+4, &ep, 10)) >= 0 &&
-	    ep > devnm && *ep == 0)
-		return makedev(get_mdp_major(), mnr << MdpMinorShift);
-
-	if (strncmp(devnm, "md", 2) == 0 &&
-	    isdigit(devnm[2]) &&
-	    (mnr = strtoul(devnm+2, &ep, 10)) >= 0 &&
-	    ep > devnm && *ep == 0)
-		return makedev(MD_MAJOR, mnr);
-
-	return 0;
-}
-
-char *get_md_name(char *devnm)
-{
-	/* find /dev/md%d or /dev/md/%d or make a device /dev/.tmp.md%d */
-	/* if dev < 0, want /dev/md/d%d or find mdp in /proc/devices ... */
-
-	static char devname[50];
-	struct stat stb;
-	dev_t rdev = devnm2devid(devnm);
-	char *dn;
-
-	if (rdev == 0)
-		return 0;
-	if (strncmp(devnm, "md_", 3) == 0) {
-		snprintf(devname, sizeof(devname), "/dev/md/%s",
-			devnm + 3);
-		if (stat(devname, &stb) == 0 &&
-		    (S_IFMT&stb.st_mode) == S_IFBLK && (stb.st_rdev == rdev))
-			return devname;
-	}
-	snprintf(devname, sizeof(devname), "/dev/%s", devnm);
-	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
-	    (stb.st_rdev == rdev))
-		return devname;
-
-	snprintf(devname, sizeof(devname), "/dev/md/%s", devnm+2);
-	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
-	    (stb.st_rdev == rdev))
-		return devname;
-
-	dn = map_dev(major(rdev), minor(rdev), 0);
-	if (dn)
-		return dn;
-	snprintf(devname, sizeof(devname), "/dev/.tmp.%s", devnm);
-	if (mknod(devname, S_IFBLK | 0600, rdev) == -1)
-		if (errno != EEXIST)
-			return NULL;
-
-	if (stat(devname, &stb) == 0 && (S_IFMT&stb.st_mode) == S_IFBLK &&
-	    (stb.st_rdev == rdev))
-		return devname;
-	unlink(devname);
-	return NULL;
-}
-
-void put_md_name(char *name)
-{
-	if (strncmp(name, "/dev/.tmp.md", 12) == 0)
-		unlink(name);
 }
 
 int get_maj_min(char *dev, int *major, int *minor)
@@ -1854,18 +1724,6 @@ int hot_remove_disk(int mdfd, unsigned long dev, int force)
 	return ret;
 }
 
-int sys_hot_remove_disk(int statefd, int force)
-{
-	int cnt = force ? 500 : 5;
-	int ret;
-
-	while ((ret = write(statefd, "remove", 6)) == -1 &&
-	       errno == EBUSY &&
-	       cnt-- > 0)
-		usleep(10000);
-	return ret == 6 ? 0 : -1;
-}
-
 int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info)
 {
 	/* Initialise kernel's knowledge of array.
@@ -2244,19 +2102,6 @@ int continue_via_systemd(char *devnm, char *service_name)
 			return 1;
 	}
 	return 0;
-}
-
-int in_initrd(void)
-{
-	/* This is based on similar function in systemd. */
-	struct statfs s;
-	/* statfs.f_type is signed long on s390x and MIPS, causing all
-	   sorts of sign extension problems with RAMFS_MAGIC being
-	   defined as 0x858458f6 */
-	return  statfs("/", &s) >= 0 &&
-		((unsigned long)s.f_type == TMPFS_MAGIC ||
-		 ((unsigned long)s.f_type & 0xFFFFFFFFUL) ==
-		 ((unsigned long)RAMFS_MAGIC & 0xFFFFFFFFUL));
 }
 
 void reopen_mddev(int mdfd)

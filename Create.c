@@ -57,6 +57,26 @@ static int default_layout(struct supertype *st, int level, int verbose)
 	return layout;
 }
 
+static int ask(char *mesg)
+{
+	char *add = "";
+	int i;
+	for (i = 0; i < 5; i++) {
+		char buf[100];
+		fprintf(stderr, "%s%s", mesg, add);
+		fflush(stderr);
+		if (fgets(buf, 100, stdin)==NULL)
+			return 0;
+		if (buf[0]=='y' || buf[0]=='Y')
+			return 1;
+		if (buf[0]=='n' || buf[0]=='N')
+			return 0;
+		add = "(y/n) ";
+	}
+	pr_err("assuming 'no'\n");
+	return 0;
+}
+
 int mdadm_create(struct supertype *st, char *mddev,
 		 char *name, int *uuid,
 		 int subdevs, struct mddev_dev *devlist,
