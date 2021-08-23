@@ -741,7 +741,7 @@ void autoline(char *line)
 int loaded = 0;
 
 static char *conffile = NULL;
-void set_conffile(char *file)
+void mdlib_set_conffile(char *file)
 {
 	conffile = file;
 }

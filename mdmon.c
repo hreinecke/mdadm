@@ -74,7 +74,7 @@
 #include	"restripe.h"
 #include	"reshape.h"
 
-char const Name[] = "mdmon";
+static char const mdmon_name[] = "mdmon";
 
 struct active_array *discard_this;
 struct active_array *pending_discard;
@@ -315,6 +315,8 @@ int main(int argc, char *argv[])
 		{"foreground", 0, NULL, 'F'},
 		{NULL, 0, NULL, 0}
 	};
+
+	mdlib_set_name(mdmon_name);
 
 	if (in_initrd()) {
 		/*

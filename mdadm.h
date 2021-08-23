@@ -136,8 +136,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
-extern const char Name[];
-
 struct md_bb_entry {
 	unsigned long long sector;
 	int length;
@@ -267,8 +265,6 @@ struct spare_criteria {
 	unsigned long long min_size;
 	unsigned int sector_size;
 };
-
-extern char Version[];
 
 enum prefix_standard {
 	JEDEC,
@@ -1016,6 +1012,11 @@ extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
 extern struct supertype *mdadm_lookup_supertype(char *metadata);
+
+extern void mdlib_set_conffile(char *file);
+extern void mdlib_set_name(const char *name);
+extern const char *mdlib_get_name(void);
+extern const char *mdlib_get_version(void);
 
 /* maps.c */
 extern int mdadm_get_layout(int level, char *name);

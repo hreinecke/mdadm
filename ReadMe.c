@@ -28,17 +28,6 @@
 #include "mdadm.h"
 #include "mdadm_exec.h"
 
-#ifndef VERSION
-#define VERSION "4.2-rc2"
-#endif
-#ifndef VERS_DATE
-#define VERS_DATE "2021-08-02"
-#endif
-#ifndef EXTRAVERSION
-#define EXTRAVERSION ""
-#endif
-char Version[] = "mdadm - v" VERSION " - " VERS_DATE EXTRAVERSION "\n";
-
 /*
  * File: ReadMe.c
  *
