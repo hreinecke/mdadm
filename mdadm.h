@@ -1200,8 +1200,6 @@ extern char *fd2devnm(int fd);
 extern void udev_block(char *devnm);
 extern void udev_unblock(void);
 
-extern int in_initrd(void);
-
 /* util.c */
 extern void set_hooks(void);
 extern int get_cluster_name(char **name);

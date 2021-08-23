@@ -38,9 +38,7 @@
 #include	<sys/wait.h>
 #include	<sys/un.h>
 #include	<sys/resource.h>
-#include	<sys/vfs.h>
 #include	<sys/mman.h>
-#include	<linux/magic.h>
 #include	<poll.h>
 #include	<ctype.h>
 #include	<dirent.h>
@@ -2248,19 +2246,6 @@ int continue_via_systemd(char *devnm, char *service_name)
 			return 1;
 	}
 	return 0;
-}
-
-int in_initrd(void)
-{
-	/* This is based on similar function in systemd. */
-	struct statfs s;
-	/* statfs.f_type is signed long on s390x and MIPS, causing all
-	   sorts of sign extension problems with RAMFS_MAGIC being
-	   defined as 0x858458f6 */
-	return  statfs("/", &s) >= 0 &&
-		((unsigned long)s.f_type == TMPFS_MAGIC ||
-		 ((unsigned long)s.f_type & 0xFFFFFFFFUL) ==
-		 ((unsigned long)RAMFS_MAGIC & 0xFFFFFFFFUL));
 }
 
 void reopen_mddev(int mdfd)
