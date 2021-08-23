@@ -926,7 +926,8 @@ unsigned long long getnum(char *str, char **err)
 	return rv;
 }
 
-char const Name[] = "test_restripe";
+static char const restripe_name[] = "test_restripe";
+
 int main(int argc, char *argv[])
 {
 	/* save/restore file raid_disks chunk_size level layout start length devices...
@@ -956,6 +957,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "test_stripe: must give 'save' or 'restore'.\n");
 		exit(2);
 	}
+
+	mdlib_set_name(restripe_name);
 
 	file = argv[2];
 	raid_disks = getnum(argv[3], &err);
