@@ -67,7 +67,7 @@
 #include	"mdadm_exec.h"
 #include	"mdmon.h"
 
-char const Name[] = "mdmon";
+static char const mdmon_name[] = "mdmon";
 
 struct active_array *discard_this;
 struct active_array *pending_discard;
@@ -319,6 +319,8 @@ int main(int argc, char *argv[])
 		{NULL, 0, NULL, 0}
 	};
 
+	mdlib_set_name(mdmon_name);
+
 	while ((opt = getopt_long(argc, argv, "thaF", options, NULL)) != -1) {
 		switch (opt) {
 		case 'a':
@@ -352,7 +354,6 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
-
 
 	if (in_initrd()) {
 		/*

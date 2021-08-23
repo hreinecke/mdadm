@@ -29,7 +29,7 @@
 #define CHECK_PAGE_BITS (12)
 #define CHECK_PAGE_SIZE (1 << CHECK_PAGE_BITS)
 
-char const Name[] = "raid6check";
+static char const raid6check_name[] = "raid6check";
 
 enum repair {
 	NO_REPAIR = 0,
@@ -562,6 +562,8 @@ int main(int argc, char *argv[])
 		exit_err = 2;
 		goto exitHere;
 	}
+
+	mdlib_set_name(raid6check_name);
 
 	info = sysfs_read(mdfd, NULL,
 			  GET_LEVEL|

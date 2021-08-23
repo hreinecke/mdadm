@@ -39,7 +39,7 @@ static int misc_list(struct mddev_dev *devlist,
 		     struct mddev_ident *ident,
 		     char *dump_directory,
 		     struct supertype *ss, struct context *c);
-const char Name[] = "mdadm";
+static const char mdadm_name[] = "mdadm";
 
 mapping_t modes[] = {
 	{ "assemble", ASSEMBLE},
@@ -119,6 +119,8 @@ int main(int argc, char *argv[])
 	int mdfd = -1;
 	int locked = 0;
 
+	mdlib_set_name(mdadm_name);
+
 	srandom(time(0) ^ getpid());
 
 	ident.uuid_set = 0;
@@ -154,7 +156,7 @@ int main(int argc, char *argv[])
 			continue;
 
 		case 'V':
-			fputs(Version, stderr);
+			fputs(mdlib_get_version(), stderr);
 			exit(0);
 
 		case 'v': c.verbose++;
@@ -769,12 +771,12 @@ int main(int argc, char *argv[])
 			if (strcmp(c.update,"?") == 0 ||
 			    strcmp(c.update, "help") == 0) {
 				outf = stdout;
-				fprintf(outf, "%s: ", Name);
+				fprintf(outf, "%s: ", mdlib_get_name());
 			} else {
 				outf = stderr;
 				fprintf(outf,
 					"%s: '--update=%s' is invalid.  ",
-					Name, c.update);
+					mdlib_get_name(), c.update);
 			}
 			fprintf(outf, "Valid --update options are:\n"
 		"     'sparc2.2', 'super-minor', 'uuid', 'name', 'nodes', 'resync',\n"

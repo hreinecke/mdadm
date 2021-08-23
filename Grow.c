@@ -3727,7 +3727,7 @@ int reshape_container(char *container, char *devname,
 		return 1;
 	default: /* parent */
 		if (!freeze_reshape)
-			printf("%s: multi-array reshape continues in background\n", Name);
+			printf("%s: multi-array reshape continues in background\n", mdlib_get_name());
 		return 0;
 	case 0: /* child */
 		manage_fork_fds(0);
@@ -3806,7 +3806,7 @@ int reshape_container(char *container, char *devname,
 			 * This is possibly interim until the behaviour of
 			 * reshape_array is resolved().
 			 */
-			printf("%s: Multiple reshape execution detected for device  %s.\n", Name, adev);
+			printf("%s: Multiple reshape execution detected for device  %s.\n", mdlib_get_name(), adev);
 			close(fd);
 			break;
 		}
@@ -4869,7 +4869,7 @@ int mdadm_grow_restart(struct supertype *st, struct mdinfo *info, int *fdlist,
 			st->ss->free_super(st);
 			offsets[j] = dinfo.data_offset * 512;
 		}
-		printf("%s: restoring critical section\n", Name);
+		printf("%s: restoring critical section\n", mdlib_get_name());
 
 		if (restore_stripes(fdlist, offsets, info->array.raid_disks,
 				    info->new_chunk, info->new_level,

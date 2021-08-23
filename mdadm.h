@@ -273,8 +273,6 @@ static inline void __put_unaligned32(__u32 val, void *p)
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
-extern const char Name[];
-
 struct md_bb_entry {
 	unsigned long long sector;
 	int length;
@@ -403,8 +401,6 @@ struct spare_criteria {
 	unsigned long long min_size;
 	unsigned int sector_size;
 };
-
-extern char Version[];
 
 enum prefix_standard {
 	JEDEC,
@@ -1412,6 +1408,10 @@ extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
+extern void mdlib_set_name(const char *name);
+extern const char *mdlib_get_name(void);
+extern const char *mdlib_get_version(void);
+
 /* maps.c */
 extern int mdadm_get_layout(int level, char *name);
 extern int mdadm_default_layout(int level, int verbose);
@@ -1697,12 +1697,12 @@ static inline sighandler_t signal_s(int sig, sighandler_t handler)
 
 #ifdef DEBUG
 #define dprintf(fmt, arg...) \
-	fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##arg)
+	fprintf(stderr, "%s: %s: "fmt, mdlib_get_name(), __func__, ##arg)
 #define dprintf_cont(fmt, arg...) \
 	fprintf(stderr, fmt, ##arg)
 #else
 #define dprintf(fmt, arg...) \
-        ({ if (0) fprintf(stderr, "%s: %s: " fmt, Name, __func__, ##arg); 0; })
+        ({ if (0) fprintf(stderr, "%s: %s: " fmt, mdlib_get_name(), __func__, ##arg); 0; })
 #define dprintf_cont(fmt, arg...) \
         ({ if (0) fprintf(stderr, fmt, ##arg); 0; })
 #endif
@@ -1719,9 +1719,9 @@ static inline int xasprintf(char **strp, const char *fmt, ...) {
 }
 
 #ifdef DEBUG
-#define pr_err(fmt, args...) fprintf(stderr, "%s: %s: "fmt, Name, __func__, ##args)
+#define pr_err(fmt, args...) fprintf(stderr, "%s: %s: "fmt, mdlib_get_name(), __func__, ##args)
 #else
-#define pr_err(fmt, args...) fprintf(stderr, "%s: "fmt, Name, ##args)
+#define pr_err(fmt, args...) fprintf(stderr, "%s: "fmt, mdlib_get_name(), ##args)
 #endif
 #define cont_err(fmt ...) fprintf(stderr, "       " fmt)
 

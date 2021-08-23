@@ -364,7 +364,8 @@ static int check_one_sharer(int scan)
 			 "/proc/%d/comm", pid);
 		comm_fp = fopen(comm_path, "r");
 		if (comm_fp) {
-			if (fscanf(comm_fp, "%19s", comm) &&
+			const char *Name = mdlib_get_name();
+			if (fscanf(comm_fp, "%s", comm) &&
 			    strncmp(basename(comm), Name, strlen(Name)) == 0) {
 				if (scan) {
 					pr_err("Only one autorebuild process allowed in scan mode, aborting\n");
@@ -447,13 +448,13 @@ static void alert(char *event, char *dev, char *disc, struct alert_info *info)
 				fprintf(mp, "From: %s\n", info->mailfrom);
 			else
 				fprintf(mp, "From: %s monitoring <root>\n",
-					Name);
+					mdlib_get_name());
 			fprintf(mp, "To: %s\n", info->mailaddr);
 			fprintf(mp, "Subject: %s event on %s:%s\n\n",
 				event, dev, hname);
 
 			fprintf(mp,
-				"This is an automatically generated mail message from %s\n", Name);
+				"This is an automatically generated mail message from %s\n", mdlib_get_name());
 			fprintf(mp, "running on %s\n\n", hname);
 
 			fprintf(mp,

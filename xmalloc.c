@@ -22,17 +22,10 @@
  */
 
 #include	"mdadm.h"
-/*#include	<sys/socket.h>
-#include	<sys/utsname.h>
-#include	<sys/wait.h>
-#include	<sys/un.h>
-#include	<ctype.h>
-#include	<dirent.h>
-#include	<signal.h>
-*/
 
 void *xmalloc(size_t len)
 {
+	const char *Name = mdlib_get_name();
 	void *rv = malloc(len);
 	char *msg;
 	int n;
@@ -46,6 +39,7 @@ void *xmalloc(size_t len)
 
 void *xrealloc(void *ptr, size_t len)
 {
+	const char *Name = mdlib_get_name();
 	void *rv = realloc(ptr, len);
 	char *msg;
 	int n;
@@ -59,6 +53,7 @@ void *xrealloc(void *ptr, size_t len)
 
 void *xcalloc(size_t num, size_t size)
 {
+	const char *Name = mdlib_get_name();
 	void *rv = calloc(num, size);
 	char *msg;
 	int n;
@@ -72,6 +67,7 @@ void *xcalloc(size_t num, size_t size)
 
 char *xstrdup(const char *str)
 {
+	const char *Name = mdlib_get_name();
 	char *rv = strdup(str);
 	char *msg;
 	int n;

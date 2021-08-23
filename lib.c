@@ -27,6 +27,34 @@
 #include	<ctype.h>
 #include	<limits.h>
 
+#ifndef VERSION
+#define VERSION "4.2"
+#endif
+#ifndef VERS_DATE
+#define VERS_DATE "2021-12-30"
+#endif
+#ifndef EXTRAVERSION
+#define EXTRAVERSION ""
+#endif
+const char Version[] = "mdadm - v" VERSION " - " VERS_DATE EXTRAVERSION "\n";
+
+const char *Name;
+
+const char *mdlib_get_version(void)
+{
+       return Version;
+}
+
+void mdlib_set_name(const char *name)
+{
+	Name = name;
+}
+
+const char *mdlib_get_name(void)
+{
+	return Name;
+}
+
 bool is_dev_alive(char *path)
 {
 	if (!path)
