@@ -107,6 +107,8 @@ DVERS = $(if $(VERSION),-DVERSION=\"$(VERSION)\",)
 DDATE = $(if $(VERS_DATE),-DVERS_DATE="\"$(VERS_DATE)\"",)
 DEXTRAVERSION = $(if $(EXTRAVERSION),-DEXTRAVERSION="\" - $(EXTRAVERSION)\"",)
 CFLAGS += $(DVERS) $(DDATE) $(DEXTRAVERSION)
+LIB_VERS = $(shell [ -d .git ] && git describe HEAD | sed 's/mdadm-//' | sed 's/-.*//')
+LIB_MAJ = $(basename $(LIB_VERS))
 
 # The glibc TLS ABI requires applications that call clone(2) to set up
 # TLS data structures, use pthreads until mdmon implements this support
@@ -150,8 +152,9 @@ LIB_SRCS =  config.c policy.c mdstat.c uuid.c util.c maps.c lib.c \
 
 CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
 
-SONAME = libmdadm.so.1
-SHLIB = $(SONAME).0.1
+LIBNAME = libmdadm.so
+SONAME = $(LIBNAME).$(LIB_MAJ)
+SHLIB = $(LIBNAME).$(LIB_VERS).0
 LIB = libmdadm.a
 MAP = libmdadm.map
 
