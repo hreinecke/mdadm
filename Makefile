@@ -162,7 +162,7 @@ INCL = mdadm.h part.h bitmap.h xmalloc.h debug.h bswap.h restripe.h reshape.h \
 	super.h uuid.h
 
 MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
-	policy.o lib.o \
+	policy.o lib.o config.o mapfile.o \
 	Kill.o sg_io.o dlink.o ReadMe.o super-intel.o \
 	super-mbr.o super-gpt.o \
 	super-ddf.o sha1.o crc32.o msg.o bitmap.o xmalloc.o \

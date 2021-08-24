@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 		case O(INCREMENTAL,Auto):
 		case O(ASSEMBLE,'a'):
 		case O(ASSEMBLE,Auto): /* auto-creation of device node */
-			c.autof = parse_auto(optarg, "--auto flag", 0);
+			c.autof = conf_parse_auto(optarg, "--auto flag", 0);
 			continue;
 
 		case O(CREATE,Symlinks):
