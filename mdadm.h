@@ -662,21 +662,14 @@ extern int mdadm_parse_uuid(char *str, int uuid[4]);
 extern long mdadm_parse_num(char *num);
 extern int mdadm_parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
 extern int mdadm_parse_auto(char *str, char *msg, int config);
+extern dev_t mdadm_parse_devname(char *devnm);
 
-extern int open_dev(char *devnm);
-
-
-extern dev_t devnm2devid(char *devnm);
-
-extern int open_mddev(char *dev, int report_errors);
-extern int is_subarray_active(char *subarray, char *devname);
+extern int mdadm_open_dev(char *devnm);
+extern int mdadm_open_mddev(char *dev, int report_errors);
 
 extern int mdmon_running(char *devnm);
 extern int mdmon_pid(char *devnm);
 extern int start_mdmon(char *devnm);
-
-/* lib.c */
-extern char *stat2devnm(struct stat *st);
 
 /* util.c */
 extern int mdadm_set_metadata_handler(struct supertype *st, char *vers);
@@ -691,8 +684,8 @@ extern int mdadm_write_init_super(struct supertype *st);
 extern void mdlib_set_hooks(void);
 extern int mdlib_set_homecluster(struct context *c);
 extern void mdlib_set_homehost(struct context *c);
-extern int cluster_get_dlmlock(void);
-extern int cluster_release_dlmlock(void);
+extern int mdlib_cluster_get_dlmlock(void);
+extern int mdlib_cluster_release_dlmlock(void);
 
 static inline int is_subarray(char *vers)
 {

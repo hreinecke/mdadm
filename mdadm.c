@@ -1317,12 +1317,12 @@ int main(int argc, char *argv[])
 			exit(2);
 		}
 		if (mode == MANAGE || mode == GROW) {
-			mdfd = open_mddev(devlist->devname, 1);
+			mdfd = mdadm_open_mddev(devlist->devname, 1);
 			if (mdfd < 0)
 				exit(1);
 		} else
 			/* non-existent device is OK */
-			mdfd = open_mddev(devlist->devname, 0);
+			mdfd = mdadm_open_mddev(devlist->devname, 0);
 		if (mdfd == -2) {
 			pr_err("device %s exists but is not an md array.\n", devlist->devname);
 			exit(1);
@@ -1395,14 +1395,14 @@ int main(int argc, char *argv[])
 
 	if (mode == CREATE) {
 		if (s.bitmap_file && strcmp(s.bitmap_file, "clustered") == 0) {
-			locked = cluster_get_dlmlock();
+			locked = mdlib_cluster_get_dlmlock();
 			if (locked != 1)
 				exit(1);
 		}
 	} else if (mode == MANAGE || mode == GROW || mode == INCREMENTAL) {
 		if (!md_get_array_info(mdfd, &array) && (devmode != 'c')) {
 			if (array.state & (1 << MD_SB_CLUSTERED)) {
-				locked = cluster_get_dlmlock();
+				locked = mdlib_cluster_get_dlmlock();
 				if (locked != 1)
 					exit(1);
 			}
@@ -1662,7 +1662,7 @@ int main(int argc, char *argv[])
 		break;
 	}
 	if (locked)
-		cluster_release_dlmlock();
+		mdlib_cluster_release_dlmlock();
 	if (mdfd > 0)
 		close(mdfd);
 	exit(rv);
@@ -1736,9 +1736,9 @@ static int misc_list(struct mddev_dev *devlist,
 		}
 
 		if (dv->devname[0] != '/')
-			mdfd = open_dev(dv->devname);
+			mdfd = mdadm_open_dev(dv->devname);
 		if (dv->devname[0] == '/' || mdfd < 0)
-			mdfd = open_mddev(dv->devname, 1);
+			mdfd = mdadm_open_mddev(dv->devname, 1);
 
 		if (mdfd >= 0) {
 			switch(dv->disposition) {

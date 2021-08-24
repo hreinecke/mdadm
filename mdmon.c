@@ -403,14 +403,14 @@ int main(int argc, char *argv[])
 
 		return status;
 	} else if (strncmp(container_name, "md", 2) == 0) {
-		int id = devnm2devid(container_name);
+		int id = mdadm_parse_devname(container_name);
 		if (id)
 			devnm = container_name;
 	} else {
 		struct stat st;
 
 		if (stat(container_name, &st) == 0)
-			devnm = xstrdup(stat2devnm(&st));
+			devnm = xstrdup(container_name);
 	}
 
 	if (!devnm) {
@@ -436,7 +436,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 
 	dprintf("starting mdmon for %s\n", devnm);
 
-	mdfd = open_dev(devnm);
+	mdfd = mdadm_open_dev(devnm);
 	if (mdfd < 0) {
 		pr_err("%s: %s\n", devnm, strerror(errno));
 		return 1;

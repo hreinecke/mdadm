@@ -92,6 +92,7 @@ static inline char *map_dev(int major, int minor, int create)
 extern int get_mdp_major(void);
 extern char *devid2kname(dev_t devid);
 extern char *devid2devnm(dev_t devid);
+extern char *stat2devnm(struct stat *st);
 extern char *stat2kname(struct stat *st);
 extern char *fd2kname(int fd);
 extern char *fd2devnm(int fd);

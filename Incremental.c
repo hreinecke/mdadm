@@ -292,7 +292,7 @@ int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
 
 	mp = map_by_uuid(&map, info.uuid);
 	if (mp)
-		mdfd = open_dev(mp->devnm);
+		mdfd = mdadm_open_dev(mp->devnm);
 	else
 		mdfd = -1;
 
@@ -936,7 +936,7 @@ static int array_try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 			/* true for containers, here we must read superblock
 			 * to obtain minimum spare size */
 			struct supertype *st3 = dup_super(st2);
-			int mdfd = open_dev(mp->devnm);
+			int mdfd = mdadm_open_dev(mp->devnm);
 			if (mdfd < 0) {
 				free(st3);
 				goto next;
@@ -1017,7 +1017,7 @@ static int array_try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 	}
 	if (chosen) {
 		/* add current device to chosen array as a spare */
-		int mdfd = open_dev(chosen->sys_name);
+		int mdfd = mdadm_open_dev(chosen->sys_name);
 		if (mdfd >= 0) {
 			struct mddev_dev devlist;
 			char chosen_devname[24]; // 2*11 for int (including signs) + colon + null
@@ -1351,7 +1351,7 @@ restart:
 			devnm = container;
 			goto restart;
 		}
-		mdfd = open_dev(me->devnm);
+		mdfd = mdadm_open_dev(me->devnm);
 
 		if (mdfd < 0)
 			continue;
@@ -1519,7 +1519,7 @@ static int Incremental_container(struct supertype *st, char *devname,
 		mp = map_by_uuid(&map, ra->uuid);
 
 		if (mp) {
-			mdfd = open_dev(mp->devnm);
+			mdfd = mdadm_open_dev(mp->devnm);
 			if (mp->path)
 				strcpy(chosen_name, mp->path);
 			else
@@ -1636,7 +1636,7 @@ static void run_udisks(char *arg1, char *arg2)
 static int force_remove(char *devnm, int fd, struct mdinfo *mdi, int verbose)
 {
 	int rv;
-	int devid = devnm2devid(devnm);
+	int devid = mdadm_parse_devname(devnm);
 
 	run_udisks("--unmount", map_dev(major(devid), minor(devid), 0));
 	rv = mdadm_manage_stop(devnm, fd, verbose, 1);
@@ -1654,7 +1654,7 @@ static void remove_from_member_array(struct mdstat_ent *memb,
 {
 	int rv;
 	struct mdinfo mmdi;
-	int subfd = open_dev(memb->devnm);
+	int subfd = mdadm_open_dev(memb->devnm);
 
 	if (subfd >= 0) {
 		rv = mdadm_manage_subdevs(memb->devnm, subfd, devlist, verbose,
@@ -1719,7 +1719,7 @@ int mdadm_incremental_remove(char *devname, char *id_path, int verbose)
 					      "array_state", "read-auto");
 		}
 	}
-	mdfd = open_dev(ent->devnm);
+	mdfd = mdadm_open_dev(ent->devnm);
 	if (mdfd < 0) {
 		if (verbose >= 0)
 			pr_err("Cannot open array %s!!\n", ent->devnm);

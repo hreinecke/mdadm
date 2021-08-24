@@ -61,6 +61,7 @@ extern char *get_md_name(char *devnm);
 extern void put_md_name(char *name);
 
 extern int is_standard(char *dev, int *nump);
+extern int is_subarray_active(char *subarray, char *devname);
 
 extern int open_container(int fd);
 extern int metadata_container_matches(char *metadata, char *devnm);
