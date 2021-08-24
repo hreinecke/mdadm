@@ -2513,7 +2513,7 @@ static int print_nvme_info(struct sys_dev *hba)
 		if (!strstr(ent->d_name, "nvme"))
 			goto skip;
 
-		fd = open_dev(ent->d_name);
+		fd = mdadm_open_dev(ent->d_name);
 		if (!is_fd_valid(fd))
 			goto skip;
 

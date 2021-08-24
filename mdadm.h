@@ -1462,7 +1462,7 @@ extern int get_mdp_major(void);
 extern int get_maj_min(char *dev, int *major, int *minor);
 extern bool is_bit_set(int *val, unsigned char index);
 extern int dev_open(char *dev, int flags);
-extern int open_dev(char *devnm);
+extern int mdadm_open_dev(char *devnm);
 extern void reopen_mddev(int mdfd);
 extern int open_dev_flags(char *devnm, int flags);
 extern int open_dev_excl(char *devnm);
@@ -1553,7 +1553,7 @@ extern char *find_free_devnm(int use_partitions);
 extern void put_md_name(char *name);
 extern char *devid2kname(dev_t devid);
 extern char *devid2devnm(dev_t devid);
-extern dev_t devnm2devid(char *devnm);
+extern dev_t mdadm_parse_devname(char *devnm);
 extern char *get_md_name(char *devnm);
 
 extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
@@ -1563,7 +1563,7 @@ extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
 #define	LOCAL_ANY 10
 #define	FOREIGN	2
 #define	METADATA 3
-extern int open_mddev(char *dev, int report_errors);
+extern int mdadm_open_mddev(char *dev, int report_errors);
 extern int is_mddev(char *dev);
 extern int open_container(int fd);
 extern int metadata_container_matches(char *metadata, char *devnm);
@@ -1596,9 +1596,8 @@ extern char *fd2devnm(int fd);
 extern void udev_block(char *devnm);
 extern void udev_unblock(void);
 
-/* util.c */
-extern int cluster_get_dlmlock(void);
-extern int cluster_release_dlmlock(void);
+extern int mdlib_cluster_get_dlmlock(void);
+extern int mdlib_cluster_release_dlmlock(void);
 
 #define MSEC_TO_NSEC(msec) ((msec) * 1000000)
 #define USEC_TO_NSEC(usec) ((usec) * 1000)

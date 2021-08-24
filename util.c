@@ -127,7 +127,7 @@ static void dlm_ast(void *arg)
 
 static char *cluster_name = NULL;
 /* Create the lockspace, take bitmapXXX locks on all the bitmaps. */
-int cluster_get_dlmlock(void)
+int mdlib_cluster_get_dlmlock(void)
 {
 	int ret = -1;
 	char str[64];
@@ -184,7 +184,7 @@ retry:
 	return 1;
 }
 
-int cluster_release_dlmlock(void)
+int mdlib_cluster_release_dlmlock(void)
 {
 	int ret = -1;
 
@@ -989,7 +989,7 @@ int get_data_disks(int level, int layout, int raid_disks)
 	return data_disks;
 }
 
-dev_t devnm2devid(char *devnm)
+dev_t mdadm_parse_devname(char *devnm)
 {
 	/* First look in /sys/block/$DEVNM/dev for %d:%d
 	 * If that fails, try parsing out a number
@@ -1032,7 +1032,7 @@ char *get_md_name(char *devnm)
 
 	static char devname[50];
 	struct stat stb;
-	dev_t rdev = devnm2devid(devnm);
+	dev_t rdev = mdadm_parse_devname(devnm);
 	char *dn;
 
 	if (rdev == 0)
@@ -1140,12 +1140,12 @@ int open_dev_flags(char *devnm, int flags)
 	dev_t devid;
 	char buf[20];
 
-	devid = devnm2devid(devnm);
+	devid = mdadm_parse_devname(devnm);
 	sprintf(buf, "%d:%d", major(devid), minor(devid));
 	return dev_open(buf, flags);
 }
 
-int open_dev(char *devnm)
+int mdadm_open_dev(char *devnm)
 {
 	return open_dev_flags(devnm, O_RDONLY);
 }
@@ -1155,7 +1155,7 @@ int open_dev_excl(char *devnm)
 	char buf[20];
 	int i;
 	int flags = O_RDWR;
-	dev_t devid = devnm2devid(devnm);
+	dev_t devid = mdadm_parse_devname(devnm);
 	unsigned int delay = 1; // miliseconds
 
 	sprintf(buf, "%d:%d", major(devid), minor(devid));
@@ -2298,7 +2298,7 @@ void reopen_mddev(int mdfd)
 	int fd;
 	devnm = fd2devnm(mdfd);
 	close(mdfd);
-	fd = open_dev(devnm);
+	fd = mdadm_open_dev(devnm);
 	if (fd >= 0 && fd != mdfd)
 		dup2(fd, mdfd);
 }

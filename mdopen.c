@@ -387,14 +387,14 @@ int create_mddev(char *dev, char *name, int autof, int trustworthy,
 		if (lstat(devname, &stb) == 0) {
 			/* Must be the correct device, else error */
 			if ((stb.st_mode&S_IFMT) != S_IFBLK ||
-			    stb.st_rdev != devnm2devid(devnm)) {
+			    stb.st_rdev != mdadm_parse_devname(devnm)) {
 				pr_err("%s exists but looks wrong, please fix\n",
 					devname);
 				return -1;
 			}
 		} else {
 			if (mknod(devname, S_IFBLK|0600,
-				  devnm2devid(devnm)) != 0) {
+				  mdadm_parse_devname(devnm)) != 0) {
 				pr_err("failed to create %s\n",
 					devname);
 				return -1;
@@ -453,7 +453,7 @@ int create_mddev(char *dev, char *name, int autof, int trustworthy,
  * On failure, return -1 if it doesn't exist,
  * or -2 if it exists but is not an md device.
  */
-int open_mddev(char *dev, int report_errors)
+int mdadm_open_mddev(char *dev, int report_errors)
 {
 	int mdfd = open(dev, O_RDONLY);
 
@@ -481,7 +481,7 @@ int open_mddev(char *dev, int report_errors)
  */
 int is_mddev(char *dev)
 {
-	int fd = open_mddev(dev, 1);
+	int fd = mdadm_open_mddev(dev, 1);
 
 	if (fd >= 0) {
 		close(fd);
@@ -509,7 +509,7 @@ char *find_free_devnm(int use_partitions)
 		if (!use_udev()) {
 			/* make sure it is new to /dev too, at least as a
 			 * non-standard */
-			dev_t devid = devnm2devid(devnm);
+			dev_t devid = mdadm_parse_devname(devnm);
 			if (devid) {
 				char *dn = map_dev(major(devid),
 						   minor(devid), 0);

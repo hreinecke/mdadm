@@ -128,13 +128,13 @@ int mdadm_detail(char *dev, struct context *c)
 		/* This is a subarray of some container.
 		 * We want the name of the container, and the member
 		 */
-		dev_t devid = devnm2devid(st->container_devnm);
+		dev_t devid = mdadm_parse_devname(st->container_devnm);
 		int cfd, err;
 
 		member = subarray;
 		container = map_dev_preferred(major(devid), minor(devid),
 					      1, c->prefer);
-		cfd = open_dev(st->container_devnm);
+		cfd = mdadm_open_dev(st->container_devnm);
 		if (cfd >= 0) {
 			err = st->ss->load_container(st, cfd, NULL);
 			close(cfd);
@@ -687,7 +687,7 @@ This is pretty boring
 				    strncmp(vbuf + 10, sra->sys_name, nlen) ||
 				    vbuf[10 + nlen] != '/')
 					continue;
-				devid = devnm2devid(de->d_name);
+				devid = mdadm_parse_devname(de->d_name);
 				printf(" %s",
 				       map_dev_preferred(major(devid),
 							 minor(devid), 1,
