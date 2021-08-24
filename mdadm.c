@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
 				pr_err("chunk/rounding may only be specified once. Second value is %s.\n", optarg);
 				exit(2);
 			}
-			s.chunk = parse_size(optarg);
+			s.chunk = mdadm_parse_size(optarg);
 			if (s.chunk == INVALID_SECTORS ||
 			    s.chunk < 8 || (s.chunk&1)) {
 				pr_err("invalid chunk/rounding value: %s\n",
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
 			if (strcmp(optarg, "max") == 0)
 				s.size = MAX_SIZE;
 			else {
-				s.size = parse_size(optarg);
+				s.size = mdadm_parse_size(optarg);
 				if (s.size == INVALID_SECTORS || s.size < 8) {
 					pr_err("invalid size: %s\n", optarg);
 					exit(2);
@@ -488,7 +488,7 @@ int main(int argc, char *argv[])
 			if (strcmp(optarg, "max") == 0)
 				array_size = MAX_SIZE;
 			else {
-				array_size = parse_size(optarg);
+				array_size = mdadm_parse_size(optarg);
 				if (array_size == 0 ||
 				    array_size == INVALID_SECTORS) {
 					pr_err("invalid array size: %s\n",
@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
 			if (mode == CREATE && strcmp(optarg, "variable") == 0)
 				s.data_offset = VARIABLE_OFFSET;
 			else
-				s.data_offset = parse_size(optarg);
+				s.data_offset = mdadm_parse_size(optarg);
 			if (s.data_offset == INVALID_SECTORS) {
 				pr_err("invalid data-offset: %s\n",
 					optarg);
@@ -581,7 +581,8 @@ int main(int argc, char *argv[])
 					s.raiddisks, optarg);
 				exit(2);
 			}
-			if (parse_num(&s.raiddisks, optarg) != 0 || s.raiddisks <= 0) {
+			s.raiddisks = mdadm_parse_num(optarg);
+			if (s.raiddisks <= 0) {
 				pr_err("invalid number of raid devices: %s\n",
 					optarg);
 				exit(2);
@@ -591,7 +592,8 @@ int main(int argc, char *argv[])
 		case O(ASSEMBLE, Nodes):
 		case O(GROW, Nodes):
 		case O(CREATE, Nodes):
-			if (parse_num(&c.nodes, optarg) != 0 || c.nodes < 2) {
+			c.nodes = mdadm_parse_num(optarg);
+			if (c.nodes < 2) {
 				pr_err("clustered array needs two nodes at least: %s\n",
 					optarg);
 				exit(2);
@@ -616,7 +618,8 @@ int main(int argc, char *argv[])
 					s.level);
 				exit(2);
 			}
-			if (parse_num(&s.sparedisks, optarg) != 0 || s.sparedisks < 0) {
+			s.sparedisks = mdadm_parse_num(optarg);
+			if (s.sparedisks < 0) {
 				pr_err("invalid number of spare-devices: %s\n",
 					optarg);
 				exit(2);
@@ -631,7 +634,7 @@ int main(int argc, char *argv[])
 		case O(INCREMENTAL,Auto):
 		case O(ASSEMBLE,'a'):
 		case O(ASSEMBLE,Auto): /* auto-creation of device node */
-			c.autof = conf_parse_auto(optarg, "--auto flag", 0);
+			c.autof = mdadm_parse_auto(optarg, "--auto flag", 0);
 			continue;
 		case O(BUILD,'f'): /* force honouring '-n 1' */
 		case O(BUILD,Force): /* force honouring '-n 1' */
@@ -658,7 +661,7 @@ int main(int argc, char *argv[])
 				pr_err("uuid cannot be set twice.  Second value %s.\n", optarg);
 				exit(2);
 			}
-			if (parse_uuid(optarg, ident.uuid))
+			if (mdadm_parse_uuid(optarg, ident.uuid))
 				ident.uuid_set = 1;
 			else {
 				pr_err("Bad uuid: %s\n", optarg);
@@ -693,9 +696,12 @@ int main(int argc, char *argv[])
 			}
 			if (strcmp(optarg, "dev") == 0)
 				ident.super_minor = -2;
-			else if (parse_num(&ident.super_minor, optarg) != 0 || ident.super_minor < 0) {
-				pr_err("Bad super-minor number: %s.\n", optarg);
-				exit(2);
+			else {
+				ident.super_minor = mdadm_parse_num(optarg);
+				if (ident.super_minor < 0) {
+					pr_err("Bad super-minor number: %s.\n", optarg);
+					exit(2);
+				}
 			}
 			continue;
 
@@ -865,8 +871,8 @@ int main(int argc, char *argv[])
 
 		case O(MONITOR,'r'): /* rebuild increments */
 		case O(MONITOR,Increment):
-			if (parse_num(&increments, optarg) != 0
-				|| increments > 99 || increments < 1) {
+			increments = mdadm_parse_num(optarg);
+			if (increments > 99 || increments < 1) {
 				pr_err("please specify positive integer between 1 and 99 as rebuild increments.\n");
 				exit(2);
 			}
@@ -878,9 +884,13 @@ int main(int argc, char *argv[])
 		case O(CREATE,'d'):
 			if (c.delay)
 				pr_err("only specify delay once. %s ignored.\n", optarg);
-			else if (parse_num(&c.delay, optarg) != 0 || c.delay < 1) {
-				pr_err("invalid delay: %s\n", optarg);
-				exit(2);
+			else {
+				c.delay = mdadm_parse_num(optarg);
+				if (c.delay < 1) {
+					pr_err("invalid delay: %s\n",
+						optarg);
+					exit(2);
+				}
 			}
 			continue;
 		case O(MONITOR,'f'): /* daemonise */
@@ -1149,7 +1159,7 @@ int main(int argc, char *argv[])
 		case O(GROW,BitmapChunk):
 		case O(BUILD,BitmapChunk):
 		case O(CREATE,BitmapChunk): /* bitmap chunksize */
-			s.bitmap_chunk = parse_size(optarg);
+			s.bitmap_chunk = mdadm_parse_size(optarg);
 			if (s.bitmap_chunk == 0 ||
 			    s.bitmap_chunk == INVALID_SECTORS ||
 			    s.bitmap_chunk & (s.bitmap_chunk - 1)) {
@@ -1164,12 +1174,13 @@ int main(int argc, char *argv[])
 		case O(BUILD, WriteBehind):
 		case O(CREATE, WriteBehind):
 			s.write_behind = DEFAULT_MAX_WRITE_BEHIND;
-			if (optarg &&
-			    (parse_num(&s.write_behind, optarg) != 0 ||
-			     s.write_behind < 0 || s.write_behind > 16383)) {
-				pr_err("Invalid value for maximum outstanding write-behind writes: %s.\n\tMust be between 0 and 16383.\n",
-						optarg);
-				exit(2);
+			if (optarg) {
+				s.write_behind = mdadm_parse_num(optarg);
+				if (s.write_behind < 0 ||
+				    s.write_behind > 16383) {
+					pr_err("Invalid value for maximum outstanding write-behind writes: %s.\n\tMust be between 0 and 16383.\n", optarg);
+					exit(2);
+				}
 			}
 			continue;
 		case O(INCREMENTAL, 'r'):

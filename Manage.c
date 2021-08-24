@@ -1363,9 +1363,9 @@ int mdadm_manage_subdevs(char *devname, int fd,
 
 		raid_slot = -1;
 		if (dv->disposition == 'c') {
-			rv = parse_cluster_confirm_arg(dv->devname,
-						       &dv->devname,
-						       &raid_slot);
+			rv = mdadm_parse_cluster_confirm_arg(dv->devname,
+							     &dv->devname,
+							     &raid_slot);
 			if (rv) {
 				pr_err("Could not get the devname of cluster\n");
 				goto abort;

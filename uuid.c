@@ -80,7 +80,7 @@ void copy_uuid(void *a, int b[4], int swapuuid)
  * If not exactly 32 hex digits are found, return 0
  * else return 1
  */
-int parse_uuid(char *str, int uuid[4])
+int mdadm_parse_uuid(char *str, int uuid[4])
 {
 	int hit = 0; /* number of Hex digIT */
 	int i;

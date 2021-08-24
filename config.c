@@ -204,52 +204,6 @@ struct createinfo createinfo = {
 #endif
 };
 
-int conf_parse_auto(char *str, char *msg, int config)
-{
-	int autof;
-	if (str == NULL || *str == 0)
-		autof = 2;
-	else if (strcasecmp(str, "no") == 0)
-		autof = 1;
-	else if (strcasecmp(str, "yes") == 0)
-		autof = 2;
-	else if (strcasecmp(str, "md") == 0)
-		autof = config ? 5:3;
-	else {
-		/* There might be digits, and maybe a hypen, at the end */
-		char *e = str + strlen(str);
-		int num = 4;
-		int len;
-		while (e > str && isdigit(e[-1]))
-			e--;
-		if (*e) {
-			num = atoi(e);
-			if (num <= 0)
-				num = 1;
-		}
-		if (e > str && e[-1] == '-')
-			e--;
-		len = e - str;
-		if ((len == 2 && strncasecmp(str, "md", 2) == 0)) {
-			autof = config ? 5 : 3;
-		} else if ((len == 3 && strncasecmp(str, "yes", 3) == 0)) {
-			autof = 2;
-		} else if ((len == 3 && strncasecmp(str, "mdp", 3) == 0)) {
-			autof = config ? 6 : 4;
-		} else if ((len == 1 && strncasecmp(str, "p", 1) == 0) ||
-			   (len >= 4 && strncasecmp(str, "part", 4) == 0)) {
-			autof = 6;
-		} else {
-			pr_err("%s arg of \"%s\" unrecognised: use no,yes,md,mdp,part\n"
-				"        optionally followed by a number.\n",
-				msg, str);
-			exit(2);
-		}
-		autof |= num << 3;
-	}
-	return autof;
-}
-
 static void createline(char *line)
 {
 	char *w;
@@ -257,7 +211,7 @@ static void createline(char *line)
 
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		if (strncasecmp(w, "auto=", 5) == 0)
-			createinfo.autof = conf_parse_auto(w + 5, "auto=", 1);
+			createinfo.autof = mdadm_parse_auto(w + 5, "auto=", 1);
 		else if (strncasecmp(w, "owner=", 6) == 0) {
 			if (w[6] == 0) {
 				pr_err("missing owner name\n");
@@ -412,7 +366,7 @@ static void arrayline(char *line)
 				pr_err("only specify uuid once, %s ignored.\n",
 				       w);
 			else {
-				if (parse_uuid(w + 5, mis.uuid))
+				if (mdadm_parse_uuid(w + 5, mis.uuid))
 					mis.uuid_set = 1;
 				else
 					pr_err("bad uuid: %s\n", w);
@@ -484,7 +438,7 @@ static void arrayline(char *line)
 				       w + 9);
 		} else if (strncasecmp(w, "auto=", 5) == 0 ) {
 			/* whether to create device special files as needed */
-			mis.autof = conf_parse_auto(w + 5, "auto type", 0);
+			mis.autof = mdadm_parse_auto(w + 5, "auto type", 0);
 		} else if (strncasecmp(w, "member=", 7) == 0) {
 			/* subarray within a container */
 			mis.member = strdup(w + 7);

@@ -689,7 +689,8 @@ static void manage_new(struct mdstat_ent *mdstat,
 
 	new->container = container;
 
-	if (parse_num(&inst, to_subarray(mdstat, container->devnm)) != 0)
+	inst = mdadm_parse_num(to_subarray(mdstat, container->devnm));
+	if (inst < 0)
 		goto error;
 
 	new->info.array = mdi->array;

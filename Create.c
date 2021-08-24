@@ -317,7 +317,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 			doff = strchr(dname, ':');
 			if (doff) {
 				*doff++ = 0;
-				dv->data_offset = parse_size(doff);
+				dv->data_offset = mdadm_parse_size(doff);
 			} else
 				dv->data_offset = INVALID_SECTORS;
 		} else

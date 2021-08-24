@@ -1436,14 +1436,15 @@ int md_set_array_info(int fd, struct mdu_array_info_s *array);
 int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
 extern int get_linux_version(void);
 extern int mdadm_version(char *version);
-extern unsigned long long parse_size(char *size);
-extern int parse_uuid(char *str, int uuid[4]);
+extern unsigned long long mdadm_parse_size(char *size);
+extern int mdadm_parse_uuid(char *str, int uuid[4]);
 int default_layout(struct supertype *st, int level, int verbose);
 extern int is_near_layout_10(int layout);
 extern int parse_layout_10(char *layout);
 extern int parse_layout_faulty(char *layout);
-extern int parse_num(int *dest, char *num);
-extern int parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
+extern long mdadm_parse_num(char *num);
+extern int mdadm_parse_cluster_confirm_arg(char *inp, char **devname,
+					   int *slot);
 extern int check_ext2(int fd, char *name);
 extern int check_reiser(int fd, char *name);
 extern int check_raid(int fd, char *name);
@@ -1469,7 +1470,7 @@ extern void enable_fds(int devices);
 extern void manage_fork_fds(int close_all);
 extern int continue_via_systemd(char *devnm, char *service_name);
 
-extern int conf_parse_auto(char *str, char *msg, int config);
+extern int mdadm_parse_auto(char *str, char *msg, int config);
 extern struct mddev_ident *conf_get_ident(char *dev);
 extern struct mddev_dev *conf_get_devs(void);
 extern int conf_test_dev(char *devname);
