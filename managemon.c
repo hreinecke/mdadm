@@ -103,6 +103,7 @@
 #define _GNU_SOURCE
 #endif
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"mdmon.h"
 #include	<sys/syscall.h>
 #include	<sys/socket.h>

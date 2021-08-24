@@ -43,6 +43,7 @@
  * at compile time via MAP_DIR and MAP_FILE.
  */
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	<sys/file.h>
 #include	<ctype.h>
 

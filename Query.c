@@ -23,6 +23,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 
 int mdadm_query(char *dev)
 {

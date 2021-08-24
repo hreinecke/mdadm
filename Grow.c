@@ -22,6 +22,7 @@
  *    Email: <neilb@suse.de>
  */
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"bitmap.h"
 #include	"dlink.h"
 #include	<sys/mman.h>
@@ -29,6 +30,8 @@
 #include	<stdint.h>
 #include	<sys/wait.h>
 
+
+char *make_backup(char *name);
 
 int restore_backup(struct supertype *st,
 		   struct mdinfo *content,

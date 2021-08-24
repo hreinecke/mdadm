@@ -610,7 +610,6 @@ extern int sysfs_unique_holder(char *devnm, long rdev);
 extern int sysfs_freeze_array(struct mdinfo *sra);
 extern int sysfs_wait(int fd, int *msec);
 extern int load_sys(char *path, char *buf, int len);
-extern int zero_disk_range(int fd, unsigned long long sector, size_t count);
 extern int reshape_prepare_fdlist(char *devname,
 				  struct mdinfo *sra,
 				  int raid_disks,
@@ -632,8 +631,6 @@ extern int reshape_open_backup_file(char *backup,
 				    int restart);
 extern unsigned long compute_backup_blocks(int nchunk, int ochunk,
 					   unsigned int ndata, unsigned int odata);
-extern char *locate_backup(char *name);
-extern char *make_backup(char *name);
 
 extern int save_stripes(int *source, unsigned long long *offsets,
 			int raid_disks, int chunk_size, int level, int layout,
@@ -1319,12 +1316,6 @@ extern int mdadm_grow_continue(int mdfd, struct supertype *st,
 extern int mdadm_grow_consistency_policy(char *devname, int fd,
 					 struct context *c, struct shape *s);
 
-extern int restore_backup(struct supertype *st,
-			  struct mdinfo *content,
-			  int working_disks,
-			  int spares,
-			  char **backup_filep,
-			  int verbose);
 extern int mdadm_grow_continue_command(char *devname, int fd,
 				       char *backup_file, int verbose);
 
@@ -1378,9 +1369,7 @@ extern int mdadm_create_bitmap(char *filename, int force, char uuid[16],
 			       int major);
 extern int mdadm_examine_bitmap(char *filename, int brief,
 				struct supertype *st);
-extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
-extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
 /* Assemble.c */
 int mdadm_scan_assemble(struct supertype *ss, struct context *c,
@@ -1419,59 +1408,22 @@ extern int mdadm_array_state_num(char *name);
 extern char *mdadm_array_state_name(int num);
 extern char *mdadm_assemble_status(int status);
 
-/* calculate the size of the bitmap given the array size and bitmap chunksize */
-static inline unsigned long long
-bitmap_bits(unsigned long long array_size, unsigned long chunksize)
-{
-	return (array_size * 512 + chunksize - 1) / chunksize;
-}
-
 extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
 			       struct supertype *st);
 extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
 				  struct supertype *st, int only);
 
-int md_array_valid(int fd);
-int md_array_active(int fd);
-int md_array_is_active(struct mdinfo *info);
-int md_get_array_info(int fd, struct mdu_array_info_s *array);
-int md_set_array_info(int fd, struct mdu_array_info_s *array);
-int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
 extern int get_linux_version(void);
 extern int mdadm_version(char *version);
 extern unsigned long long mdadm_parse_size(char *size);
 extern int mdadm_parse_uuid(char *str, int uuid[4]);
-int default_layout(struct supertype *st, int level, int verbose);
-extern int is_near_layout_10(int layout);
-extern int parse_layout_10(char *layout);
-extern int parse_layout_faulty(char *layout);
 extern long mdadm_parse_num(char *num);
-extern int mdadm_parse_cluster_confirm_arg(char *inp, char **devname,
-					   int *slot);
-extern int check_ext2(int fd, char *name);
-extern int check_reiser(int fd, char *name);
-extern int check_raid(int fd, char *name);
-extern int check_partitions(int fd, char *dname,
-			    unsigned long long freesize,
-			    unsigned long long size);
-extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
-extern int stat_is_blkdev(char *devname, dev_t *rdev);
+extern int mdadm_parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
 
 extern bool is_dev_alive(char *path);
 extern int get_mdp_major(void);
-extern int get_maj_min(char *dev, int *major, int *minor);
-extern bool is_bit_set(int *val, unsigned char index);
-extern int dev_open(char *dev, int flags);
 extern int mdadm_open_dev(char *devnm);
-extern void reopen_mddev(int mdfd);
-extern int open_dev_flags(char *devnm, int flags);
-extern int open_dev_excl(char *devnm);
-extern int is_standard(char *dev, int *nump);
-extern int same_dev(char *one, char *two);
-extern int compare_paths (char* path1,char* path2);
-extern void enable_fds(int devices);
 extern void mdlib_manage_fork_fds(int close_all);
-extern int continue_via_systemd(char *devnm, char *service_name);
 
 extern int mdadm_parse_auto(char *str, char *msg, int config);
 extern struct mddev_ident *conf_get_ident(char *dev);
@@ -1508,23 +1460,6 @@ extern void copy_uuid(void *a, int b[4], int swapuuid);
 extern char *__fname_from_uuid(int id[4], int swap, char *buf, char sep);
 extern char *fname_from_uuid(struct supertype *st,
 			     struct mdinfo *info, char *buf, char sep);
-extern unsigned long calc_csum(void *super, int bytes);
-extern int enough(int level, int raid_disks, int layout, int clean,
-		   char *avail);
-extern int ask(char *mesg);
-extern unsigned long long get_component_size(int fd);
-extern void remove_partitions(int fd);
-extern int test_partition(int fd);
-extern int test_partition_from_id(dev_t id);
-extern int get_data_disks(int level, int layout, int raid_disks);
-extern unsigned long long calc_array_size(int level, int raid_disks, int layout,
-				   int chunksize, unsigned long long devsize);
-extern int flush_metadata_updates(struct supertype *st);
-extern void append_metadata_update(struct supertype *st, void *buf, int len);
-extern int assemble_container_content(struct supertype *st, int mdfd,
-				      struct mdinfo *content,
-				      struct context *c,
-				      char *chosen_name, int *result);
 #define	INCR_NO		1
 #define	INCR_UNSAFE	2
 #define	INCR_ALREADY	4
@@ -1534,49 +1469,17 @@ extern struct mdinfo *container_choose_spares(struct supertype *st,
 					      struct domainlist *domlist,
 					      char *spare_group,
 					      const char *metadata, int get_one);
-extern int add_disk(int mdfd, struct supertype *st,
-		    struct mdinfo *sra, struct mdinfo *info);
-extern int remove_disk(int mdfd, struct supertype *st,
-		       struct mdinfo *sra, struct mdinfo *info);
-extern int hot_remove_disk(int mdfd, unsigned long dev, int force);
-extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
-unsigned long long min_recovery_start(struct mdinfo *array);
 
-extern char *human_size(long long bytes);
-extern char *human_size_brief(long long bytes, int prefix);
-extern void print_r10_layout(int layout);
-
-extern char *find_free_devnm(int use_partitions);
-
-extern void put_md_name(char *name);
 extern char *devid2kname(dev_t devid);
 extern char *devid2devnm(dev_t devid);
 extern dev_t mdadm_parse_devname(char *devnm);
-extern char *get_md_name(char *devnm);
 
-extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
-			char *chosen, int block_udev);
-/* values for 'trustworthy' */
-#define	LOCAL	1
-#define	LOCAL_ANY 10
-#define	FOREIGN	2
-#define	METADATA 3
 extern int mdadm_open_mddev(char *dev, int report_errors);
-extern int is_mddev(char *dev);
-extern int open_container(int fd);
-extern int metadata_container_matches(char *metadata, char *devnm);
-extern int metadata_subdev_matches(char *metadata, char *devnm);
-extern int is_container_member(struct mdstat_ent *ent, char *devname);
-extern int is_subarray_active(char *subarray, char *devname);
-extern int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet);
 extern int mdadm_set_metadata_handler(struct supertype *st, char *vers);
 extern struct supertype *mdadm_lookup_supertype(char *metadata);
 
 extern int mdmon_running(char *devnm);
 extern int mdmon_pid(char *devnm);
-extern int check_env(char *name);
-extern __u32 random32(void);
-extern void random_uuid(__u8 *buf);
 extern int start_mdmon(char *devnm);
 
 extern int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
@@ -1585,7 +1488,6 @@ extern int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
 			 int dests, int *destfd, unsigned long long *destoffsets);
 void abort_reshape(struct mdinfo *sra);
 
-void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
 
 extern char *stat2kname(struct stat *st);
 extern char *fd2kname(int fd);

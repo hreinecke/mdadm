@@ -19,6 +19,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "mdmon.h"
 #include <sys/syscall.h>
 #include <sys/select.h>

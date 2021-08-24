@@ -158,7 +158,7 @@ CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o dlink.o
 
 SRCS =  $(patsubst %.o,%.c,$(OBJS))
 
-INCL = mdadm.h part.h bitmap.h
+INCL = mdadm.h mdadm_internal.h part.h bitmap.h
 
 MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	policy.o lib.o config.o mapfile.o \
