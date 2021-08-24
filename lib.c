@@ -365,86 +365,6 @@ char *map_dev_preferred(int major, int minor, int create,
 	return preferred ? preferred : regular;
 }
 
-/* conf_word gets one word from the conf file.
- * if "allow_key", then accept words at the start of a line,
- * otherwise stop when such a word is found.
- * We assume that the file pointer is at the end of a word, so the
- * next character is a space, or a newline.  If not, it is the start of a line.
- */
-
-char *conf_word(FILE *file, int allow_key)
-{
-	int wsize = 100;
-	int len = 0;
-	int c;
-	int quote;
-	int wordfound = 0;
-	char *word = xmalloc(wsize);
-
-	while (wordfound == 0) {
-		/* at the end of a word.. */
-		c = getc(file);
-		if (c == '#')
-			while (c != EOF && c != '\n')
-				c = getc(file);
-		if (c == EOF)
-			break;
-		if (c == '\n')
-			continue;
-
-		if (c != ' ' && c != '\t' && ! allow_key) {
-			ungetc(c, file);
-			break;
-		}
-		/* looks like it is safe to get a word here, if there is one */
-		quote = 0;
-		/* first, skip any spaces */
-		while (c == ' ' || c == '\t')
-			c = getc(file);
-		if (c != EOF && c != '\n' && c != '#') {
-			/* we really have a character of a word, so start saving it */
-			while (c != EOF && c != '\n' &&
-			       (quote || (c != ' ' && c != '\t'))) {
-				wordfound = 1;
-				if (quote && c == quote)
-					quote = 0;
-				else if (quote == 0 && (c == '\'' || c == '"'))
-					quote = c;
-				else {
-					if (len == wsize-1) {
-						wsize += 100;
-						word = xrealloc(word, wsize);
-					}
-					word[len++] = c;
-				}
-				c = getc(file);
-				/* Hack for broken kernels (2.6.14-.24) that put
-				 *        "active(auto-read-only)"
-				 * in /proc/mdstat instead of
-				 *        "active (auto-read-only)"
-				 */
-				if (c == '(' && len >= 6 &&
-				    strncmp(word + len - 6, "active", 6) == 0)
-					c = ' ';
-			}
-		}
-		if (c != EOF)
-			ungetc(c, file);
-	}
-	word[len] = 0;
-
-	/* Further HACK for broken kernels.. 2.6.14-2.6.24 */
-	if (strcmp(word, "auto-read-only)") == 0)
-		strcpy(word, "(auto-read-only)");
-
-/*    printf("word is <%s>\n", word); */
-	if (!wordfound) {
-		free(word);
-		word = NULL;
-	}
-	return word;
-}
-
 void print_quoted(char *str)
 {
 	/* Printf the string with surrounding quotes
@@ -545,36 +465,6 @@ unsigned long GCD(unsigned long a, unsigned long b)
 			a -= b;
 	}
 	return a;
-}
-
-/*
- * conf_line reads one logical line from the conffile or mdstat.
- * It skips comments and continues until it finds a line that starts
- * with a non blank/comment.  This character is pushed back for the next call
- * A doubly linked list of words is returned.
- * the first word will be a keyword.  Other words will have had quotes removed.
- */
-
-char *conf_line(FILE *file)
-{
-	char *w;
-	char *list;
-
-	w = conf_word(file, 1);
-	if (w == NULL)
-		return NULL;
-
-	list = dl_strdup(w);
-	free(w);
-	dl_init(list);
-
-	while ((w = conf_word(file, 0))){
-		char *w2 = dl_strdup(w);
-		free(w);
-		dl_add(list, w2);
-	}
-/*    printf("got a line\n");*/
-	return list;
 }
 
 void free_line(char *line)
