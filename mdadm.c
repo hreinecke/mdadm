@@ -1618,11 +1618,6 @@ int main(int argc, char *argv[])
 			rv = 1;
 			break;
 		}
-		if (c.delay == 0) {
-			c.delay = conf_get_monitor_delay();
-			if (!c.delay)
-				c.delay = 60;
-		}
 		rv = mdadm_monitor(devlist, mailaddr, program,
 			     &c, daemonise, oneshot,
 			     dosyslog, pidfile, increments,
