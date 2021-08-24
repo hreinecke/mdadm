@@ -30,6 +30,7 @@
 #include	"super.h"
 #include	"sysfs.h"
 #include	"uuid.h"
+#include	"config.h"
 #include	<ctype.h>
 
 static int round_size_and_verify(unsigned long long *size, int chunk)

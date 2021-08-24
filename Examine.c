@@ -27,6 +27,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"super.h"
+#include	"config.h"
 
 #if ! defined(__BIG_ENDIAN) && ! defined(__LITTLE_ENDIAN)
 #error no endian defined

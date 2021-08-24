@@ -47,6 +47,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
+#include	"config.h"
 #include	<sys/file.h>
 #include	<ctype.h>
 

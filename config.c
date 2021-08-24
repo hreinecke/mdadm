@@ -30,6 +30,7 @@
 #include	"mdstat.h"
 #include	"uuid.h"
 #include	"policy.h"
+#include	"config.h"
 #include	<dirent.h>
 #include	<glob.h>
 #include	<fnmatch.h>
@@ -1348,4 +1349,14 @@ char *conf_line(FILE *file)
 	}
 /*    printf("got a line\n");*/
 	return list;
+}
+
+void free_line(char *line)
+{
+	char *w;
+	for (w = dl_next(line); w != line; w = dl_next(line)) {
+		dl_del(w);
+		dl_free(w);
+	}
+	dl_free(line);
 }

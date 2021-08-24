@@ -30,6 +30,7 @@
 #include	"sysfs.h"
 #include	"uuid.h"
 #include	"policy.h"
+#include	"config.h"
 #include	<ctype.h>
 
 /**
@@ -1399,7 +1400,7 @@ int mdadm_assemble(struct supertype *st, char *mddev,
 	int rv = -1;
 	int mdfd = -1;
 	int clean;
-	int auto_assem;
+	int auto_assem = 0;
 	struct devs *devices = NULL;
 	char *devmap;
 	int *best = NULL; /* indexed by raid_disk */

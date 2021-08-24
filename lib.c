@@ -26,6 +26,7 @@
 #include	"dlink.h"
 #include	"xmalloc.h"
 #include	"debug.h"
+#include	"config.h"
 #include	<ctype.h>
 
 const char *Name;
@@ -417,16 +418,6 @@ unsigned long GCD(unsigned long a, unsigned long b)
 			a -= b;
 	}
 	return a;
-}
-
-void free_line(char *line)
-{
-	char *w;
-	for (w = dl_next(line); w != line; w = dl_next(line)) {
-		dl_del(w);
-		dl_free(w);
-	}
-	dl_free(line);
 }
 
 #ifndef VERSION

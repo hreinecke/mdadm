@@ -1097,34 +1097,16 @@ extern void manage_fork_fds(int close_all);
 extern int continue_via_systemd(char *devnm, char *service_name);
 
 extern int conf_parse_auto(char *str, char *msg, int config);
-extern struct mddev_ident *conf_get_ident(char *dev);
-extern struct mddev_dev *conf_get_devs(void);
-extern int conf_test_dev(char *devname);
-extern int conf_test_metadata(const char *version, struct dev_policy *pol, int is_homehost);
-extern struct createinfo *conf_get_create_info(void);
-extern void set_conffile(char *file);
 extern char *conf_get_mailaddr(void);
 extern char *conf_get_mailfrom(void);
 extern char *conf_get_program(void);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
-extern int conf_get_monitor_delay(void);
-extern char *conf_line(FILE *file);
-extern char *conf_word(FILE *file, int allow_key);
 extern void print_quoted(char *str);
 extern void print_escape(char *str);
 extern int use_udev(void);
 extern unsigned long GCD(unsigned long a, unsigned long b);
-extern int conf_name_is_free(char *name);
-extern int conf_verify_devnames(struct mddev_ident *array_list);
-extern int devname_matches(char *name, char *match);
-extern struct mddev_ident *conf_match(struct supertype *st,
-				      struct mdinfo *info,
-				      char *devname,
-				      int verbose, int *rvp);
 
-extern void free_line(char *line);
-extern int match_oneof(char *devices, char *devname);
 extern unsigned long calc_csum(void *super, int bytes);
 extern int enough(int level, int raid_disks, int layout, int clean,
 		   char *avail);

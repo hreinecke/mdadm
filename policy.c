@@ -26,6 +26,7 @@
 #include "xmalloc.h"
 #include "debug.h"
 #include "policy.h"
+#include "config.h"
 #include <dirent.h>
 #include <fnmatch.h>
 #include <ctype.h>
