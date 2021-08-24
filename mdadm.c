@@ -1447,19 +1447,8 @@ int main(int argc, char *argv[])
 			   ident.super_minor == UnSet && ident.name[0] == 0 &&
 			   !c.scan) {
 			/* Only a device has been given, so get details from config file */
-			struct mddev_ident *array_ident = conf_get_ident(devlist->devname);
-			if (array_ident == NULL) {
-				pr_err("%s not identified in config file.\n",
-					devlist->devname);
-				rv |= 1;
-				if (mdfd >= 0)
-					close(mdfd);
-			} else {
-				if (array_ident->autof == 0)
-					array_ident->autof = c.autof;
-				rv |= mdadm_assemble(ss, devlist->devname, array_ident,
-					       NULL, &c);
-			}
+			rv |= mdadm_assemble(ss, devlist->devname, NULL,
+					     NULL, &c);
 		} else if (!c.scan)
 			rv = mdadm_assemble(ss, devlist->devname, &ident,
 				      devlist->next, &c);
@@ -1472,19 +1461,9 @@ int main(int argc, char *argv[])
 				pr_err("can only assemble a single array when providing a backup file.\n");
 				exit(1);
 			}
-			for (dv = devlist; dv; dv = dv->next) {
-				struct mddev_ident *array_ident = conf_get_ident(dv->devname);
-				if (array_ident == NULL) {
-					pr_err("%s not identified in config file.\n",
-						dv->devname);
-					rv |= 1;
-					continue;
-				}
-				if (array_ident->autof == 0)
-					array_ident->autof = c.autof;
-				rv |= mdadm_assemble(ss, dv->devname, array_ident,
+			for (dv = devlist; dv; dv = dv->next)
+				rv |= mdadm_assemble(ss, dv->devname, NULL,
 					       NULL, &c);
-			}
 		} else {
 			if (c.update) {
 				pr_err("--update not meaningful with a --scan assembly.\n");

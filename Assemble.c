@@ -1399,9 +1399,7 @@ int mdadm_assemble(struct supertype *st, char *mddev,
 	int rv = -1;
 	int mdfd = -1;
 	int clean;
-	int auto_assem = (mddev == NULL && !ident->uuid_set &&
-			  ident->super_minor == UnSet && ident->name[0] == 0 &&
-			  (ident->container == NULL || ident->member == NULL));
+	int auto_assem;
 	struct devs *devices = NULL;
 	char *devmap;
 	int *best = NULL; /* indexed by raid_disk */
@@ -1427,6 +1425,21 @@ int mdadm_assemble(struct supertype *st, char *mddev,
 	char chosen_name[1024];
 	struct map_ent *map = NULL;
 	struct map_ent *mp;
+
+	if (!ident) {
+		ident = conf_get_ident(mddev);
+		if (!ident) {
+			pr_err("%s not identified in config file.\n",
+			       mddev);
+			return 1;
+		}
+	}
+	if (ident->autof == 0)
+		ident->autof = c->autof;
+
+	auto_assem = (mddev == NULL && !ident->uuid_set &&
+		      ident->super_minor == UnSet && ident->name[0] == 0 &&
+		      (ident->container == NULL || ident->member == NULL));
 
 	/*
 	 * If any subdevs are listed, then any that don't
