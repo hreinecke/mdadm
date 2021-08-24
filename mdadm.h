@@ -75,6 +75,17 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #define makedev(M,m) (((M)<<8) | (m))
 #endif
 
+#if __GNUC__ < 3
+struct stat64;
+#endif
+
+#ifdef __UCLIBC__
+# include <features.h>
+# ifndef __UCLIBC_HAS_LFS__
+#  define lseek64 lseek
+# endif
+#endif
+
 #define DEFAULT_CHUNK 512
 #define DEFAULT_BITMAP_CHUNK 4096
 #define DEFAULT_BITMAP_DELAY 5
@@ -450,18 +461,7 @@ struct mdstat_ent {
 	struct mdstat_ent *next;
 };
 
-extern int zero_disk_range(int fd, unsigned long long sector, size_t count);
-
-extern char *locate_backup(char *name);
-
 extern char *map_num(mapping_t *map, int num);
-
-extern char *map_dev_preferred(int major, int minor, int create,
-			       char *prefer);
-static inline char *map_dev(int major, int minor, int create)
-{
-	return map_dev_preferred(major, minor, create, NULL);
-}
 
 struct active_array;
 struct metadata_update;
@@ -879,17 +879,6 @@ struct supertype {
 
 };
 
-#if __GNUC__ < 3
-struct stat64;
-#endif
-
-#ifdef __UCLIBC__
-# include <features.h>
-# ifndef __UCLIBC_HAS_LFS__
-#  define lseek64 lseek
-# endif
-#endif
-
 extern int mdadm_manage_ro(char *devname, int fd, int readonly);
 extern int mdadm_manage_run(char *devname, int fd, struct context *c);
 extern int mdadm_manage_stop(char *devname, int fd, int quiet,
@@ -914,12 +903,6 @@ extern int mdadm_grow_continue(int mdfd, struct supertype *st,
 extern int mdadm_grow_consistency_policy(char *devname, int fd,
 					 struct context *c, struct shape *s);
 
-extern int restore_backup(struct supertype *st,
-			  struct mdinfo *content,
-			  int working_disks,
-			  int spares,
-			  char **backup_filep,
-			  int verbose);
 extern int mdadm_grow_continue_command(char *devname, int fd,
 				       char *backup_file, int verbose);
 
@@ -977,7 +960,6 @@ extern int mdadm_examine_bitmap(char *filename, int brief,
 				struct supertype *st);
 extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
-extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
 /* Assemble.c */
 int mdadm_scan_assemble(struct supertype *ss, struct context *c,
@@ -1015,13 +997,6 @@ extern int mdadm_array_state_num(char *name);
 extern char *mdadm_array_state_name(int num);
 extern char *mdadm_assemble_status(int status);
 
-/* calculate the size of the bitmap given the array size and bitmap chunksize */
-static inline unsigned long long
-bitmap_bits(unsigned long long array_size, unsigned long chunksize)
-{
-	return (array_size * 512 + chunksize - 1) / chunksize;
-}
-
 extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
 			       struct supertype *st);
 extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
@@ -1037,7 +1012,6 @@ extern int get_linux_version(void);
 extern int mdadm_version(char *version);
 extern unsigned long long parse_size(char *size);
 extern int parse_uuid(char *str, int uuid[4]);
-extern int is_near_layout_10(int layout);
 extern int parse_layout_10(char *layout);
 extern int parse_layout_faulty(char *layout);
 extern long parse_num(char *num);

@@ -19,6 +19,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "bitmap.h"
 #include "xmalloc.h"
 #include "debug.h"

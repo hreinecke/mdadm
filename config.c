@@ -29,9 +29,8 @@
 #include	"sysfs.h"
 #include	"mdstat.h"
 #include	"uuid.h"
-#include	"mapfile.h"
-#include	"policy.h"
 #include	"config.h"
+#include	"lib.h"
 #include	<dirent.h>
 #include	<glob.h>
 #include	<fnmatch.h>

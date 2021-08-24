@@ -70,6 +70,12 @@
 #endif
 
 extern int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s);
+extern char *map_dev_preferred(int major, int minor, int create,
+			       char *prefer);
+static inline char *map_dev(int major, int minor, int create)
+{
+	return map_dev_preferred(major, minor, create, NULL);
+}
 
 /* Define PATH_MAX in case we don't use glibc or standard library does
  * not have PATH_MAX defined. Assume max path length is 4K characters.

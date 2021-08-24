@@ -48,7 +48,7 @@
 #include	"sysfs.h"
 #include	"super.h"
 #include	"config.h"
-#include	"mapfile.h"
+#include	"lib.h"
 #include	<sys/file.h>
 #include	<ctype.h>
 

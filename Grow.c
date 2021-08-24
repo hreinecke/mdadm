@@ -22,6 +22,7 @@
  *    Email: <neilb@suse.de>
  */
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"bitmap.h"
 #include	"dlink.h"
 #include	"xmalloc.h"

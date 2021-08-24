@@ -158,8 +158,8 @@ CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
 
 SRCS =  $(patsubst %.o,%.c,$(OBJS))
 
-INCL = mdadm.h part.h bitmap.h xmalloc.h debug.h bswap.h restripe.h reshape.h \
-	super.h uuid.h
+INCL = mdadm.h mdadm_internal.h part.h bitmap.h xmalloc.h debug.h bswap.h \
+	restripe.h reshape.h super.h uuid.h
 
 MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	policy.o lib.o config.o mapfile.o \
