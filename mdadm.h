@@ -1415,7 +1415,7 @@ extern void enable_fds(int devices);
 extern void manage_fork_fds(int close_all);
 extern int continue_via_systemd(char *devnm, char *service_name);
 
-extern int parse_auto(char *str, char *msg, int config);
+extern int conf_parse_auto(char *str, char *msg, int config);
 extern struct mddev_ident *conf_get_ident(char *dev);
 extern struct mddev_dev *conf_get_devs(void);
 extern int conf_test_dev(char *devname);

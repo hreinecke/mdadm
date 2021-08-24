@@ -104,7 +104,7 @@ char *keywords[] = {
  * case is ignored, and at least three characters must be given
  */
 
-int match_keyword(char *word)
+static int match_keyword(char *word)
 {
 	int len = strlen(word);
 	int n;
@@ -124,7 +124,7 @@ struct conf_dev {
 	char *name;
 } *cdevlist = NULL;
 
-struct mddev_dev *load_partitions(void)
+static struct mddev_dev *load_partitions(void)
 {
 	FILE *f = fopen("/proc/partitions", "r");
 	char buf[1024];
@@ -159,7 +159,7 @@ struct mddev_dev *load_partitions(void)
 	return rv;
 }
 
-struct mddev_dev *load_containers(void)
+static struct mddev_dev *load_containers(void)
 {
 	struct mdstat_ent *mdstat = mdstat_read(0, 0);
 	struct mdstat_ent *ent;
@@ -204,7 +204,7 @@ struct createinfo createinfo = {
 #endif
 };
 
-int parse_auto(char *str, char *msg, int config)
+int conf_parse_auto(char *str, char *msg, int config)
 {
 	int autof;
 	if (str == NULL || *str == 0)
@@ -257,7 +257,7 @@ static void createline(char *line)
 
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		if (strncasecmp(w, "auto=", 5) == 0)
-			createinfo.autof = parse_auto(w + 5, "auto=", 1);
+			createinfo.autof = conf_parse_auto(w + 5, "auto=", 1);
 		else if (strncasecmp(w, "owner=", 6) == 0) {
 			if (w[6] == 0) {
 				pr_err("missing owner name\n");
@@ -324,7 +324,7 @@ static void createline(char *line)
 	}
 }
 
-void devline(char *line)
+static void devline(char *line)
 {
 	char *w;
 	struct conf_dev *cd;
@@ -356,7 +356,7 @@ static int is_number(char *w)
 	return (digits && ! *w);
 }
 
-void arrayline(char *line)
+static void arrayline(char *line)
 {
 	char *w;
 
@@ -484,7 +484,7 @@ void arrayline(char *line)
 				       w + 9);
 		} else if (strncasecmp(w, "auto=", 5) == 0 ) {
 			/* whether to create device special files as needed */
-			mis.autof = parse_auto(w + 5, "auto type", 0);
+			mis.autof = conf_parse_auto(w + 5, "auto type", 0);
 		} else if (strncasecmp(w, "member=", 7) == 0) {
 			/* subarray within a container */
 			mis.member = xstrdup(w + 7);
@@ -513,7 +513,7 @@ void arrayline(char *line)
 }
 
 static char *alert_email = NULL;
-void mailline(char *line)
+static void mailline(char *line)
 {
 	char *w;
 
@@ -523,7 +523,7 @@ void mailline(char *line)
 }
 
 static char *alert_mail_from = NULL;
-void mailfromline(char *line)
+static void mailfromline(char *line)
 {
 	char *w;
 
@@ -542,7 +542,7 @@ void mailfromline(char *line)
 }
 
 static char *alert_program = NULL;
-void programline(char *line)
+static void programline(char *line)
 {
 	char *w;
 
@@ -553,7 +553,7 @@ void programline(char *line)
 
 static char *home_host = NULL;
 static int require_homehost = 1;
-void homehostline(char *line)
+static void homehostline(char *line)
 {
 	char *w;
 
@@ -570,7 +570,7 @@ void homehostline(char *line)
 }
 
 static char *home_cluster = NULL;
-void homeclusterline(char *line)
+static void homeclusterline(char *line)
 {
 	char *w;
 
@@ -585,7 +585,7 @@ void homeclusterline(char *line)
 }
 
 static int monitor_delay;
-void monitordelayline(char *line)
+static void monitordelayline(char *line)
 {
 	char *w;
 
@@ -600,7 +600,7 @@ char auto_no[] = "no";
 char auto_homehost[] = "homehost";
 
 static int auto_seen = 0;
-void autoline(char *line)
+static void autoline(char *line)
 {
 	char *w;
 	char *seen;
@@ -735,7 +735,7 @@ void set_conffile(char *file)
 	conffile = file;
 }
 
-void conf_file(FILE *f)
+static void conf_file(FILE *f)
 {
 	char *line;
 	while ((line = conf_line(f))) {
@@ -847,7 +847,7 @@ void conf_file_or_dir(FILE *f)
 #endif
 }
 
-void load_conffile(void)
+static void load_conffile(void)
 {
 	FILE *f;
 	char *confdir = NULL;
@@ -965,7 +965,7 @@ static void append_dlist(struct mddev_dev **dlp, struct mddev_dev *list)
 	*dlp = list;
 }
 
-struct mddev_dev *conf_get_devs()
+struct mddev_dev *conf_get_devs(void)
 {
 	glob_t globbuf;
 	struct conf_dev *cd;
@@ -1227,4 +1227,114 @@ int conf_verify_devnames(struct mddev_ident *array_list)
 	}
 
 	return 0;
+}
+
+/* conf_word gets one word from the conf file.
+ * if "allow_key", then accept words at the start of a line,
+ * otherwise stop when such a word is found.
+ * We assume that the file pointer is at the end of a word, so the
+ * next character is a space, or a newline.  If not, it is the start of a line.
+ */
+
+char *conf_word(FILE *file, int allow_key)
+{
+	int wsize = 100;
+	int len = 0;
+	int c;
+	int quote;
+	int wordfound = 0;
+	char *word = xmalloc(wsize);
+
+	while (wordfound == 0) {
+		/* at the end of a word.. */
+		c = getc(file);
+		if (c == '#')
+			while (c != EOF && c != '\n')
+				c = getc(file);
+		if (c == EOF)
+			break;
+		if (c == '\n')
+			continue;
+
+		if (c != ' ' && c != '\t' && ! allow_key) {
+			ungetc(c, file);
+			break;
+		}
+		/* looks like it is safe to get a word here, if there is one */
+		quote = 0;
+		/* first, skip any spaces */
+		while (c == ' ' || c == '\t')
+			c = getc(file);
+		if (c != EOF && c != '\n' && c != '#') {
+			/* we really have a character of a word, so start saving it */
+			while (c != EOF && c != '\n' &&
+			       (quote || (c != ' ' && c != '\t'))) {
+				wordfound = 1;
+				if (quote && c == quote)
+					quote = 0;
+				else if (quote == 0 && (c == '\'' || c == '"'))
+					quote = c;
+				else {
+					if (len == wsize-1) {
+						wsize += 100;
+						word = xrealloc(word, wsize);
+					}
+					word[len++] = c;
+				}
+				c = getc(file);
+				/* Hack for broken kernels (2.6.14-.24) that put
+				 *        "active(auto-read-only)"
+				 * in /proc/mdstat instead of
+				 *        "active (auto-read-only)"
+				 */
+				if (c == '(' && len >= 6 &&
+				    strncmp(word + len - 6, "active", 6) == 0)
+					c = ' ';
+			}
+		}
+		if (c != EOF)
+			ungetc(c, file);
+	}
+	word[len] = 0;
+
+	/* Further HACK for broken kernels.. 2.6.14-2.6.24 */
+	if (strcmp(word, "auto-read-only)") == 0)
+		strcpy(word, "(auto-read-only)");
+
+/*    printf("word is <%s>\n", word); */
+	if (!wordfound) {
+		free(word);
+		word = NULL;
+	}
+	return word;
+}
+
+/*
+ * conf_line reads one logical line from the conffile or mdstat.
+ * It skips comments and continues until it finds a line that starts
+ * with a non blank/comment.  This character is pushed back for the next call
+ * A doubly linked list of words is returned.
+ * the first word will be a keyword.  Other words will have had quotes removed.
+ */
+
+char *conf_line(FILE *file)
+{
+	char *w;
+	char *list;
+
+	w = conf_word(file, 1);
+	if (w == NULL)
+		return NULL;
+
+	list = dl_strdup(w);
+	free(w);
+	dl_init(list);
+
+	while ((w = conf_word(file, 0))){
+		char *w2 = dl_strdup(w);
+		free(w);
+		dl_add(list, w2);
+	}
+/*    printf("got a line\n");*/
+	return list;
 }
