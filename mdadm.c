@@ -1560,13 +1560,6 @@ int main(int argc, char *argv[])
 				pr_err("No devices to examine\n");
 				exit(2);
 			}
-			if (devlist == NULL)
-				devlist = conf_get_devs();
-			if (devlist == NULL) {
-				pr_err("No devices listed in %s\n",
-				       mdlib_get_conffile());
-				exit(1);
-			}
 			rv = mdadm_examine(devlist, &c, ss);
 		} else if (devmode == DetailPlatform) {
 			rv = mdadm_detail_platform(ss ? ss->ss : NULL , ss ? c.scan : 1,
