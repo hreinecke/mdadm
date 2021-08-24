@@ -363,7 +363,7 @@ static int select_devices(struct mddev_dev *devlist,
 				content = *contentp;
 				tst->ss->getinfo_super(tst, content, NULL);
 
-				if (!parse_uuid(ident->container, uuid) ||
+				if (!mdadm_parse_uuid(ident->container, uuid) ||
 				    !same_uuid(content->uuid, uuid, tst->ss->swapuuid)) {
 					if (report_mismatch)
 						pr_err("%s has wrong UUID to be required container\n",

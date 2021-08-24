@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
 				pr_err("chunk/rounding may only be specified once. Second value is %s.\n", optarg);
 				exit(2);
 			}
-			s.chunk = parse_size(optarg);
+			s.chunk = mdadm_parse_size(optarg);
 			if (s.chunk == INVALID_SECTORS ||
 			    s.chunk < 8 || (s.chunk&1)) {
 				pr_err("invalid chunk/rounding value: %s\n",
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 			if (strcmp(optarg, "max") == 0)
 				s.size = MAX_SIZE;
 			else {
-				s.size = parse_size(optarg);
+				s.size = mdadm_parse_size(optarg);
 				if (s.size == INVALID_SECTORS || s.size < 8) {
 					pr_err("invalid size: %s\n", optarg);
 					exit(2);
@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
 			if (strcmp(optarg, "max") == 0)
 				array_size = MAX_SIZE;
 			else {
-				array_size = parse_size(optarg);
+				array_size = mdadm_parse_size(optarg);
 				if (array_size == 0 ||
 				    array_size == INVALID_SECTORS) {
 					pr_err("invalid array size: %s\n",
@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
 			if (mode == CREATE && strcmp(optarg, "variable") == 0)
 				data_offset = VARIABLE_OFFSET;
 			else
-				data_offset = parse_size(optarg);
+				data_offset = mdadm_parse_size(optarg);
 			if (data_offset == INVALID_SECTORS) {
 				pr_err("invalid data-offset: %s\n",
 					optarg);
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
 					s.raiddisks, optarg);
 				exit(2);
 			}
-			s.raiddisks = parse_num(optarg);
+			s.raiddisks = mdadm_parse_num(optarg);
 			if (s.raiddisks <= 0) {
 				pr_err("invalid number of raid devices: %s\n",
 					optarg);
@@ -591,7 +591,7 @@ int main(int argc, char *argv[])
 		case O(ASSEMBLE, Nodes):
 		case O(GROW, Nodes):
 		case O(CREATE, Nodes):
-			c.nodes = parse_num(optarg);
+			c.nodes = mdadm_parse_num(optarg);
 			if (c.nodes < 2) {
 				pr_err("clustered array needs two nodes at least: %s\n",
 					optarg);
@@ -617,7 +617,7 @@ int main(int argc, char *argv[])
 					s.level);
 				exit(2);
 			}
-			s.sparedisks = parse_num(optarg);
+			s.sparedisks = mdadm_parse_num(optarg);
 			if (s.sparedisks < 0) {
 				pr_err("invalid number of spare-devices: %s\n",
 					optarg);
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
 		case O(INCREMENTAL,Auto):
 		case O(ASSEMBLE,'a'):
 		case O(ASSEMBLE,Auto): /* auto-creation of device node */
-			c.autof = conf_parse_auto(optarg, "--auto flag", 0);
+			c.autof = mdadm_parse_auto(optarg, "--auto flag", 0);
 			continue;
 
 		case O(CREATE,Symlinks):
@@ -667,7 +667,7 @@ int main(int argc, char *argv[])
 				pr_err("uuid cannot be set twice.  Second value %s.\n", optarg);
 				exit(2);
 			}
-			if (parse_uuid(optarg, ident.uuid))
+			if (mdadm_parse_uuid(optarg, ident.uuid))
 				ident.uuid_set = 1;
 			else {
 				pr_err("Bad uuid: %s\n", optarg);
@@ -703,7 +703,7 @@ int main(int argc, char *argv[])
 			if (strcmp(optarg, "dev") == 0)
 				ident.super_minor = -2;
 			else {
-				ident.super_minor = parse_num(optarg);
+				ident.super_minor = mdadm_parse_num(optarg);
 				if (ident.super_minor < 0) {
 					pr_err("Bad super-minor number: %s.\n", optarg);
 					exit(2);
@@ -892,7 +892,7 @@ int main(int argc, char *argv[])
 				pr_err("only specify delay once. %s ignored.\n",
 					optarg);
 			else {
-				c.delay = parse_num(optarg);
+				c.delay = mdadm_parse_num(optarg);
 				if (c.delay < 1) {
 					pr_err("invalid delay: %s\n",
 						optarg);
@@ -1166,7 +1166,7 @@ int main(int argc, char *argv[])
 		case O(GROW,BitmapChunk):
 		case O(BUILD,BitmapChunk):
 		case O(CREATE,BitmapChunk): /* bitmap chunksize */
-			s.bitmap_chunk = parse_size(optarg);
+			s.bitmap_chunk = mdadm_parse_size(optarg);
 			if (s.bitmap_chunk == 0 ||
 			    s.bitmap_chunk == INVALID_SECTORS ||
 			    s.bitmap_chunk & (s.bitmap_chunk - 1)) {
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
 		case O(CREATE, WriteBehind): /* write-behind mode */
 			s.write_behind = DEFAULT_MAX_WRITE_BEHIND;
 			if (optarg) {
-				s.write_behind = parse_num(optarg);
+				s.write_behind = mdadm_parse_num(optarg);
 				if (s.write_behind < 0 ||
 				    s.write_behind > 16383) {
 					pr_err("Invalid value for maximum outstanding write-behind writes: %s.\n\tMust be between 0 and 16383.\n", optarg);

@@ -350,7 +350,7 @@ int mdadm_version(char *version)
 	return (a*1000000)+(b*1000)+c;
 }
 
-unsigned long long parse_size(char *size)
+unsigned long long mdadm_parse_size(char *size)
 {
 	/* parse 'size' which should be a number optionally
 	 * followed by 'K', 'M'. 'G' or 'T'.
@@ -435,7 +435,7 @@ int parse_layout_faulty(char *layout)
 	return mode | (atoi(layout+ln)<< ModeShift);
 }
 
-long parse_num(char *num)
+long mdadm_parse_num(char *num)
 {
 	/* Either return a valid number, or -1 */
 	char *c;
@@ -446,7 +446,7 @@ long parse_num(char *num)
 		return rv;
 }
 
-int parse_cluster_confirm_arg(char *input, char **devname, int *slot)
+int mdadm_parse_cluster_confirm_arg(char *input, char **devname, int *slot)
 {
 	char *dev;
 	*slot = strtoul(input, &dev, 10);
@@ -454,6 +454,52 @@ int parse_cluster_confirm_arg(char *input, char **devname, int *slot)
 		return -1;
 	*devname = dev+1;
 	return 0;
+}
+
+int mdadm_parse_auto(char *str, char *msg, int config)
+{
+	int autof;
+	if (str == NULL || *str == 0)
+		autof = 2;
+	else if (strcasecmp(str, "no") == 0)
+		autof = 1;
+	else if (strcasecmp(str, "yes") == 0)
+		autof = 2;
+	else if (strcasecmp(str, "md") == 0)
+		autof = config ? 5:3;
+	else {
+		/* There might be digits, and maybe a hypen, at the end */
+		char *e = str + strlen(str);
+		int num = 4;
+		int len;
+		while (e > str && isdigit(e[-1]))
+			e--;
+		if (*e) {
+			num = atoi(e);
+			if (num <= 0)
+				num = 1;
+		}
+		if (e > str && e[-1] == '-')
+			e--;
+		len = e - str;
+		if ((len == 2 && strncasecmp(str, "md", 2) == 0)) {
+			autof = config ? 5 : 3;
+		} else if ((len == 3 && strncasecmp(str, "yes", 3) == 0)) {
+			autof = 2;
+		} else if ((len == 3 && strncasecmp(str, "mdp", 3) == 0)) {
+			autof = config ? 6 : 4;
+		} else if ((len == 1 && strncasecmp(str, "p", 1) == 0) ||
+			   (len >= 4 && strncasecmp(str, "part", 4) == 0)) {
+			autof = 6;
+		} else {
+			pr_err("%s arg of \"%s\" unrecognised: use no,yes,md,mdp,part\n"
+				"        optionally followed by a number.\n",
+				msg, str);
+			exit(2);
+		}
+		autof |= num << 3;
+	}
+	return autof;
 }
 
 void remove_partitions(int fd)

@@ -1130,7 +1130,7 @@ void sysfsline(char *line)
 				pr_err("Only give one uuid per SYSFS line: %s\n",
 					uuid);
 			} else {
-				if (parse_uuid(w + 5, sr->uuid) &&
+				if (mdadm_parse_uuid(w + 5, sr->uuid) &&
 				    memcmp(sr->uuid, uuid_zero,
 					   sizeof(int[4])) != 0)
 					sr->uuid_set = 1;
