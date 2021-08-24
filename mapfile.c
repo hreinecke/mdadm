@@ -406,7 +406,7 @@ void mdadm_rebuild_map(void)
 			if (!info)
 				continue;
 
-			devid = devnm2devid(md->devnm);
+			devid = mdadm_parse_devname(md->devnm);
 			path = map_dev(major(devid), minor(devid), 0);
 			if (path == NULL ||
 			    strncmp(path, "/dev/md/", 8) != 0) {

@@ -3389,7 +3389,7 @@ static int reshape_array(char *container, int fd, char *devname,
 		}
 		close(fd);
 		wait_reshape(sra);
-		fd = open_dev(sra->sys_name);
+		fd = mdadm_open_dev(sra->sys_name);
 		if (fd >= 0)
 			impose_level(fd, info->new_level, devname, verbose);
 		return 0;
@@ -3610,7 +3610,7 @@ started:
 
 	if (st->ss->external) {
 		/* Re-load the metadata as much could have changed */
-		int cfd = open_dev(st->container_devnm);
+		int cfd = mdadm_open_dev(st->container_devnm);
 		if (cfd >= 0) {
 			flush_mdmon(container);
 			st->ss->free_super(st);
@@ -3755,12 +3755,12 @@ int reshape_container(char *container, char *devname,
 		if (!content)
 			break;
 
-		devid = devnm2devid(mdstat->devnm);
+		devid = mdadm_parse_devname(mdstat->devnm);
 		adev = map_dev(major(devid), minor(devid), 0);
 		if (!adev)
 			adev = content->text_version;
 
-		fd = open_dev(mdstat->devnm);
+		fd = mdadm_open_dev(mdstat->devnm);
 		if (fd < 0) {
 			pr_err("Device %s cannot be opened for reshape.\n",
 			       adev);
@@ -5120,7 +5120,7 @@ int mdadm_grow_continue_command(char *devname, int fd,
 			ret_val = 1;
 			goto Grow_continue_command_exit;
 		}
-		fd2 = open_dev(mdstat->devnm);
+		fd2 = mdadm_open_dev(mdstat->devnm);
 		if (fd2 < 0) {
 			pr_err("cannot open (%s)\n", mdstat->devnm);
 			ret_val = 1;
@@ -5184,7 +5184,7 @@ int mdadm_grow_continue(int mdfd, struct supertype *st, struct mdinfo *info,
 		return ret_val;
 
 	if (st->ss->external) {
-		int cfd = open_dev(st->container_devnm);
+		int cfd = mdadm_open_dev(st->container_devnm);
 
 		if (cfd < 0)
 			return 1;
