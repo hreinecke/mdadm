@@ -136,6 +136,11 @@ int mdadm_monitor(struct mddev_dev *devlist,
 	struct mddev_ident *mdlist;
 	int delay_for_event = c->delay;
 
+	if (c->delay == 0) {
+		c->delay = conf_get_monitor_delay();
+		if (!c->delay)
+			c->delay = 60;
+	}
 	if (!mailaddr)
 		mailaddr = conf_get_mailaddr();
 
