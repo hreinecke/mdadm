@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "bitmap.h"
 
 /*

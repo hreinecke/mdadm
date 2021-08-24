@@ -23,6 +23,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	<sys/wait.h>
 #include	<signal.h>
 #include	<limits.h>

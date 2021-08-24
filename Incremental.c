@@ -29,6 +29,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

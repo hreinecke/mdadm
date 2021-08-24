@@ -23,6 +23,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "bitmap.h"
 
 int mdadm_build(char *mddev, struct mddev_dev *devlist,

@@ -26,6 +26,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 
 int mdadm_kill(char *dev, struct supertype *st, int force, int verbose, int noexcl)
 {

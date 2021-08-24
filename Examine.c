@@ -23,6 +23,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"dlink.h"
 
 int mdadm_examine(struct mddev_dev *devlist,

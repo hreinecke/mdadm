@@ -23,7 +23,10 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include <ctype.h>
+
+static char *find_free_devnm(int use_partitions);
 
 void make_parts(char *dev, int cnt)
 {

@@ -23,6 +23,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"dlm.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>

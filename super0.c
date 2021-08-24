@@ -24,6 +24,7 @@
 
 #define HAVE_STDINT_H 1
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "bitmap.h"
 #include "sha1.h"
 /*
