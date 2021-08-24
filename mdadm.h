@@ -59,7 +59,7 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #include	<sys/mount.h>
 #include	<asm/types.h>
 #include	<sys/ioctl.h>
-#define	MD_MAJOR 9
+
 #define MdpMinorShift 6
 
 #ifndef BLKGETSIZE64
