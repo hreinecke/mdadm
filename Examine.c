@@ -101,16 +101,14 @@ int mdadm_examine(struct mddev_dev *devlist,
 		} else
 			st = guess_super(fd);
 		if (st) {
+			char *devname = (c->brief || c->scan) ?
+				NULL : devlist->devname;
 			err = 1;
 			st->ignore_hw_compat = 1;
 			if (!container)
-				err = st->ss->load_super(st, fd,
-							 (c->brief||c->scan) ? NULL
-							 :devlist->devname);
-			if (err && st->ss->load_container) {
-				err = st->ss->load_container(st, fd,
-							     (c->brief||c->scan) ? NULL
-							     :devlist->devname);
+				err = st->ss->load_super(st, fd, devname);
+			if (err) {
+				err = mdadm_load_container(st, fd, devname);
 				if (!err)
 					have_container = 1;
 			}

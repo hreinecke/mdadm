@@ -39,6 +39,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"

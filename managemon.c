@@ -109,6 +109,7 @@
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
+#include	"super.h"
 #include	<sys/syscall.h>
 #include	<sys/socket.h>
 #include	<signal.h>
@@ -291,8 +292,8 @@ static void add_disk_to_container(struct supertype *st, struct mdinfo *sd)
 		return;
 
 	st->update_tail = &update;
-	st->ss->add_to_super(st, &dk, dfd, NULL, INVALID_SECTORS);
-	st->ss->write_init_super(st);
+	mdadm_add_to_super(st, &dk, dfd, NULL, INVALID_SECTORS);
+	mdadm_write_init_super(st);
 	queue_metadata_update(update);
 	st->update_tail = NULL;
 }
@@ -316,12 +317,12 @@ static void remove_disk_from_container(struct supertype *st, struct mdinfo *sd)
 		sd->disk.major, sd->disk.minor);
 
 	st->update_tail = &update;
-	st->ss->remove_from_super(st, &dk);
+	mdadm_remove_from_super(st, &dk);
 	/* FIXME this write_init_super shouldn't be here.
 	 * We have it after add_to_super to write to new device,
 	 * but with 'remove' we don't ant to write to that device!
 	 */
-	st->ss->write_init_super(st);
+	mdadm_write_init_super(st);
 	queue_metadata_update(update);
 	st->update_tail = NULL;
 }

@@ -489,8 +489,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 		exit(3);
 	}
 
-	container->ss = version_to_superswitch(mdi->text_version);
-	if (container->ss == NULL) {
+	if (mdadm_set_metadata_handler(container, mdi->text_version)) {
 		pr_err("%s uses unsupported metadata: %s\n",
 			devnm, mdi->text_version);
 		exit(3);
@@ -533,7 +532,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 		close(victim_sock);
 		victim_sock = -1;
 	}
-	if (container->ss->load_container(container, mdfd, devnm)) {
+	if (mdadm_load_container(container, mdfd, devnm)) {
 		pr_err("Cannot load metadata for %s\n", devnm);
 		exit(3);
 	}
@@ -610,10 +609,3 @@ int save_stripes(int *source, unsigned long long *offsets,
 {
 	return 0;
 }
-
-struct superswitch super0 = {
-	.name = "0.90",
-};
-struct superswitch super1 = {
-	.name = "1.x",
-};

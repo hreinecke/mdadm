@@ -145,7 +145,7 @@ int mdadm_detail(char *dev, struct context *c)
 					      1, c->prefer);
 		cfd = open_dev(st->container_devnm);
 		if (cfd >= 0) {
-			err = st->ss->load_container(st, cfd, NULL);
+			err = mdadm_load_container(st, cfd, NULL);
 			close(cfd);
 			if (err == 0)
 				info = st->ss->container_content(st, subarray);

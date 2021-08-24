@@ -129,8 +129,8 @@ int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
 	if (must_be_container(dfd)) {
 		if (!st)
 			st = super_by_fd(dfd, NULL);
-		if (st && st->ss->load_container)
-			rv = st->ss->load_container(st, dfd, NULL);
+		if (st)
+			rv = mdadm_load_container(st, dfd, NULL);
 
 		close(dfd);
 		if (!rv && st->ss->container_content) {
@@ -493,8 +493,7 @@ int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
 		wait_for(chosen_name, mdfd);
 		if (st->ss->external)
 			strcpy(devnm, fd2devnm(mdfd));
-		if (st->ss->load_container)
-			rv = st->ss->load_container(st, mdfd, NULL);
+		rv = mdadm_load_container(st, mdfd, NULL);
 		close(mdfd);
 		sysfs_free(sra);
 		if (!rv)
@@ -942,8 +941,7 @@ static int array_try_spare(char *devname, int *dfdp, struct dev_policy *pol,
 				free(st3);
 				goto next;
 			}
-			if (st3->ss->load_container &&
-			    !st3->ss->load_container(st3, mdfd, mp->path)) {
+			if (!mdadm_load_container(st3, mdfd, mp->path)) {
 				if (st3->ss->get_spare_criteria)
 					st3->ss->get_spare_criteria(st3, &sc);
 				st3->ss->free_super(st3);
@@ -1363,8 +1361,8 @@ restart:
 			int ret = 0;
 			struct map_ent *map = NULL;
 
-			if (st && st->ss->load_container)
-				ret = st->ss->load_container(st, mdfd, NULL);
+			if (st)
+				ret = mdadm_load_container(st, mdfd, NULL);
 			close(mdfd);
 			if (!ret && st && st->ss->container_content) {
 				if (map_lock(&map))

@@ -831,7 +831,7 @@ static int get_required_spare_criteria(struct state *st,
 	if (fd < 0)
 		return 1;
 	if (st->metadata->ss->external)
-		st->metadata->ss->load_container(st->metadata, fd, st->devname);
+		mdadm_load_container(st->metadata, fd, st->devname);
 	else
 		st->metadata->ss->load_super(st->metadata, fd, st->devname);
 	close(fd);
@@ -929,7 +929,7 @@ static dev_t container_choose_spare(struct state *from, struct state *to,
 		return 0;
 	}
 
-	err = st->ss->load_container(st, fd, NULL);
+	err = mdadm_load_container(st, fd, NULL);
 	close(fd);
 	if (err)
 		return 0;

@@ -762,7 +762,7 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 		if (tst->sb)
 			/* already loaded */;
 		else if (tst->ss->external) {
-			tst->ss->load_container(tst, fd, NULL);
+			mdadm_load_container(tst, fd, NULL);
 		} else for (j = 0; j < tst->max_devs; j++) {
 				char *dev;
 				int dfd;
@@ -936,10 +936,10 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 		if (dv->failfast == FlagSet)
 			disc.state |= 1 << MD_DISK_FAILFAST;
 		dfd = dev_open(dv->devname, O_RDWR | O_EXCL|O_DIRECT);
-		if (tst->ss->add_to_super(tst, &disc, dfd,
-					  dv->devname, INVALID_SECTORS))
+		if (mdadm_add_to_super(tst, &disc, dfd,
+				       dv->devname, INVALID_SECTORS))
 			return -1;
-		if (tst->ss->write_init_super(tst))
+		if (mdadm_write_init_super(tst))
 			return -1;
 	} else if (dv->disposition == 'A') {
 		/*  this had better be raid1.
@@ -1010,8 +1010,8 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 
 		mdadm_kill(dv->devname, NULL, 0, -1, 0);
 		dfd = dev_open(dv->devname, O_RDWR | O_EXCL|O_DIRECT);
-		if (tst->ss->add_to_super(tst, &disc, dfd,
-					  dv->devname, INVALID_SECTORS)) {
+		if (mdadm_add_to_super(tst, &disc, dfd,
+				       dv->devname, INVALID_SECTORS)) {
 			close(dfd);
 			close(container_fd);
 			return -1;

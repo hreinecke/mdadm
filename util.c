@@ -1630,18 +1630,53 @@ int open_container(int fd)
 	return -1;
 }
 
-struct superswitch *version_to_superswitch(char *vers)
+int mdadm_set_metadata_handler(struct supertype *st, char *vers)
 {
 	int i;
 
 	for (i = 0; superlist[i]; i++) {
 		struct superswitch *ss = superlist[i];
 
-		if (strcmp(vers, ss->name) == 0)
-			return ss;
+		if (strcmp(vers, ss->name) == 0) {
+			st->ss = ss;
+			return 0;
+		}
 	}
 
-	return NULL;
+	return -1;
+}
+
+int mdadm_load_container(struct supertype *st, int fd, char *dev)
+{
+	if (!st->ss->load_container)
+		return 0;
+
+	return st->ss->load_container(st, fd, dev);
+}
+
+int mdadm_add_to_super(struct supertype *st, mdu_disk_info_t *dk,
+		       int fd, char *dev, unsigned long long data_offset)
+{
+	if (!st->ss->add_to_super)
+		return 0;
+
+	return st->ss->add_to_super(st, dk, fd, dev, data_offset);
+}
+
+int mdadm_remove_from_super(struct supertype *st, mdu_disk_info_t *dk)
+{
+	if (!st->ss->remove_from_super)
+		return 0;
+
+	return st->ss->remove_from_super(st, dk);
+}
+
+int mdadm_write_init_super(struct supertype *st)
+{
+	if (!st->ss->write_init_super)
+		return 0;
+
+	return st->ss->write_init_super(st);
 }
 
 int metadata_container_matches(char *metadata, char *devnm)
@@ -1750,8 +1785,7 @@ int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet)
 		goto free_sysfs;
 	}
 
-	st->ss = version_to_superswitch(mdi->text_version);
-	if (!st->ss) {
+	if (mdadm_set_metadata_handler(st, mdi->text_version)) {
 		if (!quiet)
 			pr_err("Operation not supported for %s metadata\n",
 			       mdi->text_version);

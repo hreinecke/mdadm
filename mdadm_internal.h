@@ -60,6 +60,8 @@ extern void print_r10_layout(int layout);
 extern char *get_md_name(char *devnm);
 extern void put_md_name(char *name);
 
+extern int is_standard(char *dev, int *nump);
+
 extern int open_container(int fd);
 extern int metadata_container_matches(char *metadata, char *devnm);
 extern int metadata_subdev_matches(char *metadata, char *devnm);

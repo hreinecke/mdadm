@@ -162,15 +162,14 @@ int mdadm_create(struct supertype *st, char *mddev,
 		    md_get_array_info(fd, &inf) == 0 && inf.raid_disks == 0) {
 			/* yep, looks like a container */
 			if (st) {
-				rv = st->ss->load_container(st, fd,
-							    devlist->devname);
+				rv = mdadm_load_container(st, fd,
+							  devlist->devname);
 				if (rv == 0)
 					have_container = 1;
 			} else {
 				st = super_by_fd(fd, NULL);
-				if (st && !(rv = st->ss->
-					    load_container(st, fd,
-							   devlist->devname)))
+				if (st && !(rv = mdadm_load_container(st, fd,
+							devlist->devname)))
 					have_container = 1;
 				else
 					st = NULL;
@@ -914,9 +913,9 @@ int mdadm_create(struct supertype *st, char *mddev,
 				}
 				if (fd >= 0)
 					remove_partitions(fd);
-				if (st->ss->add_to_super(st, &inf->disk,
-							 fd, dv->devname,
-							 dv->data_offset)) {
+				if (mdadm_add_to_super(st, &inf->disk,
+						       fd, dv->devname,
+						       dv->data_offset)) {
 					ioctl(mdfd, STOP_ARRAY, NULL);
 					goto abort_locked;
 				}
@@ -974,7 +973,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 				me = map_by_devnm(&map, st->container_devnm);
 			}
 
-			if (st->ss->write_init_super(st)) {
+			if (mdadm_write_init_super(st)) {
 				st->ss->free_super(st);
 				goto abort_locked;
 			}

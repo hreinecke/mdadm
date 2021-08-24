@@ -27,6 +27,7 @@
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"sysfs.h"
+#include	"super.h"
 #include	"mdstat.h"
 #include	"uuid.h"
 #include	"config.h"

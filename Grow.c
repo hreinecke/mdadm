@@ -671,7 +671,7 @@ int mdadm_grow_consistency_policy(char *devname, int fd, struct context *c, stru
 				goto free_info;
 			}
 
-			ret = st->ss->load_container(st, cfd, st->container_devnm);
+			ret = mdadm_load_container(st, cfd, st->container_devnm);
 			close(cfd);
 
 			if (ret) {
@@ -1932,7 +1932,7 @@ int mdadm_grow_reshape(char *devname, int fd,
 			return 1;
 		}
 
-		retval = st->ss->load_container(st, cfd, NULL);
+		retval = mdadm_load_container(st, cfd, NULL);
 
 		if (retval) {
 			pr_err("Cannot read superblock for %s\n", devname);
@@ -3661,7 +3661,7 @@ started:
 		if (cfd >= 0) {
 			flush_mdmon(container);
 			st->ss->free_super(st);
-			st->ss->load_container(st, cfd, container);
+			mdadm_load_container(st, cfd, container);
 			close(cfd);
 		}
 	}
@@ -5115,7 +5115,7 @@ int mdadm_grow_continue_command(char *devname, int fd,
 
 		/* find in container array under reshape
 		 */
-		ret_val = st->ss->load_container(st, cfd, NULL);
+		ret_val = mdadm_load_container(st, cfd, NULL);
 		if (ret_val) {
 			pr_err("Cannot read superblock for %s\n", devname);
 			ret_val = 1;
@@ -5236,7 +5236,7 @@ int mdadm_grow_continue(int mdfd, struct supertype *st, struct mdinfo *info,
 		if (cfd < 0)
 			return 1;
 
-		st->ss->load_container(st, cfd, st->container_devnm);
+		mdadm_load_container(st, cfd, st->container_devnm);
 		close(cfd);
 		ret_val = reshape_container(st->container_devnm, NULL, mdfd,
 					    st, info, 0, backup_file, 0,
