@@ -45,6 +45,10 @@
 #include	"md_u.h"
 #include	"md_p.h"
 
+#ifndef GROW_SERVICE
+#define GROW_SERVICE "mdadm-grow-continue"
+#endif /* GROW_SERVICE */
+
 /*
   * Check at compile time that something is of a particular type.
   * Always evaluates to 1 so you may use it easily in comparisons.

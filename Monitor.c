@@ -42,6 +42,10 @@
 #include	<libudev.h>
 #endif
 
+#ifndef Sendmail
+#define Sendmail "/usr/lib/sendmail -t"
+#endif
+
 struct state {
 	char *devname;
 	char devnm[32];	/* to sync with mdstat info */

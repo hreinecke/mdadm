@@ -1,6 +1,14 @@
 #ifndef _POLICY_H
 #define _POLICY_H
 
+/* FAILED_SLOTS is where to save files storing recent removal of array
+ * member in order to allow future reuse of disk inserted in the same
+ * slot for array recovery
+ */
+#ifndef FAILED_SLOTS_DIR
+#define FAILED_SLOTS_DIR "/run/mdadm/failed-slots"
+#endif /* FAILED_SLOTS */
+
 extern char pol_act[], pol_domain[], pol_metadata[], pol_auto[];
 
 /* iterate over the sublist starting at list, having the same

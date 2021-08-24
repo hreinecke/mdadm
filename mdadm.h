@@ -100,22 +100,6 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #define MDMON_DIR "/run/mdadm"
 #endif /* MDMON_DIR */
 
-/* FAILED_SLOTS is where to save files storing recent removal of array
- * member in order to allow future reuse of disk inserted in the same
- * slot for array recovery
- */
-#ifndef FAILED_SLOTS_DIR
-#define FAILED_SLOTS_DIR "/run/mdadm/failed-slots"
-#endif /* FAILED_SLOTS */
-
-#ifndef MDMON_SERVICE
-#define MDMON_SERVICE "mdmon"
-#endif /* MDMON_SERVICE */
-
-#ifndef GROW_SERVICE
-#define GROW_SERVICE "mdadm-grow-continue"
-#endif /* GROW_SERVICE */
-
 #include	"md_u.h"
 #include	"md_p.h"
 #include	"bitmap.h"
@@ -323,16 +307,6 @@ struct mdinfo {
 	struct md_bb bb;
 };
 
-struct createinfo {
-	int	uid;
-	int	gid;
-	int	autof;
-	int	mode;
-	int	names;
-	int	bblist;
-	struct supertype *supertype;
-};
-
 struct spare_criteria {
 	unsigned long long min_size;
 	unsigned int sector_size;
@@ -480,12 +454,6 @@ struct mdstat_ent {
 extern int zero_disk_range(int fd, unsigned long long sector, size_t count);
 
 extern char *locate_backup(char *name);
-
-#ifndef Sendmail
-#define Sendmail "/usr/lib/sendmail -t"
-#endif
-
-#define SYSLOG_FACILITY LOG_DAEMON
 
 extern char *map_num(mapping_t *map, int num);
 

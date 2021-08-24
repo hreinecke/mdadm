@@ -47,6 +47,9 @@
 #include	<signal.h>
 #include	<dlfcn.h>
 
+#ifndef MDMON_SERVICE
+#define MDMON_SERVICE "mdmon"
+#endif /* MDMON_SERVICE */
 
 /*
  * following taken from linux/blkpg.h because they aren't

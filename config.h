@@ -1,6 +1,16 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+struct createinfo {
+	int	uid;
+	int	gid;
+	int	autof;
+	int	mode;
+	int	names;
+	int	bblist;
+	struct supertype *supertype;
+};
+
 extern struct mddev_ident *conf_get_ident(char *dev);
 extern struct mddev_dev *conf_get_devs(void);
 extern int conf_test_dev(char *devname);
