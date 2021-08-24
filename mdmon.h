@@ -63,8 +63,6 @@ struct active_array {
  */
 extern struct metadata_update *update_queue, *update_queue_handled;
 
-#define MD_MAJOR 9
-
 extern struct active_array *container;
 extern struct active_array *discard_this;
 extern struct active_array *pending_discard;
