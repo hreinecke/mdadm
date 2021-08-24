@@ -32,6 +32,8 @@
 #include "mapfile.h"
 #include <ctype.h>
 
+static char *find_free_devnm(int use_partitions);
+
 void make_parts(char *dev, int cnt)
 {
 	/* make 'cnt' partition devices for 'dev'
@@ -481,7 +483,7 @@ int open_mddev(char *dev, int report_errors)
 	return mdfd;
 }
 
-char *find_free_devnm(int use_partitions)
+static char *find_free_devnm(int use_partitions)
 {
 	static char devnm[32];
 	int devnum;

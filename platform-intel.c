@@ -17,6 +17,7 @@
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"

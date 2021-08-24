@@ -276,11 +276,12 @@ static void wake_me(int sig)
 /* if we are debugging and starting mdmon by hand then don't fork */
 static int do_fork(void)
 {
-	#ifdef DEBUG
-	if (check_env("MDADM_NO_MDMON"))
-		return 0;
-	#endif
+#ifdef DEBUG
+	const char *val = getenv("MDADM_NO_MON");
 
+	if (val && val[0] == '1')
+		return 0;
+#endif
 	return 1;
 }
 

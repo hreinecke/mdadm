@@ -1068,6 +1068,18 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 	return 1;
 }
 
+static int sys_hot_remove_disk(int statefd, int force)
+{
+	int cnt = force ? 500 : 5;
+	int ret;
+
+	while ((ret = write(statefd, "remove", 6)) == -1 &&
+	       errno == EBUSY &&
+	       cnt-- > 0)
+		usleep(10000);
+	return ret == 6 ? 0 : -1;
+}
+
 int mdadm_manage_remove(struct supertype *tst, int fd, struct mddev_dev *dv,
 			int sysfd, unsigned long rdev, int force, int verbose,
 			char *devname)
@@ -1727,54 +1739,6 @@ int mdadm_update_subarray(char *dev, char *subarray, char *update,
 	close(fd);
 
 	return rv;
-}
-
-/* Move spare from one array to another If adding to destination array fails
- * add back to original array.
- * Returns 1 on success, 0 on failure */
-int move_spare(char *from_devname, char *to_devname, dev_t devid)
-{
-	struct mddev_dev devlist;
-	char devname[20];
-
-	/* try to remove and add */
-	int fd1 = open(to_devname, O_RDONLY);
-	int fd2 = open(from_devname, O_RDONLY);
-
-	if (fd1 < 0 || fd2 < 0) {
-		if (fd1 >= 0)
-			close(fd1);
-		if (fd2 >= 0)
-			close(fd2);
-		return 0;
-	}
-
-	devlist.next = NULL;
-	devlist.used = 0;
-	devlist.writemostly = FlagDefault;
-	devlist.failfast = FlagDefault;
-	devlist.devname = devname;
-	sprintf(devname, "%d:%d", major(devid), minor(devid));
-
-	devlist.disposition = 'r';
-	if (mdadm_manage_subdevs(from_devname, fd2, &devlist, -1, 0, NULL, 0) == 0) {
-		devlist.disposition = 'a';
-		if (mdadm_manage_subdevs(to_devname, fd1, &devlist, -1, 0,
-				   NULL, 0) == 0) {
-			/* make sure manager is aware of changes */
-			ping_manager(to_devname);
-			ping_manager(from_devname);
-			close(fd1);
-			close(fd2);
-			return 1;
-		}
-		else
-			mdadm_manage_subdevs(from_devname, fd2, &devlist,
-					     -1, 0, NULL, 0);
-	}
-	close(fd1);
-	close(fd2);
-	return 0;
 }
 
 int mdadm_set_action(char *dev, char *action)

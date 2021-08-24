@@ -79,6 +79,7 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"dlink.h"
 #include	"xmalloc.h"
 #include	"config.h"

@@ -1011,6 +1011,7 @@ int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
 extern int get_linux_version(void);
 extern int mdadm_version(char *version);
 extern void mdlib_manage_fork_fds(int close_all);
+
 extern unsigned long long parse_size(char *size);
 extern int parse_uuid(char *str, int uuid[4]);
 extern long parse_num(char *num);
@@ -1026,70 +1027,15 @@ extern char *conf_get_program(void);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
 
-extern unsigned long calc_csum(void *super, int bytes);
-extern int enough(int level, int raid_disks, int layout, int clean,
-		   char *avail);
-extern int ask(char *mesg);
-extern unsigned long long get_component_size(int fd);
-extern void remove_partitions(int fd);
-extern int test_partition(int fd);
-extern int test_partition_from_id(dev_t id);
-extern int get_data_disks(int level, int layout, int raid_disks);
-extern unsigned long long calc_array_size(int level, int raid_disks, int layout,
-				   int chunksize, unsigned long long devsize);
-extern int flush_metadata_updates(struct supertype *st);
-extern void append_metadata_update(struct supertype *st, void *buf, int len);
-extern int assemble_container_content(struct supertype *st, int mdfd,
-				      struct mdinfo *content,
-				      struct context *c,
-				      char *chosen_name, int *result);
-
-extern int move_spare(char *from_devname, char *to_devname, dev_t devid);
-extern int add_disk(int mdfd, struct supertype *st,
-		    struct mdinfo *sra, struct mdinfo *info);
-extern int remove_disk(int mdfd, struct supertype *st,
-		       struct mdinfo *sra, struct mdinfo *info);
-extern int hot_remove_disk(int mdfd, unsigned long dev, int force);
-extern int sys_hot_remove_disk(int statefd, int force);
-extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
-unsigned long long min_recovery_start(struct mdinfo *array);
-
-extern char *human_size(long long bytes);
-extern char *human_size_brief(long long bytes, int prefix);
-extern void print_r10_layout(int layout);
-
-extern char *find_free_devnm(int use_partitions);
-
-extern void put_md_name(char *name);
 extern dev_t devnm2devid(char *devnm);
-extern char *get_md_name(char *devnm);
 
-extern char DefaultConfFile[];
-
-extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
-			char *chosen, int block_udev);
-/* values for 'trustworthy' */
-#define	LOCAL	1
-#define	LOCAL_ANY 10
-#define	FOREIGN	2
-#define	METADATA 3
 extern int open_mddev(char *dev, int report_errors);
-extern int open_container(int fd);
-extern int metadata_container_matches(char *metadata, char *devnm);
-extern int metadata_subdev_matches(char *metadata, char *devnm);
-extern int is_container_member(struct mdstat_ent *ent, char *devname);
 extern int is_subarray_active(char *subarray, char *devname);
-extern int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet);
 extern struct superswitch *version_to_superswitch(char *vers);
 
 extern int mdmon_running(char *devnm);
 extern int mdmon_pid(char *devnm);
-extern int check_env(char *name);
-extern __u32 random32(void);
-extern void random_uuid(__u8 *buf);
 extern int start_mdmon(char *devnm);
-
-void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
 
 /* lib.c */
 extern char *stat2devnm(struct stat *st);

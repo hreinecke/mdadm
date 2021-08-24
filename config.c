@@ -81,10 +81,10 @@
 /* for Debian compatibility .... */
 #define CONFFILE2 "/etc/mdadm/mdadm.conf"
 #endif
-char DefaultConfFile[] = CONFFILE;
-char DefaultConfDir[] = CONFFILE ".d";
-char DefaultAltConfFile[] = CONFFILE2;
-char DefaultAltConfDir[] = CONFFILE2 ".d";
+static char DefaultConfFile[] = CONFFILE;
+static char DefaultConfDir[] = CONFFILE ".d";
+static char DefaultAltConfFile[] = CONFFILE2;
+static char DefaultAltConfDir[] = CONFFILE2 ".d";
 
 enum linetype { Devices, Array, Mailaddr, Mailfrom, Program, CreateDev,
 		Homehost, HomeCluster, AutoMode, Policy, PartPolicy, Sysfs,
