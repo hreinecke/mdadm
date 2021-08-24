@@ -3430,7 +3430,7 @@ static int reshape_array(char *container, int fd, char *devname,
 		default: /* parent */
 			return 0;
 		case 0:
-			manage_fork_fds(0);
+			mdlib_manage_fork_fds(0);
 			map_fork();
 			break;
 		}
@@ -3749,7 +3749,7 @@ int reshape_container(char *container, char *devname,
 			printf("%s: multi-array reshape continues in background\n", mdlib_get_name());
 		return 0;
 	case 0: /* child */
-		manage_fork_fds(0);
+		mdlib_manage_fork_fds(0);
 		map_fork();
 		break;
 	}

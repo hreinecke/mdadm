@@ -29,14 +29,13 @@
  */
 
 #include	"mdadm.h"
+#include	"mdadm_internal.h"
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
 #include	"uuid.h"
-#include	"mapfile.h"
-#include	"policy.h"
 #include	"config.h"
 #include	"lib.h"
 #include	<sys/wait.h>
@@ -1627,7 +1626,7 @@ static void run_udisks(char *arg1, char *arg2)
 	int pid = fork();
 	int status;
 	if (pid == 0) {
-		manage_fork_fds(1);
+		mdlib_manage_fork_fds(1);
 		execl("/usr/bin/udisks", "udisks", arg1, arg2, NULL);
 		execl("/bin/udisks", "udisks", arg1, arg2, NULL);
 		exit(1);

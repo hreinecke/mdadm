@@ -23,6 +23,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "bitmap.h"
 #include "debug.h"
 #include "super.h"

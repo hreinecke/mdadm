@@ -23,8 +23,7 @@
  */
 
 #include	"mdadm.h"
-#include	"md_p.h"
-#include	"md_u.h"
+#include	"mdadm_internal.h"
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
@@ -354,7 +353,7 @@ static int make_daemon(char *pidfile)
 		perror("daemonise");
 		return 1;
 	}
-	manage_fork_fds(0);
+	mdlib_manage_fork_fds(0);
 	setsid();
 	return -1;
 }

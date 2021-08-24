@@ -23,8 +23,7 @@
  */
 
 #include	"mdadm.h"
-#include	"md_p.h"
-#include	"md_u.h"
+#include	"mdadm_internal.h"
 #include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"

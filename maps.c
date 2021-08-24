@@ -23,6 +23,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "debug.h"
 #include "mapfile.h"
 #include "policy.h"

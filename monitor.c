@@ -19,6 +19,7 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
 #include "mdmon.h"
 #include "debug.h"
 #include "sysfs.h"
