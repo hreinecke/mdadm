@@ -1050,6 +1050,8 @@ should be a SSD with reasonable lifetime.
 .BR \-\-symlinks
 Auto creation of symlinks in /dev to /dev/md, option --symlinks must
 be 'no' or 'yes' and work with --create and --build.
+Obsolete, and kept for compability only; functionality has been
+superseded by udev.
 
 .TP
 .BR \-k ", " \-\-consistency\-policy=
