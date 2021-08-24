@@ -37,6 +37,7 @@
 #include	"uuid.h"
 #include	"policy.h"
 #include	"config.h"
+#include	"lib.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

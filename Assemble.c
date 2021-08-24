@@ -31,6 +31,7 @@
 #include	"uuid.h"
 #include	"policy.h"
 #include	"config.h"
+#include	"lib.h"
 #include	<ctype.h>
 
 /**

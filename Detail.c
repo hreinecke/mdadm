@@ -31,6 +31,7 @@
 #include	"super.h"
 #include	"sysfs.h"
 #include	"uuid.h"
+#include	"lib.h"
 #include	<ctype.h>
 #include	<dirent.h>
 

@@ -30,6 +30,7 @@
 #include "super.h"
 #include "uuid.h"
 #include "config.h"
+#include "lib.h"
 
 /*
  * The version-1 superblock :

@@ -32,6 +32,7 @@
 #include	"super.h"
 #include	"policy.h"
 #include	"config.h"
+#include	"lib.h"
 #include	<sys/wait.h>
 #include	<signal.h>
 #include	<limits.h>

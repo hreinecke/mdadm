@@ -885,41 +885,12 @@ struct dev_policy {
 struct stat64;
 #endif
 
-#define HAVE_NFTW  we assume
-#define HAVE_FTW
-
 #ifdef __UCLIBC__
 # include <features.h>
 # ifndef __UCLIBC_HAS_LFS__
 #  define lseek64 lseek
 # endif
-# ifndef  __UCLIBC_HAS_FTW__
-#  undef HAVE_FTW
-#  undef HAVE_NFTW
-# endif
 #endif
-
-#ifdef __dietlibc__
-# undef HAVE_NFTW
-#endif
-
-#if defined(__KLIBC__)
-# undef HAVE_NFTW
-# undef HAVE_FTW
-#endif
-
-#ifndef HAVE_NFTW
-# define FTW_PHYS 1
-# ifndef HAVE_FTW
-  struct FTW {};
-# endif
-#endif
-
-#ifdef HAVE_FTW
-# include <ftw.h>
-#endif
-
-extern int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s);
 
 extern int mdadm_manage_ro(char *devname, int fd, int readonly);
 extern int mdadm_manage_run(char *devname, int fd, struct context *c);
@@ -1082,7 +1053,6 @@ extern int check_partitions(int fd, char *dname,
 extern int fstat_is_blkdev(int fd, char *devname, dev_t *rdev);
 extern int stat_is_blkdev(char *devname, dev_t *rdev);
 
-extern int get_mdp_major(void);
 extern int get_maj_min(char *dev, int *major, int *minor);
 extern int dev_open(char *dev, int flags);
 extern int open_dev(char *devnm);
@@ -1102,10 +1072,6 @@ extern char *conf_get_mailfrom(void);
 extern char *conf_get_program(void);
 extern char *conf_get_homehost(int *require_homehostp);
 extern char *conf_get_homecluster(void);
-extern void print_quoted(char *str);
-extern void print_escape(char *str);
-extern int use_udev(void);
-extern unsigned long GCD(unsigned long a, unsigned long b);
 
 extern unsigned long calc_csum(void *super, int bytes);
 extern int enough(int level, int raid_disks, int layout, int clean,
@@ -1142,8 +1108,6 @@ extern void print_r10_layout(int layout);
 extern char *find_free_devnm(int use_partitions);
 
 extern void put_md_name(char *name);
-extern char *devid2kname(dev_t devid);
-extern char *devid2devnm(dev_t devid);
 extern dev_t devnm2devid(char *devnm);
 extern char *get_md_name(char *devnm);
 
@@ -1174,10 +1138,8 @@ extern int start_mdmon(char *devnm);
 
 void *super1_make_v0(struct supertype *st, struct mdinfo *info, mdp_super_t *sb0);
 
-extern char *stat2kname(struct stat *st);
-extern char *fd2kname(int fd);
+/* lib.c */
 extern char *stat2devnm(struct stat *st);
-extern char *fd2devnm(int fd);
 extern void udev_block(char *devnm);
 extern void udev_unblock(void);
 

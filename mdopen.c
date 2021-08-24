@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "mdstat.h"
 #include "config.h"
+#include "lib.h"
 #include <ctype.h>
 
 void make_parts(char *dev, int cnt)

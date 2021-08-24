@@ -31,6 +31,7 @@
 #include "sysfs.h"
 #include "super.h"
 #include "config.h"
+#include "lib.h"
 #include <ctype.h>
 
 int mdadm_manage_ro(char *devname, int fd, int readonly)
