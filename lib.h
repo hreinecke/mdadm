@@ -99,5 +99,7 @@ extern void print_quoted(char *str);
 extern void print_escape(char *str);
 extern int use_udev(void);
 extern unsigned long GCD(unsigned long a, unsigned long b);
+extern void udev_block(char *devnm);
+extern void udev_unblock(void);
 
 #endif /* _LIB_H */

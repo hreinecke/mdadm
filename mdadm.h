@@ -657,19 +657,14 @@ extern int get_linux_version(void);
 extern int mdadm_version(char *version);
 extern void mdlib_manage_fork_fds(int close_all);
 
-extern unsigned long long parse_size(char *size);
-extern int parse_uuid(char *str, int uuid[4]);
-extern long parse_num(char *num);
-extern int parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
+extern unsigned long long mdadm_parse_size(char *size);
+extern int mdadm_parse_uuid(char *str, int uuid[4]);
+extern long mdadm_parse_num(char *num);
+extern int mdadm_parse_cluster_confirm_arg(char *inp, char **devname, int *slot);
+extern int mdadm_parse_auto(char *str, char *msg, int config);
 
 extern int open_dev(char *devnm);
 
-extern int conf_parse_auto(char *str, char *msg, int config);
-extern char *conf_get_mailaddr(void);
-extern char *conf_get_mailfrom(void);
-extern char *conf_get_program(void);
-extern char *conf_get_homehost(int *require_homehostp);
-extern char *conf_get_homecluster(void);
 
 extern dev_t devnm2devid(char *devnm);
 
@@ -682,8 +677,6 @@ extern int start_mdmon(char *devnm);
 
 /* lib.c */
 extern char *stat2devnm(struct stat *st);
-extern void udev_block(char *devnm);
-extern void udev_unblock(void);
 
 /* util.c */
 extern int mdadm_set_metadata_handler(struct supertype *st, char *vers);
@@ -695,8 +688,9 @@ extern int mdadm_add_to_super(struct supertype *st, mdu_disk_info_t *dk,
 extern int mdadm_remove_from_super(struct supertype *st, mdu_disk_info_t *dk);
 extern int mdadm_write_init_super(struct supertype *st);
 
-extern void set_hooks(void);
-extern int get_cluster_name(char **name);
+extern void mdlib_set_hooks(void);
+extern int mdlib_set_homecluster(struct context *c);
+extern void mdlib_set_homehost(struct context *c);
 extern int cluster_get_dlmlock(void);
 extern int cluster_release_dlmlock(void);
 

@@ -14,6 +14,12 @@ struct createinfo {
 	struct supertype *supertype;
 };
 
+extern char *conf_get_mailaddr(void);
+extern char *conf_get_mailfrom(void);
+extern char *conf_get_program(void);
+extern char *conf_get_homehost(int *require_homehostp);
+extern char *conf_get_homecluster(void);
+
 extern struct mddev_ident *conf_get_ident(char *dev);
 extern struct mddev_dev *conf_get_devs(void);
 extern int conf_test_dev(char *devname);

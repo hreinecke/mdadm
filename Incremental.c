@@ -1442,7 +1442,7 @@ static char *container2devname(char *devname)
 		int uuid[4];
 		struct map_ent *mp, *map = NULL;
 
-		if (!parse_uuid(devname, uuid))
+		if (!mdadm_parse_uuid(devname, uuid))
 			return mdname;
 		mp = map_by_uuid(&map, uuid);
 		if (mp)

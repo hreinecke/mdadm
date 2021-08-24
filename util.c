@@ -32,8 +32,7 @@
 #include	"sysfs.h"
 #include	"super.h"
 #include	"uuid.h"
-#include	"mapfile.h"
-#include	"policy.h"
+#include	"config.h"
 #include	"lib.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
@@ -113,6 +112,8 @@ struct dlm_lock_resource {
 	dlm_lshandle_t *ls;
 	struct dlm_lksb lksb;
 };
+
+static int get_cluster_name(char **name);
 
 /* Using poll(2) to wait for and dispatch ASTs */
 static int poll_for_ast(dlm_lshandle_t ls)
@@ -364,7 +365,7 @@ int mdadm_version(char *version)
 	return (a*1000000)+(b*1000)+c;
 }
 
-unsigned long long parse_size(char *size)
+unsigned long long mdadm_parse_size(char *size)
 {
 	/* parse 'size' which should be a number optionally
 	 * followed by 'K', 'M'. 'G' or 'T'.
@@ -449,7 +450,7 @@ int parse_layout_faulty(char *layout)
 	return mode | (atoi(layout+ln)<< ModeShift);
 }
 
-long parse_num(char *num)
+long mdadm_parse_num(char *num)
 {
 	/* Either return a valid number, or -1 */
 	char *c;
@@ -460,7 +461,7 @@ long parse_num(char *num)
 		return rv;
 }
 
-int parse_cluster_confirm_arg(char *input, char **devname, int *slot)
+int mdadm_parse_cluster_confirm_arg(char *input, char **devname, int *slot)
 {
 	char *dev;
 	*slot = strtoul(input, &dev, 10);
@@ -468,6 +469,52 @@ int parse_cluster_confirm_arg(char *input, char **devname, int *slot)
 		return -1;
 	*devname = dev+1;
 	return 0;
+}
+
+int mdadm_parse_auto(char *str, char *msg, int config)
+{
+	int autof;
+	if (str == NULL || *str == 0)
+		autof = 2;
+	else if (strcasecmp(str, "no") == 0)
+		autof = 1;
+	else if (strcasecmp(str, "yes") == 0)
+		autof = 2;
+	else if (strcasecmp(str, "md") == 0)
+		autof = config ? 5:3;
+	else {
+		/* There might be digits, and maybe a hypen, at the end */
+		char *e = str + strlen(str);
+		int num = 4;
+		int len;
+		while (e > str && isdigit(e[-1]))
+			e--;
+		if (*e) {
+			num = atoi(e);
+			if (num <= 0)
+				num = 1;
+		}
+		if (e > str && e[-1] == '-')
+			e--;
+		len = e - str;
+		if ((len == 2 && strncasecmp(str, "md", 2) == 0)) {
+			autof = config ? 5 : 3;
+		} else if ((len == 3 && strncasecmp(str, "yes", 3) == 0)) {
+			autof = 2;
+		} else if ((len == 3 && strncasecmp(str, "mdp", 3) == 0)) {
+			autof = config ? 6 : 4;
+		} else if ((len == 1 && strncasecmp(str, "p", 1) == 0) ||
+			   (len >= 4 && strncasecmp(str, "part", 4) == 0)) {
+			autof = 6;
+		} else {
+			pr_err("%s arg of \"%s\" unrecognised: use no,yes,md,mdp,part\n"
+				"        optionally followed by a number.\n",
+				msg, str);
+			exit(2);
+		}
+		autof |= num << 3;
+	}
+	return autof;
 }
 
 void remove_partitions(int fd)
@@ -2315,7 +2362,7 @@ void set_cmap_hooks(void)
 		is_cmap_hooks_ready = 1;
 }
 
-int get_cluster_name(char **cluster_name)
+static int get_cluster_name(char **cluster_name)
 {
         int rv = -1;
 	cmap_handle_t handle;
@@ -2339,6 +2386,35 @@ name_err:
         cmap_hooks->finalize(handle);
 out:
         return rv;
+}
+
+void mdlib_set_homehost(struct context *c)
+{
+	char sys_hostname[256];
+
+	if (c->homehost == NULL && c->require_homehost)
+		c->homehost = conf_get_homehost(&c->require_homehost);
+	if (c->homehost == NULL || strcasecmp(c->homehost, "<system>") == 0) {
+		if (gethostname(sys_hostname, sizeof(sys_hostname)) == 0) {
+			sys_hostname[sizeof(sys_hostname)-1] = 0;
+			c->homehost = sys_hostname;
+		}
+	}
+	if (c->homehost &&
+	    (!c->homehost[0] || strcasecmp(c->homehost, "<none>") == 0)) {
+		c->homehost = NULL;
+		c->require_homehost = 0;
+	}
+}
+
+int mdlib_set_homecluster(struct context *c)
+{
+	int rv = 0;
+
+	c->homecluster = conf_get_homecluster();
+	if (c->homecluster == NULL)
+		rv = get_cluster_name(&c->homecluster);
+	return rv;
 }
 
 void set_dlm_hooks(void)
@@ -2369,7 +2445,7 @@ void set_dlm_hooks(void)
 		is_dlm_hooks_ready = 1;
 }
 
-void set_hooks(void)
+void mdlib_set_hooks(void)
 {
 	set_dlm_hooks();
 	set_cmap_hooks();
