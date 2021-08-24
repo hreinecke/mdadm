@@ -44,6 +44,23 @@ extern void policyline(char *line, char *type);
 extern void policy_add(char *type, ...);
 extern void policy_free(void);
 
+/*
+ * Data structures for policy management.
+ * Each device can have a policy structure that lists
+ * various name/value pairs each possibly with a metadata associated.
+ * The policy list is sorted by name/value/metadata
+ */
+struct dev_policy {
+	struct dev_policy *next;
+	char *name;	/* None of these strings are allocated.  They are
+			 * all just references to strings which are known
+			 * to exist elsewhere.
+			 * name and metadata can be compared by address equality.
+			 */
+	const char *metadata;
+	const char *value;
+};
+
 extern struct dev_policy *path_policy(char **paths, char *type);
 extern struct dev_policy *disk_policy(struct mdinfo *disk);
 extern struct dev_policy *devid_policy(int devid);

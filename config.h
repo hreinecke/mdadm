@@ -1,6 +1,9 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#include "mapfile.h"
+#include "policy.h"
+
 struct createinfo {
 	int	uid;
 	int	gid;
