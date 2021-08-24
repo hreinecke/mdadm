@@ -32,6 +32,7 @@
 #include	"sysfs.h"
 #include	"uuid.h"
 #include	"lib.h"
+#include	"mapfile.h"
 #include	<ctype.h>
 #include	<dirent.h>
 

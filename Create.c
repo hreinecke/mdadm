@@ -32,6 +32,7 @@
 #include	"uuid.h"
 #include	"config.h"
 #include	"lib.h"
+#include	"mapfile.h"
 #include	<ctype.h>
 
 static int round_size_and_verify(unsigned long long *size, int chunk)

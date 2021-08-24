@@ -29,6 +29,7 @@
 #include "mdstat.h"
 #include "config.h"
 #include "lib.h"
+#include "mapfile.h"
 #include <ctype.h>
 
 void make_parts(char *dev, int cnt)

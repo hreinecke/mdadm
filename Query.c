@@ -26,6 +26,7 @@
 #include	"debug.h"
 #include	"sysfs.h"
 #include	"super.h"
+#include	"mapfile.h"
 #include	"md_p.h"
 #include	"md_u.h"
 

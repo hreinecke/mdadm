@@ -29,6 +29,7 @@
 #include	"super.h"
 #include	"sysfs.h"
 #include	"uuid.h"
+#include	"mapfile.h"
 #include	"policy.h"
 #include	"config.h"
 #include	"lib.h"

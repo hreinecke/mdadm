@@ -32,6 +32,7 @@
 #include	"reshape.h"
 #include	"super.h"
 #include	"lib.h"
+#include	"mapfile.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>

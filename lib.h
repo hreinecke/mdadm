@@ -71,6 +71,18 @@
 
 extern int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s);
 
+/* Define PATH_MAX in case we don't use glibc or standard library does
+ * not have PATH_MAX defined. Assume max path length is 4K characters.
+ */
+#ifndef PATH_MAX
+#define PATH_MAX	4096
+#endif
+
+#define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
+#define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
+#define ROUND_UP_PTR(ptr, base)	((typeof(ptr)) \
+				 (ROUND_UP((unsigned long)(ptr), base)))
+
 extern int get_mdp_major(void);
 extern char *devid2kname(dev_t devid);
 extern char *devid2devnm(dev_t devid);

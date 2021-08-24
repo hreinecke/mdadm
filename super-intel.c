@@ -25,6 +25,7 @@
 #include "bswap.h"
 #include "mdstat.h"
 #include "sysfs.h"
+#include "mapfile.h"
 #include "policy.h"
 #include "restripe.h"
 #include "super.h"

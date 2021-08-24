@@ -32,6 +32,7 @@
 #include	"sysfs.h"
 #include	"super.h"
 #include	"uuid.h"
+#include	"mapfile.h"
 #include	"policy.h"
 #include	"lib.h"
 #include	<sys/socket.h>
@@ -90,6 +91,9 @@ struct blkpg_partition {
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+
+#define	ModeMask	0x1f
+#define	ModeShift	5
 
 static int is_dlm_hooks_ready = 0;
 

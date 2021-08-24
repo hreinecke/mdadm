@@ -29,6 +29,7 @@
 #include	"sysfs.h"
 #include	"mdstat.h"
 #include	"uuid.h"
+#include	"mapfile.h"
 #include	"policy.h"
 #include	"config.h"
 #include	<dirent.h>

@@ -24,7 +24,26 @@
 
 #include "mdadm.h"
 #include "debug.h"
+#include "mapfile.h"
 #include "policy.h"
+
+/* faulty stuff */
+
+#define	WriteTransient	0
+#define	ReadTransient	1
+#define	WritePersistent	2
+#define	ReadPersistent	3
+#define	WriteAll	4 /* doesn't go to device */
+#define	ReadFixable	5
+#define	Modes	6
+
+#define	ClearErrors	31
+#define	ClearFaults	30
+
+enum r0layout {
+	RAID0_ORIG_LAYOUT = 1,
+	RAID0_ALT_MULTIZONE_LAYOUT = 2,
+};
 
 /* name/number mappings */
 

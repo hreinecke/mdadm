@@ -30,6 +30,7 @@
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
+#include	"mapfile.h"
 #include	"policy.h"
 #include	"config.h"
 #include	"lib.h"

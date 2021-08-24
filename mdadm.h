@@ -66,24 +66,28 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 #define BLKGETSIZE64 _IOR(0x12,114,size_t) /* return device size in bytes (u64 *arg) */
 #endif
 
+#ifdef __TINYC__
+#undef minor
+#undef major
+#undef makedev
+#define minor(x) ((x)&0xff)
+#define major(x) (((x)>>8)&0xff)
+#define makedev(M,m) (((M)<<8) | (m))
+#endif
+
 #define DEFAULT_CHUNK 512
 #define DEFAULT_BITMAP_CHUNK 4096
 #define DEFAULT_BITMAP_DELAY 5
 #define DEFAULT_MAX_WRITE_BEHIND 256
 
-/* MAP_DIR should be somewhere that persists across the pivotroot
- * from early boot to late boot.
- * /run  seems to have emerged as the best standard.
+/* When using "GET_DISK_INFO" it isn't certain how high
+ * we need to check.  So we impose an absolute limit of
+ * MAX_DISKS.  This needs to be much more than the largest
+ * number of devices any metadata can support.  Currently
+ * v1.x can support 1920
  */
-#ifndef MAP_DIR
-#define MAP_DIR "/run/mdadm"
-#endif /* MAP_DIR */
-/* MAP_FILE is what we name the map file we put in MAP_DIR, in case you
- * want something other than the default of "map"
- */
-#ifndef MAP_FILE
-#define MAP_FILE "map"
-#endif /* MAP_FILE */
+#define MAX_DISKS	4096
+
 /* MDMON_DIR is where pid and socket files used for communicating
  * with mdmon normally live.  Best is /var/run/mdadm as
  * mdmon is needed at early boot then it needs to write there prior
@@ -135,6 +139,75 @@ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
 	_max1 > _max2 ? _max1 : _max2; })
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
+#define	LEVEL_MULTIPATH		(-4)
+#define	LEVEL_LINEAR		(-1)
+#define	LEVEL_FAULTY		(-5)
+
+/* kernel module doesn't know about these */
+#define LEVEL_CONTAINER		(-100)
+#define	LEVEL_UNSUPPORTED	(-200)
+
+/* the kernel does know about this one ... */
+#define	LEVEL_NONE		(-1000000)
+
+/* for raid4/5/6 */
+#define ALGORITHM_LEFT_ASYMMETRIC	0
+#define ALGORITHM_RIGHT_ASYMMETRIC	1
+#define ALGORITHM_LEFT_SYMMETRIC	2
+#define ALGORITHM_RIGHT_SYMMETRIC	3
+
+/* Define non-rotating (raid4) algorithms.  These allow
+ * conversion of raid4 to raid5.
+ */
+#define ALGORITHM_PARITY_0		4 /* P or P,Q are initial devices */
+#define ALGORITHM_PARITY_N		5 /* P or P,Q are final devices. */
+
+/* DDF RAID6 layouts differ from md/raid6 layouts in two ways.
+ * Firstly, the exact positioning of the parity block is slightly
+ * different between the 'LEFT_*' modes of md and the "_N_*" modes
+ * of DDF.
+ * Secondly, or order of datablocks over which the Q syndrome is computed
+ * is different.
+ * Consequently we have different layouts for DDF/raid6 than md/raid6.
+ * These layouts are from the DDFv1.2 spec.
+ * Interestingly DDFv1.2-Errata-A does not specify N_CONTINUE but
+ * leaves RLQ=3 as 'Vendor Specific'
+ */
+
+#define ALGORITHM_ROTATING_ZERO_RESTART	8 /* DDF PRL=6 RLQ=1 */
+#define ALGORITHM_ROTATING_N_RESTART	9 /* DDF PRL=6 RLQ=2 */
+#define ALGORITHM_ROTATING_N_CONTINUE	10 /*DDF PRL=6 RLQ=3 */
+
+/* For every RAID5 algorithm we define a RAID6 algorithm
+ * with exactly the same layout for data and parity, and
+ * with the Q block always on the last device (N-1).
+ * This allows trivial conversion from RAID5 to RAID6
+ */
+#define ALGORITHM_LEFT_ASYMMETRIC_6	16
+#define ALGORITHM_RIGHT_ASYMMETRIC_6	17
+#define ALGORITHM_LEFT_SYMMETRIC_6	18
+#define ALGORITHM_RIGHT_SYMMETRIC_6	19
+#define ALGORITHM_PARITY_0_6		20
+#define ALGORITHM_PARITY_N_6		ALGORITHM_PARITY_N
+
+#define RESYNC_NONE -1
+#define RESYNC_DELAYED -2
+#define RESYNC_PENDING -3
+#define RESYNC_REMOTE  -4
+#define RESYNC_UNKNOWN -5
+
+/* Sometimes the 'size' value passed needs to mean "Maximum".
+ * In those cases with use MAX_SIZE
+ */
+#define MAX_SIZE	1
+
+/* We want to use unsigned numbers for sector counts, but need
+ * a value for 'invalid'.  Use '1'.
+ */
+#define INVALID_SECTORS 1
+/* And another special number needed for --data_offset=variable */
+#define VARIABLE_OFFSET 3
 
 struct md_bb_entry {
 	unsigned long long sector;
@@ -403,30 +476,6 @@ struct mdstat_ent {
 	}		*members;
 	struct mdstat_ent *next;
 };
-
-struct map_ent {
-	struct map_ent *next;
-	char	devnm[32];
-	char	metadata[20];
-	int	uuid[4];
-	int	bad;
-	char	*path;
-};
-extern int map_update(struct map_ent **mpp, char *devnm, char *metadata,
-		      int uuid[4], char *path);
-extern void map_remove(struct map_ent **map, char *devnm);
-extern struct map_ent *map_by_uuid(struct map_ent **map, int uuid[4]);
-extern struct map_ent *map_by_devnm(struct map_ent **map, char *devnm);
-extern void map_free(struct map_ent *map);
-extern struct map_ent *map_by_name(struct map_ent **map, char *name);
-extern void map_read(struct map_ent **melp);
-extern int map_write(struct map_ent *mel);
-extern void map_delete(struct map_ent **mapp, char *devnm);
-extern void map_add(struct map_ent **melp,
-		    char *devnm, char *metadata, int uuid[4], char *path);
-extern int map_lock(struct map_ent **melp);
-extern void map_unlock(struct map_ent **melp);
-extern void map_fork(void);
 
 extern int zero_disk_range(int fd, unsigned long long sector, size_t count);
 
@@ -1149,11 +1198,6 @@ extern int get_cluster_name(char **name);
 extern int cluster_get_dlmlock(void);
 extern int cluster_release_dlmlock(void);
 
-#define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
-#define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
-#define ROUND_UP_PTR(ptr, base)	((typeof(ptr)) \
-				 (ROUND_UP((unsigned long)(ptr), base)))
-
 static inline int is_subarray(char *vers)
 {
 	/* The version string for a 'subarray' (an array in a container)
@@ -1173,119 +1217,3 @@ static inline char *to_subarray(struct mdstat_ent *ent, char *container)
 	return &ent->metadata_version[10+strlen(container)+1];
 }
 
-#define	LEVEL_MULTIPATH		(-4)
-#define	LEVEL_LINEAR		(-1)
-#define	LEVEL_FAULTY		(-5)
-
-/* kernel module doesn't know about these */
-#define LEVEL_CONTAINER		(-100)
-#define	LEVEL_UNSUPPORTED	(-200)
-
-/* the kernel does know about this one ... */
-#define	LEVEL_NONE		(-1000000)
-
-/* faulty stuff */
-
-#define	WriteTransient	0
-#define	ReadTransient	1
-#define	WritePersistent	2
-#define	ReadPersistent	3
-#define	WriteAll	4 /* doesn't go to device */
-#define	ReadFixable	5
-#define	Modes	6
-
-#define	ClearErrors	31
-#define	ClearFaults	30
-
-#define AllPersist	100 /* internal use only */
-#define	NoPersist	101
-
-#define	ModeMask	0x1f
-#define	ModeShift	5
-
-#ifdef __TINYC__
-#undef minor
-#undef major
-#undef makedev
-#define minor(x) ((x)&0xff)
-#define major(x) (((x)>>8)&0xff)
-#define makedev(M,m) (((M)<<8) | (m))
-#endif
-
-enum r0layout {
-	RAID0_ORIG_LAYOUT = 1,
-	RAID0_ALT_MULTIZONE_LAYOUT = 2,
-};
-
-/* for raid4/5/6 */
-#define ALGORITHM_LEFT_ASYMMETRIC	0
-#define ALGORITHM_RIGHT_ASYMMETRIC	1
-#define ALGORITHM_LEFT_SYMMETRIC	2
-#define ALGORITHM_RIGHT_SYMMETRIC	3
-
-/* Define non-rotating (raid4) algorithms.  These allow
- * conversion of raid4 to raid5.
- */
-#define ALGORITHM_PARITY_0		4 /* P or P,Q are initial devices */
-#define ALGORITHM_PARITY_N		5 /* P or P,Q are final devices. */
-
-/* DDF RAID6 layouts differ from md/raid6 layouts in two ways.
- * Firstly, the exact positioning of the parity block is slightly
- * different between the 'LEFT_*' modes of md and the "_N_*" modes
- * of DDF.
- * Secondly, or order of datablocks over which the Q syndrome is computed
- * is different.
- * Consequently we have different layouts for DDF/raid6 than md/raid6.
- * These layouts are from the DDFv1.2 spec.
- * Interestingly DDFv1.2-Errata-A does not specify N_CONTINUE but
- * leaves RLQ=3 as 'Vendor Specific'
- */
-
-#define ALGORITHM_ROTATING_ZERO_RESTART	8 /* DDF PRL=6 RLQ=1 */
-#define ALGORITHM_ROTATING_N_RESTART	9 /* DDF PRL=6 RLQ=2 */
-#define ALGORITHM_ROTATING_N_CONTINUE	10 /*DDF PRL=6 RLQ=3 */
-
-/* For every RAID5 algorithm we define a RAID6 algorithm
- * with exactly the same layout for data and parity, and
- * with the Q block always on the last device (N-1).
- * This allows trivial conversion from RAID5 to RAID6
- */
-#define ALGORITHM_LEFT_ASYMMETRIC_6	16
-#define ALGORITHM_RIGHT_ASYMMETRIC_6	17
-#define ALGORITHM_LEFT_SYMMETRIC_6	18
-#define ALGORITHM_RIGHT_SYMMETRIC_6	19
-#define ALGORITHM_PARITY_0_6		20
-#define ALGORITHM_PARITY_N_6		ALGORITHM_PARITY_N
-
-/* Define PATH_MAX in case we don't use glibc or standard library does
- * not have PATH_MAX defined. Assume max path length is 4K characters.
- */
-#ifndef PATH_MAX
-#define PATH_MAX	4096
-#endif
-
-#define RESYNC_NONE -1
-#define RESYNC_DELAYED -2
-#define RESYNC_PENDING -3
-#define RESYNC_REMOTE  -4
-#define RESYNC_UNKNOWN -5
-
-/* When using "GET_DISK_INFO" it isn't certain how high
- * we need to check.  So we impose an absolute limit of
- * MAX_DISKS.  This needs to be much more than the largest
- * number of devices any metadata can support.  Currently
- * v1.x can support 1920
- */
-#define MAX_DISKS	4096
-
-/* Sometimes the 'size' value passed needs to mean "Maximum".
- * In those cases with use MAX_SIZE
- */
-#define MAX_SIZE	1
-
-/* We want to use unsigned numbers for sector counts, but need
- * a value for 'invalid'.  Use '1'.
- */
-#define INVALID_SECTORS 1
-/* And another special number needed for --data_offset=variable */
-#define VARIABLE_OFFSET 3

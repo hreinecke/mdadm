@@ -25,6 +25,7 @@
 #include "mdadm.h"
 #include "xmalloc.h"
 #include "debug.h"
+#include "mapfile.h"
 #include "policy.h"
 #include "config.h"
 #include <dirent.h>
