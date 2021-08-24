@@ -66,6 +66,14 @@ int mdadm_examine(struct mddev_dev *devlist,
 		int spares;
 	} *arrays = NULL;
 
+	if (devlist == NULL)
+		devlist = conf_get_devs();
+	if (devlist == NULL) {
+		pr_err("No devices listed in %s\n",
+		       mdlib_get_conffile());
+		return 1;
+	}
+
 	for (; devlist ; devlist = devlist->next) {
 		struct supertype *st;
 		int have_container = 0;
