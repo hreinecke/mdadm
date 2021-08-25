@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
 	int opt;
 	int option_index;
 	int rv;
-	int i;
 
 	unsigned long long array_size = 0;
 	struct mddev_ident ident;
@@ -427,8 +426,7 @@ int main(int argc, char *argv[])
 				pr_err("metadata information already given\n");
 				exit(2);
 			}
-			for(i = 0; !ss && superlist[i]; i++)
-				ss = superlist[i]->match_metadata_desc(optarg);
+			ss = mdadm_lookup_supertype(optarg);
 			if (!ss) {
 				pr_err("unrecognised metadata identifier: %s\n", optarg);
 				exit(2);
@@ -768,9 +766,7 @@ int main(int argc, char *argv[])
 					pr_err("must not set metadata type with --update=byteorder.\n");
 					exit(2);
 				}
-				for(i = 0; !ss && superlist[i]; i++)
-					ss = superlist[i]->match_metadata_desc(
-						"0.swap");
+				ss = mdadm_lookup_supertype("0.swap");
 				if (!ss) {
 					pr_err("INTERNAL ERROR cannot find 0.swap\n");
 					exit(2);
