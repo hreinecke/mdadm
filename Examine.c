@@ -143,7 +143,7 @@ int mdadm_examine(struct mddev_dev *devlist,
 					break;
 			}
 			if (!ap) {
-				ap = xmalloc(sizeof(*ap));
+				ap = malloc(sizeof(*ap));
 				ap->devs = dl_head();
 				ap->next = arrays;
 				ap->spares = 0;

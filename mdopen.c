@@ -69,7 +69,7 @@ void make_parts(char *dev, int cnt)
 		minor_num = -1;
 	} else
 		return;
-	name = xmalloc(nlen);
+	name = malloc(nlen);
 	for (i = 1; i <= cnt ; i++) {
 		struct stat stb2;
 		snprintf(name, nlen, "%s%s%d", dev, dig?"p":"", i);

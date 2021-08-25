@@ -151,10 +151,10 @@ OBJS =  mdadm.o config.o policy.o mdstat.o  ReadMe.o uuid.o util.o maps.o lib.o 
 	Incremental.o Dump.o \
 	mdopen.o super0.o super1.o super-ddf.o super-intel.o bitmap.o \
 	super-mbr.o super-gpt.o \
-	restripe.o sysfs.o sha1.o mapfile.o crc32.o sg_io.o msg.o xmalloc.o \
+	restripe.o sysfs.o sha1.o mapfile.o crc32.o sg_io.o msg.o \
 	platform-intel.o probe_roms.o crc32c.o
 
-CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o xmalloc.o dlink.o
+CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o dlink.o
 
 SRCS =  $(patsubst %.o,%.c,$(OBJS))
 
@@ -164,7 +164,7 @@ MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	policy.o lib.o config.o mapfile.o \
 	Kill.o sg_io.o dlink.o ReadMe.o super-intel.o \
 	super-mbr.o super-gpt.o \
-	super-ddf.o sha1.o crc32.o msg.o bitmap.o xmalloc.o \
+	super-ddf.o sha1.o crc32.o msg.o bitmap.o \
 	platform-intel.o probe_roms.o crc32c.o
 
 MON_SRCS = $(patsubst %.o,%.c,$(MON_OBJS))
@@ -219,8 +219,8 @@ mdmon : $(MON_OBJS) | check_rundir
 	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) $(LDLIBS)
 msg.o: msg.c msg.h
 
-test_stripe : restripe.c xmalloc.o mdadm.h
-	$(CC) $(CFLAGS) $(CXFLAGS) $(LDFLAGS) -o test_stripe xmalloc.o  -DMAIN restripe.c
+test_stripe : restripe.c mdadm.h
+	$(CC) $(CFLAGS) $(CXFLAGS) $(LDFLAGS) -o test_stripe  -DMAIN restripe.c
 
 raid6check : raid6check.o mdadm.h $(CHECK_OBJS)
 	$(CC) $(CXFLAGS) $(LDFLAGS) -o raid6check raid6check.o $(CHECK_OBJS)

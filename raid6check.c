@@ -316,30 +316,30 @@ int check_stripes(struct mdinfo *info, int *source, unsigned long long *offsets,
 	char *stripe_buf;
 
 	/* stripes[] is indexed by raid_disk and holds chunks from each device */
-	char **stripes = xmalloc(raid_disks * sizeof(char*));
+	char **stripes = malloc(raid_disks * sizeof(char*));
 
 	/* blocks[] is indexed by syndrome number and points to either one of the
 	 * chunks from 'stripes[]', or to a chunk of zeros. -1 and -2 are
 	 * P and Q */
-	char **blocks = xmalloc((syndrome_disks + 2) * sizeof(char*));
+	char **blocks = malloc((syndrome_disks + 2) * sizeof(char*));
 
 	/* blocks_page[] is a temporary index to just one page of the chunks
 	 * that blocks[] points to. */
-	char **blocks_page = xmalloc((syndrome_disks + 2) * sizeof(char*));
+	char **blocks_page = malloc((syndrome_disks + 2) * sizeof(char*));
 
 	/* block_index_for_slot[] provides the reverse mapping from blocks to stripes.
 	 * The index is a syndrome position, the content is a raid_disk number.
 	 * indicies -1 and -2 work, and are P and Q disks */
-	int *block_index_for_slot = xmalloc((syndrome_disks+2) * sizeof(int));
+	int *block_index_for_slot = malloc((syndrome_disks+2) * sizeof(int));
 
 	/* 'p' and 'q' contain calcualted P and Q, to be compared with
 	 * blocks[-1] and blocks[-2];
 	 */
-	uint8_t *p = xmalloc(chunk_size);
-	uint8_t *q = xmalloc(chunk_size);
-	char *zero = xmalloc(chunk_size);
-	int *results = xmalloc(chunk_size * sizeof(int));
-	sighandler_t *sig = xmalloc(3 * sizeof(sighandler_t));
+	uint8_t *p = malloc(chunk_size);
+	uint8_t *q = malloc(chunk_size);
+	char *zero = malloc(chunk_size);
+	int *results = malloc(chunk_size * sizeof(int));
+	sighandler_t *sig = malloc(3 * sizeof(sighandler_t));
 
 	int i, j;
 	int diskP, diskQ, diskD;
@@ -664,10 +664,10 @@ int main(int argc, char *argv[])
 		length = (info->component_size * 512) / chunk_size - start;
 	}
 
-	disk_name = xmalloc(raid_disks * sizeof(*disk_name));
-	fds = xmalloc(raid_disks * sizeof(*fds));
-	offsets = xcalloc(raid_disks, sizeof(*offsets));
-	buf = xmalloc(raid_disks * chunk_size);
+	disk_name = malloc(raid_disks * sizeof(*disk_name));
+	fds = malloc(raid_disks * sizeof(*fds));
+	offsets = calloc(raid_disks, sizeof(*offsets));
+	buf = malloc(raid_disks * chunk_size);
 
 	for(i=0; i<raid_disks; i++) {
 		fds[i] = -1;

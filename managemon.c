@@ -151,7 +151,7 @@ static void free_aa(struct active_array *aa)
 
 static struct active_array *duplicate_aa(struct active_array *aa)
 {
-	struct active_array *newa = xmalloc(sizeof(*newa));
+	struct active_array *newa = malloc(sizeof(*newa));
 	struct mdinfo **dp1, **dp2;
 
 	*newa = *aa;
@@ -166,7 +166,7 @@ static struct active_array *duplicate_aa(struct active_array *aa)
 		if ((*dp1)->state_fd < 0)
 			continue;
 
-		d = xmalloc(sizeof(*d));
+		d = malloc(sizeof(*d));
 		*d = **dp1;
 		*dp2 = d;
 		dp2 = & d->next;
@@ -373,7 +373,7 @@ static void manage_container(struct mdstat_ent *mdstat,
 				    di->disk.minor == cd->disk.minor)
 					break;
 			if (!cd) {
-				struct mdinfo *newd = xmalloc(sizeof(*newd));
+				struct mdinfo *newd = malloc(sizeof(*newd));
 
 				*newd = *di;
 				add_disk_to_container(container, newd);
@@ -558,7 +558,7 @@ static void manage_member(struct mdstat_ent *mdstat,
 		for (d = newdev; d ; d = d->next) {
 			struct mdinfo *newd;
 
-			newd = xmalloc(sizeof(*newd));
+			newd = malloc(sizeof(*newd));
 			if (sysfs_add_disk(&newa->info, d, 0) < 0) {
 				free(newd);
 				continue;
@@ -615,7 +615,7 @@ static void manage_member(struct mdstat_ent *mdstat,
 				if (!newa)
 					break;
 			}
-			newd = xmalloc(sizeof(*newd));
+			newd = malloc(sizeof(*newd));
 			disk_init_and_add(newd, d, newa);
 		}
 		if (sysfs_get_ll(info, NULL, "array_size", &array_size) == 0 &&
@@ -682,7 +682,7 @@ static void manage_new(struct mdstat_ent *mdstat,
 
 	if (!mdi)
 		return;
-	new = xcalloc(1, sizeof(*new));
+	new = calloc(1, sizeof(*new));
 
 	strcpy(new->info.sys_name, mdstat->devnm);
 
@@ -697,7 +697,7 @@ static void manage_new(struct mdstat_ent *mdstat,
 	new->info.component_size = mdi->component_size;
 
 	for (i = 0; i < new->info.array.raid_disks; i++) {
-		struct mdinfo *newd = xmalloc(sizeof(*newd));
+		struct mdinfo *newd = malloc(sizeof(*newd));
 
 		for (di = mdi->devs; di; di = di->next)
 			if (i == di->disk.raid_disk)
@@ -836,7 +836,7 @@ static void handle_message(struct supertype *container, struct metadata_update *
 		manage(mdstat, container);
 		free_mdstat(mdstat);
 	} else if (!sigterm) {
-		mu = xmalloc(sizeof(*mu));
+		mu = malloc(sizeof(*mu));
 		mu->len = msg->len;
 		mu->buf = msg->buf;
 		msg->buf = NULL;

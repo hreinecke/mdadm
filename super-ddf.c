@@ -1058,7 +1058,7 @@ static int load_ddf_local(int fd, struct ddf_super *super,
 		     super->active->data_section_offset,
 		     super->active->data_section_length,
 		     0);
-	dl->devname = devname ? xstrdup(devname) : NULL;
+	dl->devname = devname ? strdup(devname) : NULL;
 
 	fstat(fd, &stb);
 	dl->major = major(stb.st_rdev);
@@ -1294,7 +1294,7 @@ static struct supertype *match_metadata_desc_ddf(char *arg)
 		)
 		return NULL;
 
-	st = xcalloc(1, sizeof(*st));
+	st = calloc(1, sizeof(*st));
 	st->ss = &super_ddf;
 	st->max_devs = 512;
 	st->minor_version = 0;
@@ -2525,7 +2525,7 @@ static struct extent *get_extents(struct ddf_super *ddf, struct dl *dl)
 	if ((state & (DDF_Online|DDF_Failed|DDF_Missing)) != DDF_Online)
 		return NULL;
 
-	rv = xmalloc(sizeof(struct extent) * (ddf->max_part + 2));
+	rv = malloc(sizeof(struct extent) * (ddf->max_part + 2));
 
 	for (i = 0; i < ddf->max_part; i++) {
 		const struct vd_config *bvd;
@@ -2914,7 +2914,7 @@ static int add_to_super_ddf(struct supertype *st,
 			   sizeof(struct phys_disk_entry));
 		struct phys_disk *pd;
 
-		pd = xmalloc(len);
+		pd = malloc(len);
 		pd->magic = DDF_PHYS_RECORDS_MAGIC;
 		pd->used_pdes = cpu_to_be16(n);
 		pde = &pd->entries[0];
@@ -2991,7 +2991,7 @@ static int remove_from_super_ddf(struct supertype *st, mdu_disk_info_t *dk)
 			   sizeof(struct phys_disk_entry));
 		struct phys_disk *pd;
 
-		pd = xmalloc(len);
+		pd = malloc(len);
 		pd->magic = DDF_PHYS_RECORDS_MAGIC;
 		pd->used_pdes = cpu_to_be16(dl->pdnum);
 		pd->entries[0].state = cpu_to_be16(DDF_Missing);
@@ -3212,7 +3212,7 @@ static int write_init_super_ddf(struct supertype *st)
 
 		/* First the virtual disk.  We have a slightly fake header */
 		len = sizeof(struct virtual_disk) + sizeof(struct virtual_entry);
-		vd = xmalloc(len);
+		vd = malloc(len);
 		*vd = *ddf->virt;
 		vd->entries[0] = ddf->virt->entries[currentconf->vcnum];
 		vd->populated_vdes = cpu_to_be16(currentconf->vcnum);
@@ -3221,7 +3221,7 @@ static int write_init_super_ddf(struct supertype *st)
 		/* Then the vd_config */
 		len = ddf->conf_rec_len * 512;
 		tlen = len * currentconf->conf.sec_elmnt_count;
-		vc = xmalloc(tlen);
+		vc = malloc(tlen);
 		memcpy(vc, &currentconf->conf, len);
 		for (i = 1; i < currentconf->conf.sec_elmnt_count; i++)
 			memcpy((char *)vc + i*len, currentconf->other_bvds[i-1],
@@ -3770,7 +3770,7 @@ static struct mdinfo *container_content_ddf(struct supertype *st, char *subarray
 				continue;
 		}
 
-		this = xcalloc(1, sizeof(*this));
+		this = calloc(1, sizeof(*this));
 		this->next = rest;
 		rest = this;
 
@@ -3842,7 +3842,7 @@ static struct mdinfo *container_content_ddf(struct supertype *st, char *subarray
 				/* Haven't found that one yet, maybe there are others */
 				continue;
 
-			dev = xcalloc(1, sizeof(*dev));
+			dev = calloc(1, sizeof(*dev));
 			dev->next	 = this->devs;
 			this->devs	 = dev;
 
@@ -4197,7 +4197,7 @@ static int get_bvd_state(const struct ddf_super *ddf,
 	unsigned int i, n_bvd, working = 0;
 	unsigned int n_prim = be16_to_cpu(vc->prim_elmnt_count);
 	int pd, st, state;
-	char *avail = xcalloc(1, n_prim);
+	char *avail = calloc(1, n_prim);
 	mdu_array_info_t array;
 
 	layout_ddf2md(vc, &array);
@@ -4474,7 +4474,7 @@ static int kill_subarray_ddf(struct supertype *st, char *subarray_id)
 		struct virtual_disk *vd;
 		int len = sizeof(struct virtual_disk)
 			+ sizeof(struct virtual_entry);
-		vd = xmalloc(len);
+		vd = malloc(len);
 		if (vd == NULL) {
 			pr_err("failed to allocate %d bytes\n", len);
 			return -1;
@@ -4903,7 +4903,7 @@ static int raid10_degraded(struct mdinfo *info)
 
 	n_prim = info->array.layout & ~0x100;
 	n_bvds = info->array.raid_disks / n_prim;
-	found = xmalloc(n_bvds);
+	found = malloc(n_bvds);
 	if (found == NULL)
 		return ret;
 	memset(found, 0, n_bvds);
@@ -5090,7 +5090,7 @@ static struct mdinfo *ddf_activate_spare(struct active_array *a,
 			}
 
 			/* Cool, we have a device with some space at pos */
-			di = xcalloc(1, sizeof(*di));
+			di = calloc(1, sizeof(*di));
 			di->disk.number = i;
 			di->disk.raid_disk = i;
 			di->disk.major = dl->major;
@@ -5127,14 +5127,14 @@ static struct mdinfo *ddf_activate_spare(struct active_array *a,
 	if (vc == NULL)
 		return NULL;
 
-	mu = xmalloc(sizeof(*mu));
+	mu = malloc(sizeof(*mu));
 	if (posix_memalign(&mu->space, 512, sizeof(struct vcl)) != 0) {
 		free(mu);
 		mu = NULL;
 	}
 
 	mu->len = ddf->conf_rec_len * 512 * vcl->conf.sec_elmnt_count;
-	mu->buf = xmalloc(mu->len);
+	mu->buf = malloc(mu->len);
 	mu->space = NULL;
 	mu->space_list = NULL;
 	mu->next = *updates;

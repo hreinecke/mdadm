@@ -43,7 +43,7 @@
 static void pol_new(struct dev_policy **pol, char *name, const char *val,
 		    const char *metadata)
 {
-	struct dev_policy *n = xmalloc(sizeof(*n));
+	struct dev_policy *n = malloc(sizeof(*n));
 	const char *real_metadata = NULL;
 	int i;
 
@@ -199,7 +199,7 @@ static char **disk_paths(struct mdinfo *disk)
 	int cnt = 0;
 	struct dirent *ent;
 
-	paths = xmalloc(sizeof(*paths) * (cnt+1));
+	paths = malloc(sizeof(*paths) * (cnt+1));
 
 	by_path = opendir(symlink);
 	if (by_path) {
@@ -216,8 +216,8 @@ static char **disk_paths(struct mdinfo *disk)
 				continue;
 			if (stb.st_rdev != makedev(disk->disk.major, disk->disk.minor))
 				continue;
-			paths[cnt++] = xstrdup(ent->d_name);
-			paths = xrealloc(paths, sizeof(*paths) * (cnt+1));
+			paths[cnt++] = strdup(ent->d_name);
+			paths = realloc(paths, sizeof(*paths) * (cnt+1));
 		}
 		closedir(by_path);
 	}
@@ -467,10 +467,10 @@ static int try_rule(char *w, char *name, struct rule **rp)
 	if (strncmp(w, name, len) != 0 ||
 	    w[len] != '=')
 		return 0;
-	r = xmalloc(sizeof(*r));
+	r = malloc(sizeof(*r));
 	r->next = *rp;
 	r->name = name;
-	r->value = xstrdup(w+len+1);
+	r->value = strdup(w+len+1);
 	r->dups = NULL;
 	*rp = r;
 	return 1;
@@ -484,7 +484,7 @@ void policyline(char *line, char *type)
 	if (config_rules_end == NULL)
 		config_rules_end = &config_rules;
 
-	pr = xmalloc(sizeof(*pr));
+	pr = malloc(sizeof(*pr));
 	pr->type = type;
 	pr->rule = NULL;
 	for (w = dl_next(line); w != line ; w = dl_next(w)) {
@@ -508,7 +508,7 @@ void policy_add(char *type, ...)
 	struct pol_rule *pr;
 	char *name, *val;
 
-	pr = xmalloc(sizeof(*pr));
+	pr = malloc(sizeof(*pr));
 	pr->type = type;
 	pr->rule = NULL;
 
@@ -517,10 +517,10 @@ void policy_add(char *type, ...)
 		struct rule *r;
 
 		val = va_arg(ap, char*);
-		r = xmalloc(sizeof(*r));
+		r = malloc(sizeof(*r));
 		r->next = pr->rule;
 		r->name = name;
-		r->value = xstrdup(val);
+		r->value = strdup(val);
 		r->dups = NULL;
 		pr->rule = r;
 	}
@@ -633,7 +633,7 @@ static struct domainlist **domain_merge_one(struct domainlist **domp,
 		dom = *domp;
 	}
 	if (dom == NULL || strcmp(dom->dom, domain) != 0) {
-		dom = xmalloc(sizeof(*dom));
+		dom = malloc(sizeof(*dom));
 		dom->next = *domp;
 		dom->dom = domain;
 		*domp = dom;
