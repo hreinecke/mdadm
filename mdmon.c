@@ -563,7 +563,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 	}
 
 	setsid();
-	manage_fork_fds(0);
+	mdlib_manage_fork_fds(0);
 
 	/* This silliness is to stop the compiler complaining
 	 * that we ignore 'ignore'

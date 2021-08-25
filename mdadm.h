@@ -1430,7 +1430,7 @@ extern int is_standard(char *dev, int *nump);
 extern int same_dev(char *one, char *two);
 extern int compare_paths (char* path1,char* path2);
 extern void enable_fds(int devices);
-extern void manage_fork_fds(int close_all);
+extern void mdlib_manage_fork_fds(int close_all);
 extern int continue_via_systemd(char *devnm, char *service_name);
 
 extern int mdadm_parse_auto(char *str, char *msg, int config);

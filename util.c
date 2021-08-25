@@ -2008,7 +2008,7 @@ int start_mdmon(char *devnm)
 
 	switch(fork()) {
 	case 0:
-		manage_fork_fds(1);
+		mdlib_manage_fork_fds(1);
 		for (i = 0; paths[i]; i++)
 			if (paths[i][0]) {
 				execl(paths[i], paths[i],
@@ -2220,7 +2220,7 @@ void enable_fds(int devices)
  *	1- if any error occurred
  *	0- otherwise
  */
-void manage_fork_fds(int close_all)
+void mdlib_manage_fork_fds(int close_all)
 {
 	DIR *dir;
 	struct dirent *dirent;
@@ -2270,7 +2270,7 @@ int continue_via_systemd(char *devnm, char *service_name)
 		return 0;
 	switch (fork()) {
 	case  0:
-		manage_fork_fds(1);
+		mdlib_manage_fork_fds(1);
 		snprintf(pathbuf, sizeof(pathbuf),
 			 "%s@%s.service", service_name, devnm);
 		status = execl("/usr/bin/systemctl", "systemctl", "restart",
