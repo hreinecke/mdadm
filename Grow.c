@@ -25,12 +25,49 @@
 #include	"mdadm_internal.h"
 #include	"bitmap.h"
 #include	"dlink.h"
+#include	"debug.h"
+#include	"bswap.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"restripe.h"
+#include	"reshape.h"
+#include	"lib.h"
+#include	"mapfile.h"
 #include	<sys/mman.h>
 #include	<stddef.h>
 #include	<stdint.h>
 #include	<signal.h>
 #include	<sys/wait.h>
 
+#ifndef GROW_SERVICE
+#define GROW_SERVICE "mdadm-grow-continue"
+#endif /* GROW_SERVICE */
+
+/*
+  * Check at compile time that something is of a particular type.
+  * Always evaluates to 1 so you may use it easily in comparisons.
+*/
+
+#define typecheck(type,x) \
+({	   type __dummy; \
+	   typeof(x) __dummy2; \
+	   (void)(&__dummy == &__dummy2); \
+	   1; \
+})
+
+/*
+ *  These inlines deal with timer wrapping correctly.
+ *
+ * time_after(a,b) returns true if the time a is after time b.
+*/
+
+#define time_after(a,b)	\
+        (typecheck(unsigned int, a) && \
+         typecheck(unsigned int, b) && \
+         ((int)((b) - (a)) < 0))
+
+#define time_before(a,b)        time_after(b,a)
 
 char *make_backup(char *name);
 

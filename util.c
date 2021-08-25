@@ -24,7 +24,15 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
 #include	"dlm.h"
+#include	"bswap.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"uuid.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>
@@ -37,6 +45,9 @@
 #include	<signal.h>
 #include	<dlfcn.h>
 
+#ifndef MDMON_SERVICE
+#define MDMON_SERVICE "mdmon"
+#endif /* MDMON_SERVICE */
 
 /*
  * following taken from linux/blkpg.h because they aren't
@@ -81,6 +92,9 @@ struct blkpg_partition {
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+
+#define	ModeMask	0x1f
+#define	ModeShift	5
 
 static int is_dlm_hooks_ready = 0;
 

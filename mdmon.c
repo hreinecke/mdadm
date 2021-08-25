@@ -69,6 +69,12 @@
 #include	"mdadm.h"
 #include	"mdadm_exec.h"
 #include	"mdmon.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"restripe.h"
+#include	"reshape.h"
 
 static char const mdmon_name[] = "mdmon";
 
@@ -270,11 +276,12 @@ static void wake_me(int sig)
 /* if we are debugging and starting mdmon by hand then don't fork */
 static int do_fork(void)
 {
-	#ifdef DEBUG
-	if (check_env("MDADM_NO_MDMON"))
-		return 0;
-	#endif
+#ifdef DEBUG
+	const char *val = getenv("MDADM_NO_MON");
 
+	if (val && val[0] == '1')
+		return 0;
+#endif
 	return 1;
 }
 
@@ -576,15 +583,6 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 	exit(0);
 }
 
-/* Some stub functions so super-* can link with us */
-int child_monitor(int afd, struct mdinfo *sra, struct reshape *reshape,
-		  struct supertype *st, unsigned long blocks,
-		  int *fds, unsigned long long *offsets,
-		  int dests, int *destfd, unsigned long long *destoffsets)
-{
-	return 0;
-}
-
 int restore_stripes(int *dest, unsigned long long *offsets,
 		    int raid_disks, int chunk_size, int level, int layout,
 		    int source, unsigned long long read_offset,
@@ -602,10 +600,3 @@ int save_stripes(int *source, unsigned long long *offsets,
 {
 	return 0;
 }
-
-struct superswitch super0 = {
-	.name = "0.90",
-};
-struct superswitch super1 = {
-	.name = "1.x",
-};

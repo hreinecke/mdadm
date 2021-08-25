@@ -24,6 +24,9 @@
 
 #include	"mdadm.h"
 #include	"dlink.h"
+#include	"debug.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<ctype.h>
 
 const char *Name;
@@ -234,20 +237,20 @@ int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s)
 
 #ifndef HAVE_NFTW
 #ifdef HAVE_FTW
-int add_dev_1(const char *name, const struct stat *stb, int flag)
+static int add_dev_1(const char *name, const struct stat *stb, int flag)
 {
 	return add_dev(name, stb, flag, NULL);
 }
-int nftw(const char *path,
-	 int (*han)(const char *name, const struct stat *stb,
-		    int flag, struct FTW *s), int nopenfd, int flags)
+static int nftw(const char *path,
+		int (*han)(const char *name, const struct stat *stb,
+			   int flag, struct FTW *s), int nopenfd, int flags)
 {
 	return ftw(path, add_dev_1, nopenfd);
 }
 #else
-int nftw(const char *path,
-	 int (*han)(const char *name, const struct stat *stb,
-		    int flag, struct FTW *s), int nopenfd, int flags)
+static int nftw(const char *path,
+		int (*han)(const char *name, const struct stat *stb,
+			   int flag, struct FTW *s), int nopenfd, int flags)
 {
 	return 0;
 }

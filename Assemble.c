@@ -24,6 +24,15 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"super.h"
+#include	"sysfs.h"
+#include	"uuid.h"
+#include	"mapfile.h"
+#include	"policy.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<ctype.h>
 
 /**

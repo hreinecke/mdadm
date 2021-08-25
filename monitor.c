@@ -21,6 +21,9 @@
 #include "mdadm.h"
 #include "mdadm_internal.h"
 #include "mdmon.h"
+#include "debug.h"
+#include "sysfs.h"
+#include "super.h"
 #include <sys/syscall.h>
 #include <sys/select.h>
 #include <signal.h>

@@ -158,12 +158,14 @@ CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o dlink.o
 
 SRCS =  $(patsubst %.o,%.c,$(OBJS))
 
-INCL = mdadm.h mdadm_internal.h part.h bitmap.h
+INCL = mdadm.h mdadm_internal.h part.h bitmap.h bswap.h config.h debug.h \
+	lib.h mapfile.h mdstat.h policy.h reshape.h restripe.h super.h \
+	sysfs.h uuid.h
 
 MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
 	policy.o lib.o config.o mapfile.o \
 	Kill.o sg_io.o dlink.o ReadMe.o super-intel.o \
-	super-mbr.o super-gpt.o \
+	super0.o super1.o super-mbr.o super-gpt.o \
 	super-ddf.o sha1.o crc32.o msg.o bitmap.o \
 	platform-intel.o probe_roms.o crc32c.o
 

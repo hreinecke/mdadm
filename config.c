@@ -24,6 +24,13 @@
 
 #include	"mdadm.h"
 #include	"dlink.h"
+#include	"debug.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"mdstat.h"
+#include	"uuid.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<dirent.h>
 #include	<glob.h>
 #include	<fnmatch.h>

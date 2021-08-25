@@ -27,7 +27,12 @@
 
 #include "mdadm.h"
 #include "mdadm_exec.h"
+#include "debug.h"
+#include "mdstat.h"
+#include "sysfs.h"
 #include <ctype.h>
+
+#define SYSLOG_FACILITY LOG_DAEMON
 
 static int misc_list(struct mddev_dev *devlist,
 		     struct mddev_ident *ident,

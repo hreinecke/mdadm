@@ -25,6 +25,13 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"bitmap.h"
+#include	"debug.h"
+#include	"super.h"
+#include	"sysfs.h"
+#include	"uuid.h"
+#include	"config.h"
+#include	"lib.h"
+#include	"mapfile.h"
 #include	<ctype.h>
 
 static int round_size_and_verify(unsigned long long *size, int chunk)

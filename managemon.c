@@ -105,6 +105,10 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"mdmon.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
 #include	<sys/syscall.h>
 #include	<sys/socket.h>
 #include	<signal.h>

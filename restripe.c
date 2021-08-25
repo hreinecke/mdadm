@@ -23,6 +23,7 @@
  */
 
 #include "mdadm.h"
+#include "debug.h"
 #include <stdint.h>
 
 /* To restripe, we read from old geometry to a buffer, and

@@ -25,6 +25,9 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"dlink.h"
+#include	"debug.h"
+#include	"super.h"
+#include	"config.h"
 
 int mdadm_examine(struct mddev_dev *devlist,
 		  struct context *c,

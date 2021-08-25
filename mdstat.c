@@ -81,6 +81,7 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"dlink.h"
+#include	"config.h"
 #include	<sys/select.h>
 #include	<ctype.h>
 

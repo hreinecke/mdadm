@@ -26,7 +26,13 @@
 #include "mdadm.h"
 #include "mdadm_internal.h"
 #include "bitmap.h"
+#include "debug.h"
+#include "bswap.h"
+#include "super.h"
+#include "uuid.h"
 #include "sha1.h"
+#include "lib.h"
+
 /*
  * All handling for the 0.90.0 version superblock is in
  * this file.

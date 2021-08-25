@@ -24,6 +24,13 @@
 
 #include "mdadm.h"
 #include "mdadm_internal.h"
+#include "debug.h"
+#include "mdstat.h"
+#include "sysfs.h"
+#include "super.h"
+#include "config.h"
+#include "mapfile.h"
+#include "lib.h"
 #include <ctype.h>
 
 int mdadm_manage_ro(char *devname, int fd, int readonly)

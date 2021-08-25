@@ -44,6 +44,11 @@
  */
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<sys/file.h>
 #include	<ctype.h>
 

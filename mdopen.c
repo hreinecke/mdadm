@@ -24,6 +24,11 @@
 
 #include "mdadm.h"
 #include "mdadm_internal.h"
+#include "debug.h"
+#include "mdstat.h"
+#include "config.h"
+#include "lib.h"
+#include "mapfile.h"
 #include <ctype.h>
 
 static char *find_free_devnm(int use_partitions);
