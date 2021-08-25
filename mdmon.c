@@ -482,8 +482,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 		exit(3);
 	}
 
-	container->ss = version_to_superswitch(mdi->text_version);
-	if (container->ss == NULL) {
+	if (mdadm_set_metadata_handler(container, mdi->text_version)) {
 		pr_err("%s uses unsupported metadata: %s\n",
 			devnm, mdi->text_version);
 		exit(3);
