@@ -27,7 +27,12 @@
 
 #include "mdadm.h"
 #include "mdadm_exec.h"
+#include "debug.h"
+#include "mdstat.h"
+#include "sysfs.h"
 #include <ctype.h>
+
+#define SYSLOG_FACILITY LOG_DAEMON
 
 static int misc_list(struct mddev_dev *devlist,
 		     struct mddev_ident *ident,
@@ -1339,7 +1344,7 @@ int main(int argc, char *argv[])
 				exit(1);
 			}
 
-			if (!ret && !stat_is_md_dev(&stb)) {
+			if (!ret && !mdlib_stat_is_md_dev(&stb)) {
 				pr_err("device %s exists but is not an md array.\n", devlist->devname);
 				exit(1);
 			}

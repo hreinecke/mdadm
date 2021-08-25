@@ -20,18 +20,18 @@
 struct mdinfo;
 struct metadata_update;
 
-extern int receive_message(int fd, struct metadata_update *msg, int tmo);
-extern int send_message(int fd, struct metadata_update *msg, int tmo);
-extern int ack(int fd, int tmo);
-extern int wait_reply(int fd, int tmo);
-extern int connect_monitor(char *devname);
-extern int ping_monitor(char *devname);
-extern int block_subarray(struct mdinfo *sra);
-extern int unblock_subarray(struct mdinfo *sra, const int unfreeze);
-extern int block_monitor(char *container, const int freeze);
-extern void unblock_monitor(char *container, const int unfreeze);
-extern int fping_monitor(int sock);
-extern int ping_manager(char *devname);
-extern void flush_mdmon(char *container);
+int receive_message(int fd, struct metadata_update *msg, int tmo);
+int send_message(int fd, struct metadata_update *msg, int tmo);
+int ack(int fd, int tmo);
+int wait_reply(int fd, int tmo);
+int connect_monitor(char *devname);
+int ping_monitor(char *devname);
+int block_subarray(struct mdinfo *sra);
+int unblock_subarray(struct mdinfo *sra, const int unfreeze);
+int block_monitor(char *container, const int freeze);
+void unblock_monitor(char *container, const int unfreeze);
+int fping_monitor(int sock);
+int ping_manager(char *devname);
+void flush_mdmon(char *container);
 
 #define MSG_MAX_LEN (4*1024*1024)

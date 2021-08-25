@@ -24,11 +24,23 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"mapfile.h"
+#include	"policy.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<sys/wait.h>
 #include	<limits.h>
 #include	<syslog.h>
 #ifndef NO_LIBUDEV
 #include	<libudev.h>
+#endif
+
+#ifndef Sendmail
+#define Sendmail "/usr/lib/sendmail -t"
 #endif
 
 struct state {

@@ -7,6 +7,63 @@
 #define	FOREIGN	2
 #define	METADATA 3
 
+/**
+ * is_fd_valid() - check file descriptor.
+ * @fd: file descriptor.
+ *
+ * The function checks if @fd is nonnegative integer and shall be used only
+ * to verify open() result.
+ */
+static inline int is_fd_valid(int fd)
+{
+	return (fd > -1);
+}
+
+/**
+ * is_level456() - check whether given level is between inclusive 4 and 6.
+ * @level: level to check.
+ *
+ * Return: true if condition is met, false otherwise
+ */
+static inline bool is_level456(int level)
+{
+	return (level >= 4 && level <= 6);
+}
+
+/**
+ * close_fd() - verify, close and unset file descriptor.
+ * @fd: pointer to file descriptor.
+ *
+ * The function closes and invalidates file descriptor if appropriative. It
+ * ignores incorrect file descriptor quitely to simplify error handling.
+ */
+static inline void close_fd(int *fd)
+{
+	if (is_fd_valid(*fd) && close(*fd) == 0)
+		*fd = -1;
+}
+
+/**
+ * signal_s() - Wrapper for sigaction() with signal()-like interface.
+ * @sig: The signal to set the signal handler to.
+ * @handler: The signal handler.
+ *
+ * Return: previous handler or SIG_ERR on failure.
+ */
+static inline sighandler_t signal_s(int sig, sighandler_t handler)
+{
+	struct sigaction new_act;
+	struct sigaction old_act;
+
+	new_act.sa_handler = handler;
+	new_act.sa_flags = 0;
+
+	if (sigaction(sig, &new_act, &old_act) == 0)
+		return old_act.sa_handler;
+
+	return SIG_ERR;
+}
+
 /* util.c */
 int zero_disk_range(int fd, unsigned long long sector, size_t count);
 int is_near_layout_10(int layout);

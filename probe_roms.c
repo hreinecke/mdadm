@@ -21,6 +21,8 @@
 
 #include "probe_roms.h"
 #include "mdadm.h"
+#include "mdadm_internal.h"
+#include "bswap.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>

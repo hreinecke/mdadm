@@ -105,6 +105,10 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"mdmon.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
 #include	<sys/syscall.h>
 #include	<sys/socket.h>
 
@@ -208,7 +212,7 @@ static void replace_array(struct supertype *container,
 	remove_old();
 	while (pending_discard) {
 		while (discard_this == NULL)
-			sleep_for(1, 0, true);
+			mdlib_sleep_for(1, 0, true);
 		remove_old();
 	}
 	pending_discard = old;
@@ -569,7 +573,7 @@ static void manage_member(struct mdstat_ent *mdstat,
 		updates = NULL;
 		while (update_queue_pending || update_queue) {
 			check_update_queue(container);
-			sleep_for(0, MSEC_TO_NSEC(15), true);
+			mdlib_sleep_for(0, MSEC_TO_NSEC(15), true);
 		}
 		replace_array(container, a, newa);
 		if (sysfs_set_str(&a->info, NULL,
@@ -824,7 +828,7 @@ static void handle_message(struct supertype *container, struct metadata_update *
 	if (msg->len <= 0)
 		while (update_queue_pending || update_queue) {
 			check_update_queue(container);
-			sleep_for(0, MSEC_TO_NSEC(15), true);
+			mdlib_sleep_for(0, MSEC_TO_NSEC(15), true);
 		}
 
 	if (msg->len == 0) { /* ping_monitor */
@@ -838,7 +842,7 @@ static void handle_message(struct supertype *container, struct metadata_update *
 		wakeup_monitor();
 
 		while (monitor_loop_cnt - cnt < 0)
-			sleep_for(0, MSEC_TO_NSEC(10), true);
+			mdlib_sleep_for(0, MSEC_TO_NSEC(10), true);
 	} else if (msg->len == -1) { /* ping_manager */
 		struct mdstat_ent *mdstat = mdstat_read(1, 0);
 

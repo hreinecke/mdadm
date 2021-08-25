@@ -29,7 +29,13 @@
 #include "mdadm.h"
 #include "mdadm_internal.h"
 #include "mdmon.h"
+#include "debug.h"
+#include "bswap.h"
+#include "sysfs.h"
+#include "super.h"
 #include "sha1.h"
+#include "lib.h"
+#include "maps.h"
 #include <values.h>
 #include <stddef.h>
 

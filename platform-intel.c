@@ -18,6 +18,9 @@
  */
 #include "mdadm.h"
 #include "mdadm_internal.h"
+#include "debug.h"
+#include "bswap.h"
+#include "sysfs.h"
 #include "platform-intel.h"
 #include "probe_roms.h"
 #include <stdio.h>

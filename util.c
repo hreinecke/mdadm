@@ -24,7 +24,15 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
 #include	"dlm.h"
+#include	"bswap.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"uuid.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<sys/socket.h>
 #include	<sys/utsname.h>
 #include	<sys/wait.h>
@@ -36,6 +44,9 @@
 #include	<dirent.h>
 #include	<dlfcn.h>
 
+#ifndef MDMON_SERVICE
+#define MDMON_SERVICE "mdmon"
+#endif /* MDMON_SERVICE */
 
 /*
  * following taken from linux/blkpg.h because they aren't
@@ -80,6 +91,9 @@ struct blkpg_partition {
    e.g. in a structure initializer (or where-ever else comma expressions
    aren't permitted). */
 #define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+
+#define	ModeMask	0x1f
+#define	ModeShift	5
 
 static int is_dlm_hooks_ready = 0;
 
@@ -167,7 +181,7 @@ retry:
 		pr_err("error %d when get PW mode on lock %s\n", errno, str);
 		/* let's try several times if EAGAIN happened */
 		if (dlm_lock_res->lksb.sb_status == EAGAIN && retry_count < 10) {
-			sleep_for(10, 0, true);
+			mdlib_sleep_for(10, 0, true);
 			retry_count++;
 			goto retry;
 		}
@@ -1002,42 +1016,6 @@ int get_data_disks(int level, int layout, int raid_disks)
 	return data_disks;
 }
 
-dev_t mdadm_parse_devname(char *devnm)
-{
-	/* First look in /sys/block/$DEVNM/dev for %d:%d
-	 * If that fails, try parsing out a number
-	 */
-	char path[PATH_MAX];
-	char *ep;
-	int fd;
-	int mjr,mnr;
-
-	snprintf(path, sizeof(path), "/sys/block/%s/dev", devnm);
-	fd = open(path, O_RDONLY);
-	if (fd >= 0) {
-		char buf[20];
-		int n = read(fd, buf, sizeof(buf));
-		close(fd);
-		if (n > 0)
-			buf[n] = 0;
-		if (n > 0 && sscanf(buf, "%d:%d\n", &mjr, &mnr) == 2)
-			return makedev(mjr, mnr);
-	}
-	if (strncmp(devnm, "md_d", 4) == 0 &&
-	    isdigit(devnm[4]) &&
-	    (mnr = strtoul(devnm+4, &ep, 10)) >= 0 &&
-	    ep > devnm && *ep == 0)
-		return makedev(get_mdp_major(), mnr << MdpMinorShift);
-
-	if (strncmp(devnm, "md", 2) == 0 &&
-	    isdigit(devnm[2]) &&
-	    (mnr = strtoul(devnm+2, &ep, 10)) >= 0 &&
-	    ep > devnm && *ep == 0)
-		return makedev(MD_MAJOR, mnr);
-
-	return 0;
-}
-
 char *get_md_name(char *devnm)
 {
 	/* find /dev/md%d or /dev/md/%d or make a device /dev/.tmp.md%d */
@@ -1182,7 +1160,7 @@ int open_dev_excl(char *devnm)
 		}
 		if (errno != EBUSY)
 			return fd;
-		sleep_for(0, MSEC_TO_NSEC(delay), true);
+		mdlib_sleep_for(0, MSEC_TO_NSEC(delay), true);
 		if (delay < 200)
 			delay *= 2;
 	}
@@ -1219,7 +1197,7 @@ void wait_for(char *dev, int fd)
 		    (stb.st_mode & S_IFMT) == S_IFBLK &&
 		    (stb.st_rdev == stb_want.st_rdev))
 			return;
-		sleep_for(0, MSEC_TO_NSEC(delay), true);
+		mdlib_sleep_for(0, MSEC_TO_NSEC(delay), true);
 		if (delay < 200)
 			delay *= 2;
 	}
@@ -1919,7 +1897,7 @@ int hot_remove_disk(int mdfd, unsigned long dev, int force)
 	while ((ret = ioctl(mdfd, HOT_REMOVE_DISK, dev)) == -1 &&
 	       errno == EBUSY &&
 	       cnt-- > 0)
-		sleep_for(0, MSEC_TO_NSEC(10), true);
+		mdlib_sleep_for(0, MSEC_TO_NSEC(10), true);
 
 	return ret;
 }
@@ -2479,14 +2457,14 @@ out:
 }
 
 /**
- * sleep_for() - Sleeps for specified time.
+ * mdlib_sleep_for() - Sleeps for specified time.
  * @sec: Seconds to sleep for.
  * @nsec: Nanoseconds to sleep for, has to be less than one second.
  * @wake_after_interrupt: If set, wake up if interrupted.
  *
  * Function immediately returns if error different than EINTR occurs.
  */
-void sleep_for(unsigned int sec, long nsec, bool wake_after_interrupt)
+void mdlib_sleep_for(unsigned int sec, long nsec, bool wake_after_interrupt)
 {
 	struct timespec delay = {.tv_sec = sec, .tv_nsec = nsec};
 

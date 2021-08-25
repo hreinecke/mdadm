@@ -39,6 +39,10 @@
  */
 
 #include "mdadm.h"
+#include "mdadm_internal.h"
+#include "debug.h"
+#include "bswap.h"
+#include "super.h"
 #include "part.h"
 
 static void free_gpt(struct supertype *st)

@@ -26,6 +26,12 @@
 #include "mdadm.h"
 #include "mdadm_internal.h"
 #include "bitmap.h"
+#include "debug.h"
+#include "bswap.h"
+#include "super.h"
+#include "uuid.h"
+#include "config.h"
+#include "lib.h"
 
 /*
  * The version-1 superblock :

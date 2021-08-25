@@ -30,6 +30,13 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
+#include	"mdstat.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"uuid.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<sys/wait.h>
 #include	<dirent.h>
 #include	<ctype.h>

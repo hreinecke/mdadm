@@ -24,6 +24,10 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
+#include	"debug.h"
+#include	"sysfs.h"
+#include	"super.h"
+#include	"mapfile.h"
 
 int mdadm_query(char *dev)
 {

@@ -24,6 +24,9 @@
 
 #include	"mdadm.h"
 #include	"dlink.h"
+#include	"debug.h"
+#include	"config.h"
+#include	"lib.h"
 #include	<ctype.h>
 #include	<limits.h>
 
@@ -192,7 +195,7 @@ char *stat2devnm(struct stat *st)
 	return devid2devnm(st->st_rdev);
 }
 
-bool stat_is_md_dev(struct stat *st)
+bool mdlib_stat_is_md_dev(struct stat *st)
 {
 	if ((S_IFMT & st->st_mode) != S_IFBLK)
 		return false;
@@ -212,6 +215,42 @@ char *fd2devnm(int fd)
 		return stat2devnm(&stb);
 
 	return NULL;
+}
+
+dev_t mdadm_parse_devname(char *devnm)
+{
+	/* First look in /sys/block/$DEVNM/dev for %d:%d
+	 * If that fails, try parsing out a number
+	 */
+	char path[PATH_MAX];
+	char *ep;
+	int fd;
+	int mjr,mnr;
+
+	snprintf(path, sizeof(path), "/sys/block/%s/dev", devnm);
+	fd = open(path, O_RDONLY);
+	if (fd >= 0) {
+		char buf[20];
+		int n = read(fd, buf, sizeof(buf));
+		close(fd);
+		if (n > 0)
+			buf[n] = 0;
+		if (n > 0 && sscanf(buf, "%d:%d\n", &mjr, &mnr) == 2)
+			return makedev(mjr, mnr);
+	}
+	if (strncmp(devnm, "md_d", 4) == 0 &&
+	    isdigit(devnm[4]) &&
+	    (mnr = strtoul(devnm+4, &ep, 10)) >= 0 &&
+	    ep > devnm && *ep == 0)
+		return makedev(get_mdp_major(), mnr << MdpMinorShift);
+
+	if (strncmp(devnm, "md", 2) == 0 &&
+	    isdigit(devnm[2]) &&
+	    (mnr = strtoul(devnm+2, &ep, 10)) >= 0 &&
+	    ep > devnm && *ep == 0)
+		return makedev(MD_MAJOR, mnr);
+
+	return 0;
 }
 
 /* When we create a new array, we don't want the content to
@@ -284,20 +323,20 @@ int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s)
 
 #ifndef HAVE_NFTW
 #ifdef HAVE_FTW
-int add_dev_1(const char *name, const struct stat *stb, int flag)
+static int add_dev_1(const char *name, const struct stat *stb, int flag)
 {
 	return add_dev(name, stb, flag, NULL);
 }
-int nftw(const char *path,
-	 int (*han)(const char *name, const struct stat *stb,
-		    int flag, struct FTW *s), int nopenfd, int flags)
+static int nftw(const char *path,
+		int (*han)(const char *name, const struct stat *stb,
+			   int flag, struct FTW *s), int nopenfd, int flags)
 {
 	return ftw(path, add_dev_1, nopenfd);
 }
 #else
-int nftw(const char *path,
-	 int (*han)(const char *name, const struct stat *stb,
-		    int flag, struct FTW *s), int nopenfd, int flags)
+static int nftw(const char *path,
+		int (*han)(const char *name, const struct stat *stb,
+			   int flag, struct FTW *s), int nopenfd, int flags)
 {
 	return 0;
 }
