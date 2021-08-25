@@ -107,6 +107,9 @@ DVERS = $(if $(VERSION),-DVERSION=\"$(VERSION)\",)
 DDATE = $(if $(VERS_DATE),-DVERS_DATE="\"$(VERS_DATE)\"",)
 DEXTRAVERSION = $(if $(EXTRAVERSION),-DEXTRAVERSION="\" - $(EXTRAVERSION)\"",)
 CFLAGS += $(DVERS) $(DDATE) $(DEXTRAVERSION)
+LIB_VERS = $(shell [ -d .git ] && git describe HEAD | cut -f 2 -d -)
+LIB_MAJ = $(basename $(LIB_VERS))
+LIB_MIN = $(shell [ -d .git ] && git describe HEAD | cut -f 3 -d -)
 
 # The glibc TLS ABI requires applications that call clone(2) to set up
 # TLS data structures, use pthreads until mdmon implements this support
@@ -145,31 +148,34 @@ else
 	ECHO=:
 endif
 
-OBJS =  mdadm.o config.o policy.o mdstat.o  ReadMe.o uuid.o util.o maps.o lib.o \
-	Manage.o Assemble.o Build.o \
-	Create.o Detail.o Examine.o Grow.o Monitor.o dlink.o Kill.o Query.o \
-	Incremental.o Dump.o \
-	mdopen.o super0.o super1.o super-ddf.o super-intel.o bitmap.o \
-	super-mbr.o super-gpt.o \
-	restripe.o sysfs.o sha1.o mapfile.o crc32.o sg_io.o msg.o \
-	platform-intel.o probe_roms.o crc32c.o
+LIB_SRCS =  config.c policy.c mdstat.c uuid.c util.c maps.c lib.c \
+	Manage.c Assemble.c Build.c Create.c Detail.c Examine.c Grow.c \
+	Monitor.c dlink.c Kill.c Query.c Incremental.c Dump.c \
+	mdopen.c super0.c super1.c super-ddf.c super-intel.c bitmap.c \
+	super-mbr.c super-gpt.c \
+	restripe.c sysfs.c sha1.c mapfile.c crc32.c sg_io.c msg.c \
+	platform-intel.c probe_roms.c crc32c.c
 
-CHECK_OBJS = restripe.o uuid.o sysfs.o maps.o lib.o dlink.o
+LIBNAME = libmdadm.so
+SONAME = $(LIBNAME).$(LIB_MAJ)
+SHLIB = $(LIBNAME).$(LIB_VERS).$(LIB_MIN)
+LIB = libmdadm.a
+MAP = libmdadm.map
 
-SRCS =  $(patsubst %.o,%.c,$(OBJS))
+LIB_OBJS =  $(patsubst %.c,%.o,$(LIB_SRCS))
+SHLIB_OBJS =  $(patsubst %.c,%.ol,$(LIB_SRCS))
 
 INCL = mdadm.h mdadm_internal.h part.h bitmap.h bswap.h config.h debug.h \
 	lib.h mapfile.h maps.h mdstat.h policy.h reshape.h restripe.h super.h \
 	sysfs.h uuid.h
 
-MON_OBJS = mdmon.o monitor.o managemon.o uuid.o util.o maps.o mdstat.o sysfs.o \
-	policy.o lib.o config.o mapfile.o \
-	Kill.o sg_io.o dlink.o ReadMe.o super-intel.o \
-	super0.o super1.o super-mbr.o super-gpt.o \
-	super-ddf.o sha1.o crc32.o msg.o bitmap.o \
-	platform-intel.o probe_roms.o crc32c.o
+ADM_SRCS = mdadm.c ReadMe.c
+ADM_OBJS = $(patsubst %.c,%.o,$(ADM_SRCS))
 
-MON_SRCS = $(patsubst %.o,%.c,$(MON_OBJS))
+MON_SRCS = mdmon.c monitor.c managemon.c
+MON_OBJS = $(patsubst %.c,%.o,$(MON_SRCS))
+
+MON_INCL = $(INCL) mdmon.h
 
 STATICSRC = pwgr.c
 STATICOBJS = pwgr.o
@@ -194,11 +200,23 @@ everything-test: all swap_super test_stripe \
 %.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(COVERITY_FLAGS) -o $@ -c $<
 
-mdadm : $(OBJS) | check_rundir
-	$(CC) $(CFLAGS) $(LDFLAGS) -o mdadm $(OBJS) $(LDLIBS)
+%.ol: %.c
+	$(CC) $(CFLAGS) -fPIC $(CPPFLAGS) $(COVERITY_FLAGS) -shared -o $@ -c $<
 
-mdadm.static : $(OBJS) $(STATICOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -static -o mdadm.static $(OBJS) $(STATICOBJS) $(LDLIBS)
+$(LIB): $(LIB_OBJS)
+	rm -f $(LIB)
+	$(AR) r $(LIB) $(LIB_OBJS)
+	ranlib $(LIB)
+
+$(SHLIB): $(SHLIB_OBJS) $(MAP)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,--version-script,$(MAP) -o $@ $(SHLIB_OBJS) $(LINK_FLAGS) $(LDLIBS)
+	ln -sf $(SHLIB) $(LIBNAME)
+
+mdadm : $(ADM_OBJS) $(SHLIB) | check_rundir
+	$(CC) $(CFLAGS) $(LDFLAGS) -L. -o mdadm $(ADM_OBJS) -lmdadm $(LDLIBS)
+
+mdadm.static : $(ADM_OBJS) $(LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) -static -o mdadm.static $(ADM_OBJS) $(LIB) $(LDLIBS)
 
 mdadm.tcc : $(SRCS) $(INCL) mdadm_exec.h
 	$(TCC) -o mdadm.tcc $(SRCS)
@@ -213,12 +231,12 @@ mdadm.Os : $(SRCS) $(INCL) mdadm_exec.h
 mdadm.O2 : $(SRCS) $(INCL) mdadm_exec.h mdmon.O2
 	$(CC) -o mdadm.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(SRCS) $(LDLIBS)
 
-mdmon.O2 : $(MON_SRCS) $(INCL) mdmon.h mdadm_exec.h
+mdmon.O2 : $(MON_SRCS) $(MON_INCL) mdadm_exec.h
 	$(CC) -o mdmon.O2 $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -DHAVE_STDINT_H -O2 -D_FORTIFY_SOURCE=2 $(MON_SRCS) $(LDLIBS)
 
 # use '-z now' to guarantee no dynamic linker interactions with the monitor thread
-mdmon : $(MON_OBJS) | check_rundir
-	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) $(LDLIBS)
+mdmon : $(MON_OBJS) $(LIB) | check_rundir
+	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) $(LIB) $(LDLIBS)
 msg.o: msg.c msg.h
 
 test_stripe : restripe.c mdadm.h
@@ -318,7 +336,8 @@ test: mdadm mdmon test_stripe swap_super raid6check
 	@echo "Please run './test' as root"
 
 clean :
-	rm -f mdadm mdmon $(OBJS) $(MON_OBJS) $(STATICOBJS) core *.man \
+	rm -f mdadm mdmon $(ADM_OBJS) $(MON_OBJS) $(STATICOBJS) core *.man \
+	$(LIB_OBJS) $(SHLIB_OBJS) $(LIB) $(LIBNAME) $(LIBNAME).* \
 	mdadm.tcc mdadm.uclibc mdadm.static *.orig *.porig *.rej *.alt \
 	.merge_file_* mdadm.Os mdadm.O2 mdmon.O2 swap_super init.cpio.gz \
 	mdadm.uclibc.static test_stripe raid6check raid6check.o mdmon mdadm.8
