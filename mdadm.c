@@ -841,7 +841,7 @@ int main(int argc, char *argv[])
 				exit(2);
 			}
 			configfile = optarg;
-			set_conffile(configfile);
+			mdlib_set_conffile(configfile);
 			/* FIXME possibly check that config file exists.  Even parse it */
 			continue;
 		case O(ASSEMBLE,'s'): /* scan */
@@ -1576,7 +1576,8 @@ int main(int argc, char *argv[])
 			if (devlist == NULL)
 				devlist = conf_get_devs();
 			if (devlist == NULL) {
-				pr_err("No devices listed in %s\n", configfile?configfile:DefaultConfFile);
+				pr_err("No devices listed in %s\n",
+				       mdlib_get_conffile());
 				exit(1);
 			}
 			rv = mdadm_examine(devlist, &c, ss);

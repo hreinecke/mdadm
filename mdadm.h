@@ -1347,6 +1347,8 @@ extern int mdadm_is_bitmap_dirty(char *filename);
 extern int mdadm_write_rules(char *rule_name);
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
 
+extern char *mdlib_get_conffile(void);
+extern void mdlib_set_conffile(char *file);
 extern void mdlib_set_name(const char *name);
 extern const char *mdlib_get_name(void);
 extern const char *mdlib_get_version(void);
@@ -1421,7 +1423,6 @@ extern struct mddev_dev *conf_get_devs(void);
 extern int conf_test_dev(char *devname);
 extern int conf_test_metadata(const char *version, struct dev_policy *pol, int is_homehost);
 extern struct createinfo *conf_get_create_info(void);
-extern void set_conffile(char *file);
 extern char *conf_get_mailaddr(void);
 extern char *conf_get_mailfrom(void);
 extern char *conf_get_program(void);
@@ -1498,8 +1499,6 @@ extern char *devid2kname(dev_t devid);
 extern char *devid2devnm(dev_t devid);
 extern dev_t devnm2devid(char *devnm);
 extern char *get_md_name(char *devnm);
-
-extern char DefaultConfFile[];
 
 extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
 			char *chosen, int block_udev);
