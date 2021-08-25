@@ -23,8 +23,6 @@
  */
 
 #include "mdadm.h"
-#include "md_u.h"
-#include "md_p.h"
 #include <ctype.h>
 
 int mdadm_manage_ro(char *devname, int fd, int readonly)

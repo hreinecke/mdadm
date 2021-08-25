@@ -30,11 +30,6 @@
 #include	<signal.h>
 #include	<sys/wait.h>
 
-#if ! defined(__BIG_ENDIAN) && ! defined(__LITTLE_ENDIAN)
-#error no endian defined
-#endif
-#include	"md_u.h"
-#include	"md_p.h"
 
 int restore_backup(struct supertype *st,
 		   struct mdinfo *content,

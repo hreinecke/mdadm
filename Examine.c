@@ -25,12 +25,6 @@
 #include	"mdadm.h"
 #include	"dlink.h"
 
-#if ! defined(__BIG_ENDIAN) && ! defined(__LITTLE_ENDIAN)
-#error no endian defined
-#endif
-#include	"md_u.h"
-#include	"md_p.h"
-
 int mdadm_examine(struct mddev_dev *devlist,
 		  struct context *c,
 		  struct supertype *forcest)
