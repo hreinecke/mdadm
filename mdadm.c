@@ -1513,11 +1513,6 @@ int main(int argc, char *argv[])
 				rv = 1;
 				break;
 			}
-			if (s.level == 10 && !(is_near_layout_10(s.layout) || s.layout == UnSet)) {
-				pr_err("only near layout is supported with clustered raid10\n");
-				rv = 1;
-				break;
-			}
 		}
 
 		if (s.write_behind && !s.bitmap_file) {
