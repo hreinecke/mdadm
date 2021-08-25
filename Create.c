@@ -841,7 +841,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 		}
 	}
 
-	infos = xmalloc(sizeof(*infos) * total_slots);
+	infos = malloc(sizeof(*infos) * total_slots);
 	enable_fds(total_slots);
 	for (pass = 1; pass <= 2; pass++) {
 		struct mddev_dev *moved_disk = NULL; /* the disk that was moved out of the insert point */
@@ -995,7 +995,7 @@ int mdadm_create(struct supertype *st, char *mddev,
 
 			/* update parent container uuid */
 			if (me) {
-				char *path = xstrdup(me->path);
+				char *path = strdup(me->path);
 
 				st->ss->getinfo_super(st, &info_new, NULL);
 				map_update(&map, st->container_devnm,

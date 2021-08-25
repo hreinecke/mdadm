@@ -134,7 +134,7 @@ struct mdinfo *sysfs_read(int fd, char *devnm, unsigned long options)
 	DIR *dir = NULL;
 	struct dirent *de;
 
-	sra = xcalloc(1, sizeof(*sra));
+	sra = calloc(1, sizeof(*sra));
 	if (sysfs_init(sra, fd, devnm)) {
 		free(sra);
 		return NULL;
@@ -292,7 +292,7 @@ struct mdinfo *sysfs_read(int fd, char *devnm, unsigned long options)
 		dbase = base + strlen(base);
 		*dbase++ = '/';
 
-		dev = xcalloc(1, sizeof(*dev));
+		dev = calloc(1, sizeof(*dev));
 
 		/* Always get slot, major, minor */
 		strcpy(dbase, "slot");
@@ -1108,7 +1108,7 @@ void sysfsline(char *line)
 	struct dev_sysfs_rule *sr;
 	char *w;
 
-	sr = xcalloc(1, sizeof(*sr));
+	sr = calloc(1, sizeof(*sr));
 	for (w = dl_next(line); w != line ; w = dl_next(w)) {
 		if (strncasecmp(w, "name=", 5) == 0) {
 			char *devname = w + 5;
@@ -1118,7 +1118,7 @@ void sysfsline(char *line)
 					pr_err("Only give one device per SYSFS line: %s\n",
 						devname);
 				else
-					sr->devname = xstrdup(devname);
+					sr->devname = strdup(devname);
 			} else {
 				pr_err("%s is an invalid name for an md device - ignored.\n",
 				       devname);
@@ -1147,10 +1147,10 @@ void sysfsline(char *line)
 				continue;
 			}
 
-			prop = xmalloc(sizeof(*prop));
-			prop->value = xstrdup(sep + 1);
+			prop = malloc(sizeof(*prop));
+			prop->value = strdup(sep + 1);
 			*sep = 0;
-			prop->name = xstrdup(w);
+			prop->name = strdup(w);
 			prop->next = sr->entry;
 			sr->entry = prop;
 		}

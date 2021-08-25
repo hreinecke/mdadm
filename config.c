@@ -150,8 +150,8 @@ static struct mddev_dev *load_partitions(void)
 		name = map_dev(major, minor, 1);
 		if (!name)
 			continue;
-		d = xcalloc(1, sizeof(*d));
-		d->devname = xstrdup(name);
+		d = calloc(1, sizeof(*d));
+		d->devname = strdup(name);
 		d->next = rv;
 		rv = d;
 	}
@@ -174,10 +174,10 @@ static struct mddev_dev *load_containers(void)
 		if (ent->metadata_version &&
 		    strncmp(ent->metadata_version, "external:", 9) == 0 &&
 		    !is_subarray(&ent->metadata_version[9])) {
-			d = xcalloc(1, sizeof(*d));
+			d = calloc(1, sizeof(*d));
 			me = map_by_devnm(&map, ent->devnm);
 			if (me)
-				d->devname = xstrdup(me->path);
+				d->devname = strdup(me->path);
 			else if (asprintf(&d->devname, "/dev/%s", ent->devnm) < 0) {
 				free(d);
 				continue;
@@ -332,8 +332,8 @@ static void devline(char *line)
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		if (w[0] == '/' || strcasecmp(w, "partitions") == 0 ||
 		    strcasecmp(w, "containers") == 0) {
-			cd = xmalloc(sizeof(*cd));
-			cd->name = xstrdup(w);
+			cd = malloc(sizeof(*cd));
+			cd->name = strdup(w);
 			cd->next = cdevlist;
 			cdevlist = cd;
 		} else {
@@ -445,20 +445,20 @@ static void arrayline(char *line)
 				pr_err("only specify bitmap file once. %s ignored\n",
 					w);
 			else
-				mis.bitmap_file = xstrdup(w + 7);
+				mis.bitmap_file = strdup(w + 7);
 
 		} else if (strncasecmp(w, "devices=", 8 ) == 0) {
 			if (mis.devices)
 				pr_err("only specify devices once (use a comma separated list). %s ignored\n",
 					w);
 			else
-				mis.devices = xstrdup(w + 8);
+				mis.devices = strdup(w + 8);
 		} else if (strncasecmp(w, "spare-group=", 12) == 0) {
 			if (mis.spare_group)
 				pr_err("only specify one spare group per array. %s ignored.\n",
 					w);
 			else
-				mis.spare_group = xstrdup(w + 12);
+				mis.spare_group = strdup(w + 12);
 		} else if (strncasecmp(w, "level=", 6) == 0 ) {
 			/* this is mainly for compatability with --brief output */
 			mis.level = mdadm_personality_num(w + 6);
@@ -487,11 +487,11 @@ static void arrayline(char *line)
 			mis.autof = conf_parse_auto(w + 5, "auto type", 0);
 		} else if (strncasecmp(w, "member=", 7) == 0) {
 			/* subarray within a container */
-			mis.member = xstrdup(w + 7);
+			mis.member = strdup(w + 7);
 		} else if (strncasecmp(w, "container=", 10) == 0) {
 			/* The container holding this subarray.
 			 * Either a device name or a uuid */
-			mis.container = xstrdup(w + 10);
+			mis.container = strdup(w + 10);
 		} else {
 			pr_err("unrecognised word on ARRAY line: %s\n",
 				w);
@@ -503,9 +503,9 @@ static void arrayline(char *line)
 		pr_err("ARRAY line %s has no identity information.\n",
 		       mis.devname);
 	else {
-		mi = xmalloc(sizeof(*mi));
+		mi = malloc(sizeof(*mi));
 		*mi = mis;
-		mi->devname = mis.devname ? xstrdup(mis.devname) : NULL;
+		mi->devname = mis.devname ? strdup(mis.devname) : NULL;
 		mi->next = NULL;
 		*mddevlp = mi;
 		mddevlp = &mi->next;
@@ -519,7 +519,7 @@ static void mailline(char *line)
 
 	for (w = dl_next(line); w != line; w = dl_next(w))
 		if (alert_email == NULL)
-			alert_email = xstrdup(w);
+			alert_email = strdup(w);
 }
 
 static char *alert_mail_from = NULL;
@@ -529,7 +529,7 @@ static void mailfromline(char *line)
 
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		if (alert_mail_from == NULL)
-			alert_mail_from = xstrdup(w);
+			alert_mail_from = strdup(w);
 		else {
 			char *t = NULL;
 
@@ -548,7 +548,7 @@ static void programline(char *line)
 
 	for (w = dl_next(line); w != line; w = dl_next(w))
 		if (alert_program == NULL)
-			alert_program = xstrdup(w);
+			alert_program = strdup(w);
 }
 
 static char *home_host = NULL;
@@ -562,9 +562,9 @@ static void homehostline(char *line)
 			require_homehost = 0;
 		else if (home_host == NULL) {
 			if (strcasecmp(w, "<none>") == 0)
-				home_host = xstrdup("");
+				home_host = strdup("");
 			else
-				home_host = xstrdup(w);
+				home_host = strdup(w);
 		}
 	}
 }
@@ -577,9 +577,9 @@ static void homeclusterline(char *line)
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		if (home_cluster == NULL) {
 			if (strcasecmp(w, "<none>") == 0)
-				home_cluster = xstrdup("");
+				home_cluster = strdup("");
 			else
-				home_cluster = xstrdup(w);
+				home_cluster = strdup(w);
 		}
 	}
 }
@@ -648,7 +648,7 @@ static void autoline(char *line)
 	 */
 	w = getenv("MDADM_CONF_AUTO");
 	if (w && *w) {
-		char *l = xstrdup(w);
+		char *l = strdup(w);
 		char *head = line;
 		w = strtok(l, " \t");
 		while (w) {
@@ -662,7 +662,7 @@ static void autoline(char *line)
 
 	for (super_cnt = 0; superlist[super_cnt]; super_cnt++)
 		;
-	seen = xcalloc(super_cnt, 1);
+	seen = calloc(super_cnt, 1);
 
 	for (w = dl_next(line); w != line; w = dl_next(w)) {
 		char *val;
@@ -822,7 +822,7 @@ void conf_file_or_dir(FILE *f)
 		l = strlen(dp->d_name);
 		if (l < 6 || strcmp(dp->d_name + l - 5, ".conf") != 0)
 			continue;
-		fn = xmalloc(sizeof(*fn) + l + 1);
+		fn = malloc(sizeof(*fn) + l + 1);
 		strcpy(fn->name, dp->d_name);
 		for (p = &list;
 		     *p && strcmp((*p)->name, fn->name) < 0;
@@ -1006,8 +1006,8 @@ struct mddev_dev *conf_get_devs(void)
 	if (flags & GLOB_APPEND) {
 		for (i = 0; i < globbuf.gl_pathc; i++) {
 			struct mddev_dev *t;
-			t = xcalloc(1, sizeof(*t));
-			t->devname = xstrdup(globbuf.gl_pathv[i]);
+			t = calloc(1, sizeof(*t));
+			t->devname = strdup(globbuf.gl_pathv[i]);
 			t->next = dlist;
 			dlist = t;
 /*	printf("one dev is %s\n", t->devname);*/
@@ -1248,7 +1248,7 @@ char *conf_word(FILE *file, int allow_key)
 	int c;
 	int quote;
 	int wordfound = 0;
-	char *word = xmalloc(wsize);
+	char *word = malloc(wsize);
 
 	while (wordfound == 0) {
 		/* at the end of a word.. */
@@ -1282,7 +1282,7 @@ char *conf_word(FILE *file, int allow_key)
 				else {
 					if (len == wsize-1) {
 						wsize += 100;
-						word = xrealloc(word, wsize);
+						word = realloc(word, wsize);
 					}
 					word[len++] = c;
 				}

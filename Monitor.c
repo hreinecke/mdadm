@@ -191,7 +191,7 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			if (strcasecmp(mdlist->devname, "<ignore>") == 0)
 				continue;
 
-			st = xcalloc(1, sizeof *st);
+			st = calloc(1, sizeof *st);
 			snprintf(st->devname, MD_NAME_MAX + sizeof("/dev/md/"),
 				 "/dev/md/%s", basename(mdlist->devname));
 			if (!is_mddev(mdlist->devname))
@@ -202,7 +202,7 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			st->from_config = 1;
 			st->expected_spares = mdlist->spare_disks;
 			if (mdlist->spare_group)
-				st->spare_group = xstrdup(mdlist->spare_group);
+				st->spare_group = strdup(mdlist->spare_group);
 			statelist = st;
 		}
 	} else {
@@ -214,7 +214,7 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			if (!is_mddev(dv->devname))
 				return 1;
 
-			st = xcalloc(1, sizeof *st);
+			st = calloc(1, sizeof *st);
 			mdlist = conf_get_ident(dv->devname);
 			snprintf(st->devname, MD_NAME_MAX + sizeof("/dev/md/"), "%s", dv->devname);
 			st->next = statelist;
@@ -224,7 +224,7 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			if (mdlist) {
 				st->expected_spares = mdlist->spare_disks;
 				if (mdlist->spare_group)
-					st->spare_group = xstrdup(mdlist->spare_group);
+					st->spare_group = strdup(mdlist->spare_group);
 			}
 			statelist = st;
 		}
@@ -760,7 +760,7 @@ static int add_new_arrays(struct mdstat_ent *mdstat, struct state **statelist,
 		if (mse->devnm[0] && (!mse->level || /* retrieve containers */
 				      (strcmp(mse->level, "raid0") != 0 &&
 				       strcmp(mse->level, "linear") != 0))) {
-			struct state *st = xcalloc(1, sizeof *st);
+			struct state *st = calloc(1, sizeof *st);
 			mdu_array_info_t array;
 			int fd;
 

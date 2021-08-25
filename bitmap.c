@@ -125,7 +125,7 @@ static bitmap_info_t *bitmap_fd_read(int fd, int brief)
 	}
 	n = read(fd, buf, 8192);
 
-	info = xmalloc(sizeof(*info));
+	info = malloc(sizeof(*info));
 
 	if (n < sizeof(info->sb)) {
 		pr_err("failed to read superblock of bitmap file: %s\n", strerror(errno));

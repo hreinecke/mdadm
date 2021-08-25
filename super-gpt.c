@@ -180,7 +180,7 @@ static void getinfo_gpt(struct supertype *st, struct mdinfo *info, char *map)
 
 static struct supertype *match_metadata_desc(char *arg)
 {
-	struct supertype *st = xmalloc(sizeof(*st));
+	struct supertype *st = malloc(sizeof(*st));
 
 	if (!st)
 		return st;

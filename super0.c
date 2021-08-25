@@ -484,7 +484,7 @@ static struct mdinfo *container_content0(struct supertype *st, char *subarray)
 	if (subarray)
 		return NULL;
 
-	info = xmalloc(sizeof(*info));
+	info = malloc(sizeof(*info));
 	getinfo_super0(st, info, NULL);
 	return info;
 }
@@ -832,7 +832,7 @@ static int add_to_super0(struct supertype *st, mdu_disk_info_t *dinfo,
 	dip = (struct devinfo **)&st->info;
 	while (*dip)
 		dip = &(*dip)->next;
-	di = xmalloc(sizeof(struct devinfo));
+	di = malloc(sizeof(struct devinfo));
 	di->fd = fd;
 	di->devname = devname;
 	di->disk = *dinfo;
@@ -1078,7 +1078,7 @@ static int load_super0(struct supertype *st, int fd, char *devname)
 
 static struct supertype *match_metadata_desc0(char *arg)
 {
-	struct supertype *st = xcalloc(1, sizeof(*st));
+	struct supertype *st = calloc(1, sizeof(*st));
 
 	st->container_devnm[0] = 0;
 	st->ss = &super0;

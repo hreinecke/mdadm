@@ -281,4 +281,3 @@ udev-md-raid-creating.rules
 udev-md-raid-safe-timeouts.rules
 util.c
 uuid.c
-xmalloc.c

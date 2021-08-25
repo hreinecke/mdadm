@@ -357,7 +357,7 @@ void ensure_zero_has_size(int chunk_size)
 	if (zero == NULL || chunk_size > zero_size) {
 		if (zero)
 			free(zero);
-		zero = xcalloc(1, chunk_size);
+		zero = calloc(1, chunk_size);
 		zero_size = chunk_size;
 	}
 }
@@ -716,8 +716,8 @@ int restore_stripes(int *dest, unsigned long long *offsets,
 		    char *src_buf)
 {
 	char *stripe_buf;
-	char **stripes = xmalloc(raid_disks * sizeof(char*));
-	char **blocks = xmalloc(raid_disks * sizeof(char*));
+	char **stripes = malloc(raid_disks * sizeof(char*));
+	char **blocks = malloc(raid_disks * sizeof(char*));
 	int i;
 	int rv;
 
@@ -729,7 +729,7 @@ int restore_stripes(int *dest, unsigned long long *offsets,
 	if (zero == NULL || chunk_size > zero_size) {
 		if (zero)
 			free(zero);
-		zero = xcalloc(1, chunk_size);
+		zero = calloc(1, chunk_size);
 		zero_size = chunk_size;
 	}
 
@@ -846,11 +846,11 @@ int test_stripes(int *source, unsigned long long *offsets,
 		 unsigned long long start, unsigned long long length)
 {
 	/* ready the data and p (and q) blocks, and check we got them right */
-	char *stripe_buf = xmalloc(raid_disks * chunk_size);
-	char **stripes = xmalloc(raid_disks * sizeof(char*));
-	char **blocks = xmalloc(raid_disks * sizeof(char*));
-	uint8_t *p = xmalloc(chunk_size);
-	uint8_t *q = xmalloc(chunk_size);
+	char *stripe_buf = malloc(raid_disks * chunk_size);
+	char **stripes = malloc(raid_disks * sizeof(char*));
+	char **blocks = malloc(raid_disks * sizeof(char*));
+	uint8_t *p = malloc(chunk_size);
+	uint8_t *q = malloc(chunk_size);
 
 	int i;
 	int diskP, diskQ;
@@ -976,8 +976,8 @@ int main(int argc, char *argv[])
 			raid_disks, argc-9);
 		exit(2);
 	}
-	fds = xmalloc(raid_disks * sizeof(*fds));
-	offsets = xcalloc(raid_disks, sizeof(*offsets));
+	fds = malloc(raid_disks * sizeof(*fds));
+	offsets = calloc(raid_disks, sizeof(*offsets));
 
 	storefd = open(file, O_RDWR);
 	if (storefd < 0) {
@@ -1002,7 +1002,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	buf = xmalloc(raid_disks * chunk_size);
+	buf = malloc(raid_disks * chunk_size);
 
 	if (save == 1) {
 		int rv = save_stripes(fds, offsets,

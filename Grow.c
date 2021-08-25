@@ -50,7 +50,7 @@ int restore_backup(struct supertype *st,
 	char *backup_file = *backup_filep;
 
 	dprintf("Called restore_backup()\n");
-	fdlist = xmalloc(sizeof(int) * disk_count);
+	fdlist = malloc(sizeof(int) * disk_count);
 
 	enable_fds(next_spare);
 	for (i = 0; i < next_spare; i++)
@@ -3453,8 +3453,8 @@ started:
 	nrdisks = max(reshape.before.data_disks,
 		      reshape.after.data_disks) + reshape.parity
 		+ sra->array.spare_disks;
-	fdlist = xcalloc((1+nrdisks), sizeof(int));
-	offsets = xcalloc((1+nrdisks), sizeof(offsets[0]));
+	fdlist = calloc((1+nrdisks), sizeof(int));
+	offsets = calloc((1+nrdisks), sizeof(offsets[0]));
 
 	odisks = reshape.before.data_disks + reshape.parity;
 	d = reshape_prepare_fdlist(devname, sra, odisks, nrdisks, blocks,
@@ -4456,8 +4456,8 @@ static void validate(int afd, int bfd, unsigned long long offset)
 			free(abuf);
 			free(bbuf);
 			abuflen = len;
-			abuf = xmalloc(abuflen);
-			bbuf = xmalloc(abuflen);
+			abuf = malloc(abuflen);
+			bbuf = malloc(abuflen);
 		}
 
 		lseek64(bfd, offset+__le64_to_cpu(bsb2.devstart2)*512, 0);
@@ -4859,7 +4859,7 @@ int mdadm_grow_restart(struct supertype *st, struct mdinfo *info, int *fdlist,
 			goto second_fail; /* Cannot find leading superblock */
 
 		/* Now need the data offsets for all devices. */
-		offsets = xmalloc(sizeof(*offsets)*info->array.raid_disks);
+		offsets = malloc(sizeof(*offsets)*info->array.raid_disks);
 		for(j=0; j<info->array.raid_disks; j++) {
 			if (fdlist[j] < 0)
 				continue;
@@ -5240,7 +5240,7 @@ char *make_backup(char *name)
 	char *fname;
 
 	len = strlen(MAP_DIR) + 1 + strlen(base) + strlen(name)+1;
-	fname = xmalloc(len);
+	fname = malloc(len);
 	sprintf(fname, "%s/%s%s", MAP_DIR, base, name);
 	return fname;
 }
