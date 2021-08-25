@@ -107,6 +107,11 @@ int mdadm_create(struct supertype *st, char *mddev,
 
 	int major_num = BITMAP_MAJOR_HI;
 	if (s->bitmap_file && strcmp(s->bitmap_file, "clustered") == 0) {
+		if (s->level == 10 && !(is_near_layout_10(s->layout) ||
+					s->layout == UnSet)) {
+			pr_err("only near layout is supported with clustered raid10\n");
+			return 1;
+		}
 		major_num = BITMAP_MAJOR_CLUSTERED;
 		if (c->nodes <= 1) {
 			pr_err("At least 2 nodes are needed for cluster-md\n");
