@@ -243,6 +243,18 @@ out:
 	return ret;
 }
 
+int mdadm_cluster_is_locked(int fd, int devmode)
+{
+	mdu_array_info_t array;
+	int locked = 1;
+
+	if (!md_get_array_info(fd, &array) && (devmode != 'c')) {
+		if (array.state & (1 << MD_SB_CLUSTERED))
+			locked = mdlib_cluster_get_dlmlock();
+	}
+	return (locked != 1) ? 1 : 0;
+}
+
 int md_array_valid(int fd)
 {
 	struct mdinfo *sra;

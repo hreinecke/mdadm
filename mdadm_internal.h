@@ -53,6 +53,8 @@ extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
 int md_array_valid(int fd);
 int md_array_active(int fd);
 int md_array_is_active(struct mdinfo *info);
+int md_get_array_info(int fd, struct mdu_array_info_s *array);
+int md_set_array_info(int fd, struct mdu_array_info_s *array);
 int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
 
 unsigned long long min_recovery_start(struct mdinfo *array);

@@ -592,10 +592,10 @@ extern int mdadm_misc_scan(char devmode, struct context *c);
 extern int mdadm_query(char *dev);
 
 /* Examine.c */
-extern int mdadm_examine_badblocks(char *devname, int brief,
-				  struct supertype *forcest);
 extern int mdadm_examine(struct mddev_dev *devlist, struct context *c,
 			 struct supertype *forcest);
+extern int mdadm_examine_badblocks(char *devname, int brief,
+				  struct supertype *forcest);
 
 /* Monitor.c */
 extern int mdadm_monitor(struct mddev_dev *devlist,
@@ -696,6 +696,7 @@ extern int mdlib_set_homecluster(struct context *c);
 extern void mdlib_set_homehost(struct context *c);
 extern int mdlib_cluster_get_dlmlock(void);
 extern int mdlib_cluster_release_dlmlock(void);
+extern int mdadm_cluster_is_locked(int fd, int devmode);
 
 static inline int is_subarray(char *vers)
 {

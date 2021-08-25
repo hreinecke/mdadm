@@ -209,7 +209,7 @@ $(LIB): $(LIB_OBJS)
 
 $(SHLIB): $(LIB_SHOBJS) $(MAP)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(SONAME) -Wl,--version-script,$(MAP) -o $@ $(LIB_SHOBJS) $(LINK_FLAGS) $(LDLIBS)
-	$(LN) -s $(SHLIB) $(LIBNAME)
+	ln -sf $(SHLIB) $(LIBNAME)
 
 mdadm : $(ADM_OBJS) $(SHLIB) | check_rundir
 	$(CC) $(CFLAGS) $(LDFLAGS) -L. -o mdadm $(ADM_OBJS) -lmdadm $(LDLIBS)
