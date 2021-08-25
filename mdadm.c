@@ -49,6 +49,17 @@ mapping_t modes[] = {
 	{ NULL, UnSet }
 };
 
+char *get_mode_name(int num)
+{
+	mapping_t *map = modes;
+	while (map->name) {
+		if (map->num == num)
+			return map->name;
+		map++;
+	}
+	return NULL;
+}
+
 int main(int argc, char *argv[])
 {
 	int mode = 0;
@@ -290,8 +301,8 @@ int main(int argc, char *argv[])
 			else
 				fprintf(stderr, "-%c", opt);
 			fprintf(stderr, " would set mdadm mode to \"%s\", but it is already set to \"%s\".\n",
-				map_num(modes, newmode),
-				map_num(modes, mode));
+				get_mode_name(newmode),
+				get_mode_name(mode));
 			exit(2);
 		} else if (!mode && newmode) {
 			mode = newmode;
@@ -1220,10 +1231,10 @@ int main(int argc, char *argv[])
 		if (option_index > 0)
 			pr_err(":option --%s not valid in %s mode\n",
 				long_options[option_index].name,
-				map_num(modes, mode));
+				get_mode_name(mode));
 		else
 			pr_err("option -%c not valid in %s mode\n",
-				opt, map_num(modes, mode));
+				opt, get_mode_name(mode));
 		exit(2);
 
 	}
