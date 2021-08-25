@@ -44,7 +44,6 @@
  */
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
 #include	"super.h"
@@ -170,12 +169,12 @@ void map_fork(void)
 void map_add(struct map_ent **melp,
 	     char * devnm, char *metadata, int uuid[4], char *path)
 {
-	struct map_ent *me = xmalloc(sizeof(*me));
+	struct map_ent *me = malloc(sizeof(*me));
 
 	strcpy(me->devnm, devnm);
 	strcpy(me->metadata, metadata);
 	memcpy(me->uuid, uuid, 16);
-	me->path = path ? xstrdup(path) : NULL;
+	me->path = path ? strdup(path) : NULL;
 	me->next = *melp;
 	me->bad = 0;
 	*melp = me;
@@ -237,7 +236,7 @@ int map_update(struct map_ent **mpp, char *devnm, char *metadata,
 			strcpy(mp->metadata, metadata);
 			memcpy(mp->uuid, uuid, 16);
 			free(mp->path);
-			mp->path = path ? xstrdup(path) : NULL;
+			mp->path = path ? strdup(path) : NULL;
 			mp->bad = 0;
 			break;
 		}
@@ -407,7 +406,7 @@ void mdadm_rebuild_map(void)
 			if (subarray)
 				info = st->ss->container_content(st, subarray);
 			else {
-				info = xmalloc(sizeof(*info));
+				info = malloc(sizeof(*info));
 				st->ss->getinfo_super(st, info, NULL);
 			}
 			if (!info)

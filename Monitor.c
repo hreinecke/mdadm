@@ -24,7 +24,6 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
@@ -200,11 +199,11 @@ int mdadm_monitor(struct mddev_dev *devlist,
 				continue;
 			if (strcasecmp(mdlist->devname, "<ignore>") == 0)
 				continue;
-			st = xcalloc(1, sizeof *st);
+			st = calloc(1, sizeof *st);
 			if (mdlist->devname[0] == '/')
-				st->devname = xstrdup(mdlist->devname);
+				st->devname = strdup(mdlist->devname);
 			else {
-				st->devname = xmalloc(8+strlen(mdlist->devname)+1);
+				st->devname = malloc(8+strlen(mdlist->devname)+1);
 				strcpy(strcpy(st->devname, "/dev/md/"),
 				       mdlist->devname);
 			}
@@ -214,16 +213,16 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			st->from_config = 1;
 			st->expected_spares = mdlist->spare_disks;
 			if (mdlist->spare_group)
-				st->spare_group = xstrdup(mdlist->spare_group);
+				st->spare_group = strdup(mdlist->spare_group);
 			statelist = st;
 		}
 	} else {
 		struct mddev_dev *dv;
 
 		for (dv = devlist; dv; dv = dv->next) {
-			struct state *st = xcalloc(1, sizeof *st);
+			struct state *st = calloc(1, sizeof *st);
 			mdlist = conf_get_ident(dv->devname);
-			st->devname = xstrdup(dv->devname);
+			st->devname = strdup(dv->devname);
 			st->next = statelist;
 			st->devnm[0] = 0;
 			st->percent = RESYNC_UNKNOWN;
@@ -231,7 +230,7 @@ int mdadm_monitor(struct mddev_dev *devlist,
 			if (mdlist) {
 				st->expected_spares = mdlist->spare_disks;
 				if (mdlist->spare_group)
-					st->spare_group = xstrdup(mdlist->spare_group);
+					st->spare_group = strdup(mdlist->spare_group);
 			}
 			statelist = st;
 		}
@@ -765,7 +764,7 @@ static int add_new_arrays(struct mdstat_ent *mdstat, struct state **statelist,
 		if (mse->devnm[0] && (!mse->level || /* retrieve containers */
 				      (strcmp(mse->level, "raid0") != 0 &&
 				       strcmp(mse->level, "linear") != 0))) {
-			struct state *st = xcalloc(1, sizeof *st);
+			struct state *st = calloc(1, sizeof *st);
 			mdu_array_info_t array;
 			int fd;
 
@@ -775,7 +774,7 @@ static int add_new_arrays(struct mdstat_ent *mdstat, struct state **statelist,
 				continue;
 			}
 
-			st->devname = xstrdup(name);
+			st->devname = strdup(name);
 			if ((fd = open(st->devname, O_RDONLY)) < 0 ||
 			    md_get_array_info(fd, &array) < 0) {
 				/* no such array */

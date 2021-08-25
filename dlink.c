@@ -8,7 +8,6 @@
 #ifdef __dietlibc__
 char *strncpy(char *dest, const char *src, size_t n) __THROW;
 #endif
-void *xcalloc(size_t num, size_t size);
 #include	"dlink.h"
 
 void *dl_head()

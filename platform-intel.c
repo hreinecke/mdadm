@@ -18,7 +18,6 @@
  */
 #include "mdadm.h"
 #include "mdadm_internal.h"
-#include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"
 #include "sysfs.h"
@@ -148,10 +147,10 @@ struct sys_dev *find_driver_devices(const char *bus, const char *driver)
 
 		/* start / add list entry */
 		if (!head) {
-			head = xmalloc(sizeof(*head));
+			head = malloc(sizeof(*head));
 			list = head;
 		} else {
-			list->next = xmalloc(sizeof(*head));
+			list->next = malloc(sizeof(*head));
 			list = list->next;
 		}
 
@@ -350,7 +349,7 @@ static struct orom_entry *add_orom(const struct imsm_orom *orom)
 	for (list = orom_entries; list; prev = list, list = list->next)
 		;
 
-	list = xmalloc(sizeof(struct orom_entry));
+	list = malloc(sizeof(struct orom_entry));
 	list->orom = *orom;
 	list->devid_list = NULL;
 	list->next = NULL;
@@ -372,7 +371,7 @@ static void add_orom_device_id(struct orom_entry *entry, __u16 dev_id)
 		if (list->devid == dev_id)
 			return;
 	}
-	list = xmalloc(sizeof(struct devid_list));
+	list = malloc(sizeof(struct devid_list));
 	list->devid = dev_id;
 	list->next = NULL;
 

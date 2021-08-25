@@ -153,7 +153,7 @@ LIB_SRCS =  config.c policy.c mdstat.c uuid.c util.c maps.c lib.c \
 	Monitor.c dlink.c Kill.c Query.c Incremental.c Dump.c \
 	mdopen.c super0.c super1.c super-ddf.c super-intel.c bitmap.c \
 	super-mbr.c super-gpt.c \
-	restripe.c sysfs.c sha1.c mapfile.c crc32.c sg_io.c msg.c xmalloc.c \
+	restripe.c sysfs.c sha1.c mapfile.c crc32.c sg_io.c msg.c \
 	platform-intel.c probe_roms.c crc32c.c
 
 LIBNAME = libmdadm.so
@@ -165,7 +165,7 @@ MAP = libmdadm.map
 LIB_OBJS =  $(patsubst %.c,%.o,$(LIB_SRCS))
 LIB_SHOBJS =  $(patsubst %.c,%.ol,$(LIB_SRCS))
 
-INCL = mdadm.h mdadm_internal.h part.h bitmap.h xmalloc.h debug.h bswap.h \
+INCL = mdadm.h mdadm_internal.h part.h bitmap.h debug.h bswap.h \
 	restripe.h reshape.h super.h uuid.h
 
 ADM_SRCS = mdadm.c ReadMe.c
@@ -238,8 +238,8 @@ mdmon : $(MON_OBJS) $(LIB) | check_rundir
 	$(CC) $(CFLAGS) $(LDFLAGS) $(MON_LDFLAGS) -Wl,-z,now -o mdmon $(MON_OBJS) -L. -lmdadm $(LDLIBS)
 msg.o: msg.c msg.h
 
-test_stripe : restripe.c xmalloc.o mdadm.h
-	$(CC) $(CFLAGS) $(CXFLAGS) $(LDFLAGS) -o test_stripe xmalloc.o  -DMAIN restripe.c
+test_stripe : restripe.c mdadm.h
+	$(CC) $(CFLAGS) $(CXFLAGS) $(LDFLAGS) -o test_stripe  -DMAIN restripe.c
 
 raid6check : raid6check.o mdadm.h $(CHECK_OBJS)
 	$(CC) $(CXFLAGS) $(LDFLAGS) -o raid6check raid6check.o $(CHECK_OBJS)

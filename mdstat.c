@@ -81,7 +81,6 @@
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
 #include	"dlink.h"
-#include	"xmalloc.h"
 #include	"config.h"
 #include	<sys/select.h>
 #include	<ctype.h>
@@ -106,7 +105,7 @@ static int add_member_devname(struct dev_member **m, char *name)
 		/* not a device */
 		return 0;
 
-	new = xmalloc(sizeof(*new));
+	new = malloc(sizeof(*new));
 	new->name = strndup(name, t - name);
 	new->next = *m;
 	*m = new;
@@ -173,7 +172,7 @@ struct mdstat_ent *mdstat_read(int hold, int start)
 			continue;
 		strcpy(devnm, line);
 
-		ent = xmalloc(sizeof(*ent));
+		ent = malloc(sizeof(*ent));
 		ent->level = ent->pattern= NULL;
 		ent->next = NULL;
 		ent->percent = RESYNC_NONE;
@@ -203,7 +202,7 @@ struct mdstat_ent *mdstat_read(int hold, int start)
 			} else if (ent->active > 0 &&
 				 ent->level == NULL &&
 				 w[0] != '(' /*readonly*/) {
-				ent->level = xstrdup(w);
+				ent->level = strdup(w);
 				in_devs = 1;
 			} else if (in_devs && strcmp(w, "blocks") == 0)
 				in_devs = 0;
@@ -230,13 +229,13 @@ struct mdstat_ent *mdstat_read(int hold, int start)
 			} else if (strcmp(w, "super") == 0 &&
 				   dl_next(w) != line) {
 				w = dl_next(w);
-				ent->metadata_version = xstrdup(w);
+				ent->metadata_version = strdup(w);
 			} else if (w[0] == '[' && isdigit(w[1])) {
 				ent->raid_disks = atoi(w+1);
 			} else if (!ent->pattern &&
 				   w[0] == '[' &&
 				   (w[1] == 'U' || w[1] == '_')) {
-				ent->pattern = xstrdup(w+1);
+				ent->pattern = strdup(w+1);
 				if (ent->pattern[l-2] == ']')
 					ent->pattern[l-2] = '\0';
 			} else if (ent->percent == RESYNC_NONE &&

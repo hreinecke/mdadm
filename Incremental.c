@@ -30,7 +30,6 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
@@ -729,11 +728,11 @@ static int count_active(struct supertype *st, struct mdinfo *sra,
 			max_journal_events = info.events;
 		if (!avail) {
 			raid_disks = info.array.raid_disks;
-			avail = xcalloc(raid_disks, 1);
+			avail = calloc(raid_disks, 1);
 			*availp = avail;
 
-			best = xcalloc(raid_disks, sizeof(int));
-			devmap = xcalloc(raid_disks, numdevs);
+			best = calloc(raid_disks, sizeof(int));
+			devmap = calloc(raid_disks, numdevs);
 
 			st->ss->getinfo_super(st, &info, devmap);
 		}
@@ -1435,7 +1434,7 @@ static char *container2devname(char *devname)
 	if (devname[0] == '/') {
 		int fd = open(devname, O_RDONLY);
 		if (fd >= 0) {
-			mdname = xstrdup(fd2devnm(fd));
+			mdname = strdup(fd2devnm(fd));
 			close(fd);
 		}
 	} else {
@@ -1446,7 +1445,7 @@ static char *container2devname(char *devname)
 			return mdname;
 		mp = map_by_uuid(&map, uuid);
 		if (mp)
-			mdname = xstrdup(mp->devnm);
+			mdname = strdup(mp->devnm);
 		map_free(map);
 	}
 

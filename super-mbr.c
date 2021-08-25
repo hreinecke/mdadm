@@ -40,7 +40,6 @@
  */
 
 #include "mdadm.h"
-#include "xmalloc.h"
 #include "debug.h"
 #include "bswap.h"
 #include "super.h"
@@ -178,7 +177,7 @@ static struct supertype *match_metadata_desc(char *arg)
 	if (strcmp(arg, "mbr") != 0)
 		return NULL;
 
-	st = xmalloc(sizeof(*st));
+	st = malloc(sizeof(*st));
 	st->ss = &mbr;
 	st->info = NULL;
 	st->minor_version = 0;

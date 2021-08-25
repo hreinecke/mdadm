@@ -69,7 +69,6 @@
 #include	"mdadm.h"
 #include	"mdadm_exec.h"
 #include	"mdmon.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"sysfs.h"
@@ -410,7 +409,7 @@ int main(int argc, char *argv[])
 		struct stat st;
 
 		if (stat(container_name, &st) == 0)
-			devnm = xstrdup(container_name);
+			devnm = strdup(container_name);
 	}
 
 	if (!devnm) {
@@ -467,7 +466,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 	} else
 		pfd[0] = pfd[1] = -1;
 
-	container = xcalloc(1, sizeof(*container));
+	container = calloc(1, sizeof(*container));
 	strcpy(container->devnm, devnm);
 	container->arrays = NULL;
 	container->sock = -1;
@@ -497,7 +496,7 @@ static int mdmon(char *devnm, int must_fork, int takeover)
 
 	container->devs = NULL;
 	for (di = mdi->devs; di; di = di->next) {
-		struct mdinfo *cd = xmalloc(sizeof(*cd));
+		struct mdinfo *cd = malloc(sizeof(*cd));
 		*cd = *di;
 		cd->next = container->devs;
 		container->devs = cd;

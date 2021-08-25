@@ -24,7 +24,6 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"dlm.h"
 #include	"bswap.h"
@@ -162,7 +161,7 @@ int mdlib_cluster_get_dlmlock(void)
 		return -1;
 	}
 
-	dlm_lock_res = xmalloc(sizeof(struct dlm_lock_resource));
+	dlm_lock_res = malloc(sizeof(struct dlm_lock_resource));
 	dlm_lock_res->ls = dlm_hooks->open_lockspace(cluster_name);
 	if (!dlm_lock_res->ls) {
 		dlm_lock_res->ls = dlm_hooks->create_lockspace(cluster_name, O_RDWR);
@@ -452,7 +451,7 @@ int parse_layout_faulty(char *layout)
 {
 	/* Parse the layout string for 'faulty' */
 	int ln = strcspn(layout, "0123456789");
-	char *m = xstrdup(layout);
+	char *m = strdup(layout);
 	int mode;
 	m[ln] = 0;
 	mode = mdadm_faulty_layout(m);
@@ -1272,7 +1271,7 @@ struct supertype *super_by_fd(int fd, char **subarrayp)
 		subarray = strchr(dev, '/');
 		if (subarray) {
 			*subarray++ = '\0';
-			subarray = xstrdup(subarray);
+			subarray = strdup(subarray);
 		}
 		strcpy(container, dev);
 		sysfs_free(sra);
@@ -1339,7 +1338,7 @@ struct supertype *dup_super(struct supertype *orig)
 
 	if (!orig)
 		return orig;
-	st = xcalloc(1, sizeof(*st));
+	st = calloc(1, sizeof(*st));
 	st->ss = orig->ss;
 	st->max_devs = orig->max_devs;
 	st->minor_version = orig->minor_version;
@@ -1361,7 +1360,7 @@ struct supertype *guess_super_type(int fd, enum guess_types guess_type)
 	int bestsuper = -1;
 	int i;
 
-	st = xcalloc(1, sizeof(*st));
+	st = calloc(1, sizeof(*st));
 	st->container_devnm[0] = 0;
 
 	for (i = 0; superlist[i]; i++) {
@@ -1914,7 +1913,7 @@ int add_disk(int mdfd, struct supertype *st,
 				if (sd2 == info)
 					break;
 			if (sd2 == NULL) {
-				sd2 = xmalloc(sizeof(*sd2));
+				sd2 = malloc(sizeof(*sd2));
 				*sd2 = *info;
 				sd2->next = sra->devs;
 				sra->devs = sd2;
@@ -2139,7 +2138,7 @@ int flush_metadata_updates(struct supertype *st)
 void append_metadata_update(struct supertype *st, void *buf, int len)
 {
 
-	struct metadata_update *mu = xmalloc(sizeof(*mu));
+	struct metadata_update *mu = malloc(sizeof(*mu));
 
 	mu->buf = buf;
 	mu->len = len;
@@ -2356,7 +2355,7 @@ static int is_cmap_hooks_ready = 0;
 
 void set_cmap_hooks(void)
 {
-	cmap_hooks = xmalloc(sizeof(struct cmap_hooks));
+	cmap_hooks = malloc(sizeof(struct cmap_hooks));
 	cmap_hooks->cmap_handle = dlopen("libcmap.so.4", RTLD_NOW | RTLD_LOCAL);
 	if (!cmap_hooks->cmap_handle)
 		return;
@@ -2431,7 +2430,7 @@ int mdlib_set_homecluster(struct context *c)
 
 void set_dlm_hooks(void)
 {
-	dlm_hooks = xmalloc(sizeof(struct dlm_hooks));
+	dlm_hooks = malloc(sizeof(struct dlm_hooks));
 	dlm_hooks->dlm_handle = dlopen("libdlm_lt.so.3", RTLD_NOW | RTLD_LOCAL);
 	if (!dlm_hooks->dlm_handle)
 		return;

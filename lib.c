@@ -24,7 +24,6 @@
 
 #include	"mdadm.h"
 #include	"dlink.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"config.h"
 #include	"lib.h"
@@ -220,8 +219,8 @@ int add_dev(const char *name, const struct stat *stb, int flag, struct FTW *s)
 	}
 
 	if ((stb->st_mode&S_IFMT)== S_IFBLK) {
-		char *n = xstrdup(name);
-		struct devmap *dm = xmalloc(sizeof(*dm));
+		char *n = strdup(name);
+		struct devmap *dm = malloc(sizeof(*dm));
 		if (strncmp(n, "/dev/./", 7) == 0)
 			strcpy(n + 4, name + 6);
 		if (dm) {

@@ -24,7 +24,6 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"super.h"
@@ -45,14 +44,14 @@ static int add_device(const char *dev, char ***p_devices,
 {
 	if (n_devices + 1 >= *p_max_devices) {
 		*p_max_devices += 16;
-		*p_devices = xrealloc(*p_devices, *p_max_devices *
+		*p_devices = realloc(*p_devices, *p_max_devices *
 				      sizeof(**p_devices));
 		if (!*p_devices) {
 			*p_max_devices = 0;
 			return 0;
 		}
 	};
-	(*p_devices)[n_devices] = xstrdup(dev);
+	(*p_devices)[n_devices] = strdup(dev);
 	return n_devices + 1;
 }
 
@@ -197,7 +196,7 @@ int mdadm_detail(char *dev, struct context *c)
 		if (subarray)
 			info = st->ss->container_content(st, subarray);
 		else {
-			info = xmalloc(sizeof(*info));
+			info = malloc(sizeof(*info));
 			st->ss->getinfo_super(st, info, NULL);
 		}
 		if (!info)
@@ -291,7 +290,7 @@ int mdadm_detail(char *dev, struct context *c)
 			struct mdinfo *mdi;
 			for (mdi  = sra->devs; mdi; mdi = mdi->next) {
 				char *path;
-				char *sysdev = xstrdup(mdi->sys_name);
+				char *sysdev = strdup(mdi->sys_name);
 				char *cp;
 
 				path = map_dev(mdi->disk.major,
@@ -315,7 +314,7 @@ int mdadm_detail(char *dev, struct context *c)
 		goto out;
 	}
 
-	disks = xmalloc(max_disks * 2 * sizeof(mdu_disk_info_t));
+	disks = malloc(max_disks * 2 * sizeof(mdu_disk_info_t));
 	for (d = 0; d < max_disks * 2; d++) {
 		disks[d].state = (1 << MD_DISK_REMOVED);
 		disks[d].major = disks[d].minor = 0;
@@ -355,7 +354,7 @@ int mdadm_detail(char *dev, struct context *c)
 			disks[next++] = disk;
 	}
 
-	avail = xcalloc(array.raid_disks, 1);
+	avail = calloc(array.raid_disks, 1);
 
 	for (d = 0; d < array.raid_disks; d++) {
 		char *dv, *dv_rep;

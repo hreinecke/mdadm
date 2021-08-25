@@ -24,7 +24,6 @@
 
 #include "mdadm.h"
 #include "mdadm_internal.h"
-#include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
 #include "sysfs.h"
@@ -138,7 +137,7 @@ static void remove_devices(char *devnm, char *path)
 	sprintf(base, "/dev/%s", devnm);
 	be = base + strlen(base);
 
-	path2 = xmalloc(strlen(path)+20);
+	path2 = malloc(strlen(path)+20);
 	strcpy(path2, path);
 	pe = path2 + strlen(path2);
 
@@ -500,9 +499,9 @@ out:
 static struct mddev_dev *add_one(struct mddev_dev *dv, char *name, char disp)
 {
 	struct mddev_dev *new;
-	new = xmalloc(sizeof(*new));
+	new = malloc(sizeof(*new));
 	memset(new, 0, sizeof(*new));
-	new->devname = xstrdup(name);
+	new->devname = strdup(name);
 	new->disposition = disp;
 	new->next = dv->next;
 	dv->next = new;
@@ -844,7 +843,7 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 			return -1;
 		}
 		if (array->active_disks < array->raid_disks) {
-			char *avail = xcalloc(array->raid_disks, 1);
+			char *avail = calloc(array->raid_disks, 1);
 			int d;
 			int found = 0;
 
@@ -946,7 +945,7 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 		 * As we are "--re-add"ing we must find a spare slot
 		 * to fill.
 		 */
-		char *used = xcalloc(array->raid_disks, 1);
+		char *used = calloc(array->raid_disks, 1);
 		for (j = 0; j < tst->max_devs; j++) {
 			mdu_disk_info_t disc2;
 			disc2.number = j;

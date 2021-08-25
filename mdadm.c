@@ -28,7 +28,6 @@
 #include "mdadm.h"
 #include "mdadm_exec.h"
 #include "md_p.h"
-#include "xmalloc.h"
 #include "debug.h"
 #include "mdstat.h"
 #include "sysfs.h"
@@ -316,7 +315,7 @@ int main(int argc, char *argv[])
 			/* If first option is a device, don't force the mode yet */
 			if (opt == 1) {
 				if (devs_found == 0) {
-					dv = xmalloc(sizeof(*dv));
+					dv = malloc(sizeof(*dv));
 					dv->devname = optarg;
 					dv->disposition = devmode;
 					dv->writemostly = writemostly;
@@ -373,7 +372,7 @@ int main(int argc, char *argv[])
 				pr_err("Must give -a/--add for devices to add: %s\n", optarg);
 				exit(2);
 			}
-			dv = xmalloc(sizeof(*dv));
+			dv = malloc(sizeof(*dv));
 			dv->devname = optarg;
 			dv->disposition = devmode;
 			dv->writemostly = writemostly;
@@ -1193,7 +1192,7 @@ int main(int argc, char *argv[])
 				pr_err("Ignoring --write-journal %s...\n", optarg);
 				continue;
 			}
-			dv = xmalloc(sizeof(*dv));
+			dv = malloc(sizeof(*dv));
 			dv->devname = optarg;
 			dv->disposition = 'j';  /* WriteJournal */
 			dv->used = 0;

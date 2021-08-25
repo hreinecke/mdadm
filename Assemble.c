@@ -24,7 +24,6 @@
 
 #include	"mdadm.h"
 #include	"mdadm_internal.h"
-#include	"xmalloc.h"
 #include	"debug.h"
 #include	"mdstat.h"
 #include	"super.h"
@@ -813,7 +812,7 @@ static int load_devices(struct devs *devices, char *devmap,
 		if (i < 10000) {
 			if (i >= bestcnt) {
 				int newbestcnt = i+10;
-				int *newbest = xmalloc(sizeof(int)*newbestcnt);
+				int *newbest = malloc(sizeof(int)*newbestcnt);
 				int c;
 				for (c=0; c < newbestcnt; c++)
 					if (c < bestcnt)
@@ -1146,7 +1145,7 @@ static int start_array(int mdfd,
 			unsigned int count;
 
 			devices_list = NULL;
-			info_devices = xmalloc(sizeof(struct mdinfo) *
+			info_devices = malloc(sizeof(struct mdinfo) *
 					       (okcnt + sparecnt));
 			for (count = 0; count < okcnt + sparecnt; count++) {
 				info_devices[count] = devices[count].i;
@@ -1531,7 +1530,7 @@ try_again:
 						0);
 			if (!devname)
 				continue;
-			newdev = xmalloc(sizeof(*newdev));
+			newdev = malloc(sizeof(*newdev));
 			newdev->devname = devname;
 			newdev->disposition = 'I';
 			newdev->used = 1;
@@ -1628,8 +1627,8 @@ try_again:
 	}
 
 	/* Ok, no bad inconsistancy, we can try updating etc */
-	devices = xcalloc(num_devs, sizeof(*devices));
-	devmap = xcalloc(num_devs, content->array.raid_disks);
+	devices = calloc(num_devs, sizeof(*devices));
+	devmap = calloc(num_devs, content->array.raid_disks);
 	devcnt = load_devices(devices, devmap, ident, &st, devlist,
 			      c, content, mdfd, mddev,
 			      &most_recent, &bestcnt, &best, inargv);
@@ -1661,7 +1660,7 @@ try_again:
 	/* now we have some devices that might be suitable.
 	 * I wonder how many
 	 */
-	avail = xcalloc(content->array.raid_disks, 1);
+	avail = calloc(content->array.raid_disks, 1);
 	okcnt = 0;
 	replcnt = 0;
 	sparecnt=0;
@@ -1870,7 +1869,7 @@ try_again:
 	if (content->reshape_active &&
 	    !(content->reshape_active & RESHAPE_NO_BACKUP)) {
 		int err = 0;
-		int *fdlist = xmalloc(sizeof(int)* bestcnt);
+		int *fdlist = malloc(sizeof(int)* bestcnt);
 		if (c->verbose > 0)
 			pr_err("%s has an active reshape - checking if critical section needs to be restored\n",
 			       chosen_name);
@@ -2043,7 +2042,7 @@ int assemble_container_content(struct supertype *st, int mdfd,
 		sysfs_set_str(sra, dev2, "state", "remove");
 	}
 	old_raid_disks = content->array.raid_disks - content->delta_disks;
-	avail = xcalloc(content->array.raid_disks, 1);
+	avail = calloc(content->array.raid_disks, 1);
 	for (dev = content->devs; dev; dev = dev->next) {
 		if (dev->disk.raid_disk >= 0)
 			avail[dev->disk.raid_disk] = 1;
