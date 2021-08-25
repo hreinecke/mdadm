@@ -1555,6 +1555,7 @@ extern void udev_unblock(void);
 
 extern int mdlib_cluster_get_dlmlock(void);
 extern int mdlib_cluster_release_dlmlock(void);
+extern int mdadm_cluster_is_locked(int fd, int devmode);
 
 #define _ROUND_UP(val, base)	(((val) + (base) - 1) & ~(base - 1))
 #define ROUND_UP(val, base)	_ROUND_UP(val, (typeof(val))(base))
