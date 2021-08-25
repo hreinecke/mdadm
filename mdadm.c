@@ -27,7 +27,6 @@
 
 #include "mdadm.h"
 #include "mdadm_exec.h"
-#include "md_p.h"
 #include <ctype.h>
 
 static int misc_list(struct mddev_dev *devlist,

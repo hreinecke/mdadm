@@ -23,7 +23,6 @@
  */
 
 #include "mdadm.h"
-#include "md_p.h"
 #include <ctype.h>
 
 void make_parts(char *dev, int cnt)

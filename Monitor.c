@@ -23,8 +23,6 @@
  */
 
 #include	"mdadm.h"
-#include	"md_p.h"
-#include	"md_u.h"
 #include	<sys/wait.h>
 #include	<limits.h>
 #include	<syslog.h>
