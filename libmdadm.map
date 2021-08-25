@@ -34,6 +34,7 @@ LIBMDADM_4.1 {
 		mdadm_rebuild_map;
 		mdadm_incremental_scan;
 		mdadm_incremental_remove;
+		mdadm_create_bitmap;
 		mdadm_examine_bitmap;
 		mdadm_dump_metadata;
 		mdadm_restore_metadata;

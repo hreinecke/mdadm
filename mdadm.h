@@ -526,6 +526,7 @@ struct supertype {
 
 };
 
+/* Manage.c */
 extern int mdadm_manage_ro(char *devname, int fd, int readonly);
 extern int mdadm_manage_run(char *devname, int fd, struct context *c);
 extern int mdadm_manage_stop(char *devname, int fd, int quiet,
@@ -533,7 +534,13 @@ extern int mdadm_manage_stop(char *devname, int fd, int quiet,
 extern int mdadm_manage_subdevs(char *devname, int fd,
 				struct mddev_dev *devlist, int verbose,
 				int test, char *update, int force);
+extern int mdadm_update_subarray(char *dev, char *subarray, char *update,
+				 struct mddev_ident *ident, int quiet);
 extern int mdadm_autodetect(void);
+extern int mdadm_set_action(char *dev, char *action);
+extern int mdadm_stop_scan(int verbose);
+
+/* Grow.c */
 extern int mdadm_grow_add_device(char *devname, int fd, char *newdev);
 extern int mdadm_grow_add_bitmap(char *devname, int fd,
 				struct context *c, struct shape *s);
@@ -549,18 +556,25 @@ extern int mdadm_grow_continue(int mdfd, struct supertype *st,
 			       int forked, int freeze_reshape);
 extern int mdadm_grow_consistency_policy(char *devname, int fd,
 					 struct context *c, struct shape *s);
-
 extern int mdadm_grow_continue_command(char *devname, int fd,
 				       char *backup_file, int verbose);
+int mdadm_grow_set_size(int mdfd, unsigned long long array_size);
 
+
+/* Assemble.c */
 extern int mdadm_assemble(struct supertype *st, char *mddev,
 			  struct mddev_ident *ident,
 			  struct mddev_dev *devlist,
 			  struct context *c);
+int mdadm_scan_assemble(struct supertype *ss, struct context *c,
+			struct mddev_ident *ident);
 
+
+/* Build.c */
 extern int mdadm_build(char *mddev, struct mddev_dev *devlist,
 		       struct shape *s, struct context *c);
 
+/* Create.c */
 extern int mdadm_create(struct supertype *st, char *mddev,
 			char *name, int *uuid,
 			int subdevs, struct mddev_dev *devlist,
@@ -568,35 +582,61 @@ extern int mdadm_create(struct supertype *st, char *mddev,
 			struct context *c,
 			unsigned long long data_offset);
 
+/* Detail.c */
 extern int mdadm_detail(char *dev, struct context *c);
 extern int mdadm_detail_platform(struct superswitch *ss, int scan, int verbose,
 				 int export, char *controller_path);
+extern int mdadm_misc_scan(char devmode, struct context *c);
+
+/* Query.c */
 extern int mdadm_query(char *dev);
+
+/* Examine.c */
 extern int mdadm_examine_badblocks(char *devname, int brief,
 				  struct supertype *forcest);
 extern int mdadm_examine(struct mddev_dev *devlist, struct context *c,
 			 struct supertype *forcest);
+
+/* Monitor.c */
 extern int mdadm_monitor(struct mddev_dev *devlist,
 			 char *mailaddr, char *alert_cmd,
 			 struct context *c,
 			 int daemonise, int oneshot,
 			 int dosyslog, char *pidfile, int increments,
 			 int share);
+extern int mdadm_wait(char *dev);
+extern int mdadm_wait_clean(char *dev, int verbose);
 
+/* Kill.c */
 extern int mdadm_kill(char *dev, struct supertype *st, int force, int verbose,
 		      int noexcl);
 extern int mdadm_kill_subarray(char *dev, char *subarray, int verbose);
-extern int mdadm_update_subarray(char *dev, char *subarray, char *update,
-				 struct mddev_ident *ident, int quiet);
-extern int mdadm_wait(char *dev);
-extern int mdadm_wait_clean(char *dev, int verbose);
-extern int mdadm_set_action(char *dev, char *action);
 
+/* Incremental.c */
 extern int mdadm_incremental(struct mddev_dev *devlist, struct context *c,
 			     struct supertype *st);
-extern void mdadm_rebuild_map(void);
 extern int mdadm_incremental_scan(struct context *c, char *devnm);
 extern int mdadm_incremental_remove(char *devname, char *path, int verbose);
+
+/* Dump.c */
+extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
+			       struct supertype *st);
+extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
+				  struct supertype *st, int only);
+
+/* config.c */
+extern char *mdlib_get_conffile(void);
+extern void mdlib_set_conffile(char *file);
+
+/* lib.c */
+extern void mdlib_set_name(const char *name);
+extern const char *mdlib_get_name(void);
+extern const char *mdlib_get_version(void);
+
+/* mapfile.c */
+extern void mdadm_rebuild_map(void);
+
+/* bitmap.c */
 extern int mdadm_create_bitmap(char *filename, int force, char uuid[16],
 			       unsigned long chunksize,
 			       unsigned long daemon_sleep,
@@ -605,28 +645,9 @@ extern int mdadm_create_bitmap(char *filename, int force, char uuid[16],
 			       int major);
 extern int mdadm_examine_bitmap(char *filename, int brief,
 				struct supertype *st);
-extern int mdadm_is_bitmap_dirty(char *filename);
+
+/* policy.c */
 extern int mdadm_write_rules(char *rule_name);
-
-/* Assemble.c */
-int mdadm_scan_assemble(struct supertype *ss, struct context *c,
-			struct mddev_ident *ident);
-
-/* Detail.c */
-int mdadm_misc_scan(char devmode, struct context *c);
-
-/* Grow.c */
-int mdadm_grow_set_size(int mdfd, unsigned long long array_size);
-
-/* Manage.c */
-int mdadm_set_action(char *dev, char *action);
-int mdadm_stop_scan(int verbose);
-
-extern char *mdlib_get_conffile(void);
-extern void mdlib_set_conffile(char *file);
-extern void mdlib_set_name(const char *name);
-extern const char *mdlib_get_name(void);
-extern const char *mdlib_get_version(void);
 
 /* maps.c */
 extern int mdadm_get_layout(int level, char *name);
@@ -642,17 +663,7 @@ extern int mdadm_array_state_num(char *name);
 extern char *mdadm_array_state_name(int num);
 extern char *mdadm_assemble_status(int status);
 
-extern int mdadm_dump_metadata(char *dev, char *dir, struct context *c,
-			       struct supertype *st);
-extern int mdadm_restore_metadata(char *dev, char *dir, struct context *c,
-				  struct supertype *st, int only);
-
-int md_array_valid(int fd);
-int md_array_active(int fd);
-int md_array_is_active(struct mdinfo *info);
-int md_get_array_info(int fd, struct mdu_array_info_s *array);
-int md_set_array_info(int fd, struct mdu_array_info_s *array);
-int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
+/* util.c */
 extern int get_linux_version(void);
 extern int mdadm_version(char *version);
 extern void mdlib_manage_fork_fds(int close_all);
@@ -671,7 +682,6 @@ extern int mdmon_running(char *devnm);
 extern int mdmon_pid(char *devnm);
 extern int start_mdmon(char *devnm);
 
-/* util.c */
 extern int mdadm_set_metadata_handler(struct supertype *st, char *vers);
 
 extern struct supertype *mdadm_lookup_supertype(char *metadata);

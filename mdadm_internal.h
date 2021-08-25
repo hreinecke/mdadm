@@ -50,6 +50,10 @@ extern int remove_disk(int mdfd, struct supertype *st,
 		       struct mdinfo *sra, struct mdinfo *info);
 extern int hot_remove_disk(int mdfd, unsigned long dev, int force);
 extern int set_array_info(int mdfd, struct supertype *st, struct mdinfo *info);
+int md_array_valid(int fd);
+int md_array_active(int fd);
+int md_array_is_active(struct mdinfo *info);
+int md_get_disk_info(int fd, struct mdu_disk_info_s *disk);
 
 unsigned long long min_recovery_start(struct mdinfo *array);
 
@@ -83,6 +87,7 @@ extern int create_mddev(char *dev, char *name, int autof, int trustworthy,
 
 /* bitmap.c */
 extern int bitmap_update_uuid(int fd, int *uuid, int swap);
+extern int mdadm_is_bitmap_dirty(char *filename);
 /* calculate the size of the bitmap given the array size and bitmap chunksize */
 static inline unsigned long long
 bitmap_bits(unsigned long long array_size, unsigned long chunksize)
