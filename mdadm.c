@@ -74,7 +74,6 @@ int main(int argc, char *argv[])
 	struct mddev_dev *devlist = NULL;
 	struct mddev_dev **devlistend = & devlist;
 	struct mddev_dev *dv;
-	mdu_array_info_t array;
 	int devs_found = 0;
 	int grow_continue = 0;
 	/* autof indicates whether and how to create device node.
@@ -1403,13 +1402,8 @@ int main(int argc, char *argv[])
 				exit(1);
 		}
 	} else if (mode == MANAGE || mode == GROW || mode == INCREMENTAL) {
-		if (!md_get_array_info(mdfd, &array) && (devmode != 'c')) {
-			if (array.state & (1 << MD_SB_CLUSTERED)) {
-				locked = mdlib_cluster_get_dlmlock();
-				if (locked != 1)
-					exit(1);
-			}
-		}
+		if (!mdadm_cluster_is_locked(mdfd, devmode))
+			exit(1);
 	}
 
 	switch(mode) {

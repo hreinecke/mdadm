@@ -1597,6 +1597,7 @@ extern void udev_unblock(void);
 
 extern int mdlib_cluster_get_dlmlock(void);
 extern int mdlib_cluster_release_dlmlock(void);
+extern int mdadm_cluster_is_locked(int fd, int devmode);
 
 #define MSEC_TO_NSEC(msec) ((msec) * 1000000)
 #define USEC_TO_NSEC(usec) ((usec) * 1000)
