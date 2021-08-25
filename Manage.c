@@ -1057,6 +1057,18 @@ int mdadm_manage_add(int fd, int tfd, struct mddev_dev *dv,
 	return 1;
 }
 
+static int sys_hot_remove_disk(int statefd, int force)
+{
+	int cnt = force ? 500 : 5;
+	int ret;
+
+	while ((ret = write(statefd, "remove", 6)) == -1 &&
+	       errno == EBUSY &&
+	       cnt-- > 0)
+		sleep_for(0, MSEC_TO_NSEC(10), true);
+	return ret == 6 ? 0 : -1;
+}
+
 int mdadm_manage_remove(struct supertype *tst, int fd, struct mddev_dev *dv,
 			int sysfd, unsigned long rdev, int force, int verbose,
 			char *devname)
