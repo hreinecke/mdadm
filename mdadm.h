@@ -1569,7 +1569,7 @@ extern int metadata_subdev_matches(char *metadata, char *devnm);
 extern int is_container_member(struct mdstat_ent *ent, char *devname);
 extern int is_subarray_active(char *subarray, char *devname);
 extern int open_subarray(char *dev, char *subarray, struct supertype *st, int quiet);
-extern struct superswitch *version_to_superswitch(char *vers);
+extern int mdadm_set_metadata_handler(struct supertype *st, char *vers);
 
 extern int mdmon_running(char *devnm);
 extern int mdmon_pid(char *devnm);
