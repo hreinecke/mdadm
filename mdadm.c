@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
 		.data_offset = INVALID_SECTORS,
 	};
 
-	char sys_hostname[256];
 	char *mailaddr = NULL;
 	char *program = NULL;
 	int increments = 20;
@@ -1364,28 +1363,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (c.homehost == NULL && c.require_homehost)
-		c.homehost = conf_get_homehost(&c.require_homehost);
-	if (c.homehost == NULL || strcasecmp(c.homehost, "<system>") == 0) {
-		if (gethostname(sys_hostname, sizeof(sys_hostname)) == 0) {
-			sys_hostname[sizeof(sys_hostname)-1] = 0;
-			c.homehost = sys_hostname;
-		}
-	}
-	if (c.homehost &&
-	    (!c.homehost[0] || strcasecmp(c.homehost, "<none>") == 0)) {
-		c.homehost = NULL;
-		c.require_homehost = 0;
-	}
-
 	rv = 0;
 
-	set_hooks(); /* set hooks from libs */
+	mdlib_set_homehost(&c);
+
+	mdlib_set_hooks(); /* set hooks from libs */
 
 	if (c.homecluster == NULL && (c.nodes > 0)) {
-		c.homecluster = conf_get_homecluster();
-		if (c.homecluster == NULL)
-			rv = get_cluster_name(&c.homecluster);
+		rv = mdlib_set_homecluster(&c);
 		if (rv) {
 			pr_err("The md can't get cluster name\n");
 			exit(1);

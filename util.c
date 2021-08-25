@@ -99,6 +99,8 @@ struct dlm_lock_resource {
 	struct dlm_lksb lksb;
 };
 
+static int get_cluster_name(char **name);
+
 /* Using poll(2) to wait for and dispatch ASTs */
 static int poll_for_ast(dlm_lshandle_t ls)
 {
@@ -2340,7 +2342,7 @@ void set_cmap_hooks(void)
 		is_cmap_hooks_ready = 1;
 }
 
-int get_cluster_name(char **cluster_name)
+static int get_cluster_name(char **cluster_name)
 {
         int rv = -1;
 	cmap_handle_t handle;
@@ -2364,6 +2366,35 @@ name_err:
         cmap_hooks->finalize(handle);
 out:
         return rv;
+}
+
+void mdlib_set_homehost(struct context *c)
+{
+	char sys_hostname[256];
+
+	if (c->homehost == NULL && c->require_homehost)
+		c->homehost = conf_get_homehost(&c->require_homehost);
+	if (c->homehost == NULL || strcasecmp(c->homehost, "<system>") == 0) {
+		if (gethostname(sys_hostname, sizeof(sys_hostname)) == 0) {
+			sys_hostname[sizeof(sys_hostname)-1] = 0;
+			c->homehost = sys_hostname;
+		}
+	}
+	if (c->homehost &&
+	    (!c->homehost[0] || strcasecmp(c->homehost, "<none>") == 0)) {
+		c->homehost = NULL;
+		c->require_homehost = 0;
+	}
+}
+
+int mdlib_set_homecluster(struct context *c)
+{
+	int rv = 0;
+
+	c->homecluster = conf_get_homecluster();
+	if (c->homecluster == NULL)
+		rv = get_cluster_name(&c->homecluster);
+	return rv;
 }
 
 void set_dlm_hooks(void)
@@ -2394,7 +2425,7 @@ void set_dlm_hooks(void)
 		is_dlm_hooks_ready = 1;
 }
 
-void set_hooks(void)
+void mdlib_set_hooks(void)
 {
 	set_dlm_hooks();
 	set_cmap_hooks();

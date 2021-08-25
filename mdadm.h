@@ -1401,6 +1401,9 @@ extern void mdlib_set_conffile(char *file);
 extern void mdlib_set_name(const char *name);
 extern const char *mdlib_get_name(void);
 extern const char *mdlib_get_version(void);
+extern void mdlib_set_homehost(struct context *c);
+extern int mdlib_set_homecluster(struct context *c);
+extern void mdlib_set_hooks(void);
 
 /* maps.c */
 extern int mdadm_get_layout(int level, char *name);
@@ -1596,8 +1599,6 @@ extern void udev_unblock(void);
 extern int in_initrd(void);
 
 /* util.c */
-extern void set_hooks(void);
-extern int get_cluster_name(char **name);
 extern int cluster_get_dlmlock(void);
 extern int cluster_release_dlmlock(void);
 
