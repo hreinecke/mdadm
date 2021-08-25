@@ -1,6 +1,11 @@
 /*.o
+/*.ol
 /*.man
 /*-stamp
+/libmdadm.map
+/libmdadm.a
+/libmdadm.so
+/libmdadm.so.*
 /mdadm
 /mdadm.8
 /mdadm.udeb
