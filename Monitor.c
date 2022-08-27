@@ -76,6 +76,23 @@ static void link_containers_with_subarrays(struct state *list);
 static int check_udev_activity(void);
 #endif
 
+/**
+ * is_mddev() - check that file name passed is an md device.
+ * @dev: file name that has to be checked.
+ * Return: 1 if file passed is an md device, 0 if not.
+ */
+int is_mddev(char *dev)
+{
+	int fd = mdadm_open_mddev(dev, 1);
+
+	if (fd >= 0) {
+		close(fd);
+		return 1;
+	}
+
+	return 0;
+}
+
 int mdadm_monitor(struct mddev_dev *devlist,
 		  char *mailaddr, char *alert_cmd,
 		  struct context *c,
